@@ -1,0 +1,124 @@
+{
+  "sourced_from_jlcpcb": {},
+  "external_parts": [
+    {
+      "description": "128x64 OLED display module I2C SSD1306",
+      "role": "User interface display",
+      "source": "External (Adafruit, Waveshare, or similar)",
+      "reason": "Complete assembled display modules not in JLCPCB PCBA catalog",
+      "typical_price": "$5-10",
+      "interface": "4-pin I2C (VCC, GND, SCL, SDA)"
+    },
+    {
+      "description": "Hall effect current sensor \u00b150A closed-loop",
+      "role": "Isolated current sensing for programmable trip",
+      "source": "External (LEM HASS 50-S, ACS770, or similar)",
+      "reason": "High-current Hall sensors are modules, not SMT parts",
+      "typical_price": "$15-30",
+      "interface": "Analog output 0-5V proportional to current"
+    },
+    {
+      "description": "Rotary encoder with switch",
+      "role": "Current limit adjustment",
+      "source": "External (Bourns PEC11, Alps EC11, or similar)",
+      "reason": "Mechanical encoders typically through-hole, hand-soldered",
+      "typical_price": "$2-5",
+      "interface": "Quadrature A/B outputs + push switch"
+    },
+    {
+      "description": "Isolated DC-DC 400V to 5V/15V",
+      "role": "Control board power from HV bus",
+      "source": "External (MORNSUN, RECOM, MuRata)",
+      "reason": "HV input DC-DC converters are modules",
+      "typical_price": "$20-40",
+      "interface": "Through-hole or wire leads"
+    }
+  ],
+  "failures": [
+    {
+      "description": "RP2040 microcontroller QFN-56",
+      "role": "Main control processor for current limiter and HMI",
+      "error": "'JlcPart' object has no attribute 'manufacturer'"
+    },
+    {
+      "description": "MCP2515 CAN controller SOIC-18 SPI interface",
+      "role": "CAN bus controller for optional Tesla inverter communication",
+      "error": "'JlcPart' object has no attribute 'manufacturer'"
+    },
+    {
+      "description": "TJA1050 CAN transceiver SOIC-8",
+      "role": "CAN physical layer transceiver",
+      "error": "'JlcPart' object has no attribute 'manufacturer'"
+    },
+    {
+      "description": "SN65HVD230 CAN transceiver SOIC-8",
+      "role": "CAN physical layer transceiver (alternative to TJA1050)",
+      "error": "'JlcPart' object has no attribute 'manufacturer'"
+    },
+    {
+      "description": "P-channel MOSFET SOT-23 -20V Vgs 3A continuous",
+      "role": "Ideal diode for 15V auxiliary rail reverse protection",
+      "error": "nothing for 'Ideal diode for 15V auxiliary rail reverse protection' (searched 'P-channel MOSFET SOT-23 -20V Vgs 3A continuous', stock >= 100). Considered 0; 0 failed on price or type."
+    },
+    {
+      "description": "N-channel MOSFET SOT-23 logic level 30V 1A",
+      "role": "Relay and contactor driver",
+      "error": "'JlcPart' object has no attribute 'manufacturer'"
+    },
+    {
+      "description": "LM4040 2.5V voltage reference SOT-23 0.1% tolerance",
+      "role": "ADC voltage reference for precision current measurement",
+      "error": "nothing for 'ADC voltage reference for precision current measurement' (searched 'LM4040 2.5V voltage reference SOT-23 0.1% tolerance', stock >= 100). Considered 0; 0 failed on price or type."
+    },
+    {
+      "description": "LM4040 5.0V voltage reference SOT-23 0.1% tolerance",
+      "role": "ADC voltage reference 5V (alternative)",
+      "error": "nothing for 'ADC voltage reference 5V (alternative)' (searched 'LM4040 5.0V voltage reference SOT-23 0.1% tolerance', stock >= 100). Considered 0; 0 failed on price or type."
+    },
+    {
+      "description": "AMC1301 isolated amplifier SOIC-8 4kV isolation",
+      "role": "HV DC bus voltage sensing with 4kV isolation",
+      "error": "nothing for 'HV DC bus voltage sensing with 4kV isolation' (searched 'AMC1301 isolated amplifier SOIC-8 4kV isolation', stock >= 100). Considered 0; 0 failed on price or type."
+    },
+    {
+      "description": "ISO amplifier 3kV isolation SOIC-8 analog output",
+      "role": "HV voltage sensing isolation amplifier (alternative)",
+      "error": "nothing for 'HV voltage sensing isolation amplifier (alternative)' (searched 'ISO amplifier 3kV isolation SOIC-8 analog output', stock >= 100). Considered 0; 0 failed on price or type."
+    },
+    {
+      "description": "USB Type-C 16-pin receptacle SMT mid-mount",
+      "role": "Configuration and data logging interface",
+      "error": "nothing for 'Configuration and data logging interface' (searched 'USB Type-C 16-pin receptacle SMT mid-mount', stock >= 100). Considered 0; 0 failed on price or type."
+    },
+    {
+      "description": "Schottky diode DO-201AD 10A 40V",
+      "role": "Reverse polarity protection for HV output",
+      "error": "'JlcPart' object has no attribute 'manufacturer'"
+    },
+    {
+      "description": "Schottky diode SMA 5A 40V",
+      "role": "Reverse polarity protection SMT version",
+      "error": "'JlcPart' object has no attribute 'manufacturer'"
+    },
+    {
+      "description": "NTC thermistor 10k 1% 3950K 0805",
+      "role": "Temperature sensing for thermal shutdown",
+      "error": "'JlcPart' object has no attribute 'manufacturer'"
+    },
+    {
+      "description": "1M 0805 1% 1/4W thick film resistor 500V",
+      "role": "HV voltage divider upper leg (high voltage rated)",
+      "error": "nothing for 'HV voltage divider upper leg (high voltage rated)' (searched '1M 0805 1% 1/4W thick film resistor 500V', stock >= 10000). Considered 0; 0 failed on price or type."
+    },
+    {
+      "description": "10k 0805 1% 1/8W thick film resistor",
+      "role": "HV voltage divider lower leg",
+      "error": "'JlcPart' object has no attribute 'manufacturer'"
+    }
+  ],
+  "summary": {
+    "jlcpcb_parts_found": 0,
+    "external_parts_required": 4,
+    "search_failures": 16
+  }
+}

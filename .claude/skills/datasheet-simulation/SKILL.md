@@ -113,6 +113,23 @@ decides whether it is stable.
 
 ### Writing a device model
 
+The full procedure, with a worked example that gets within 2% of published
+values on four out-of-sample points, is in
+[MODEL_FROM_DATASHEET.md](MODEL_FROM_DATASHEET.md). The short version:
+
+1. Take the specification table first - it is text, so it can be read exactly.
+2. Render the typical-characteristic figures and *look* at them; record the
+   reading accuracy along with the points.
+3. **Split the data before fitting.** Build from the curve, judge with the
+   table, or the other way round - never both. Mark each `ReferencePoint`
+   `in_sample` or not.
+4. Fit the smallest form the physics justifies. When it fails, name the
+   mechanism rather than adding parameters.
+5. Ask the model for something it was not told. If it can only reproduce its
+   own inputs it is a lookup table.
+6. Give it a `check()` that runs in a test, so it says when it has drifted.
+
+
 One class per part, from the datasheet's own table. `input_threshold` is the
 part's V_IH; `propagation_delay` is its specified delay; `uvlo_rising` and
 `uvlo_falling` are the lockout thresholds; `bandwidth` is the small-signal
