@@ -16,6 +16,7 @@ import sys
 from pathlib import Path
 
 from circuit_synth.kicad.layout import PlacementSpec, apply_placement
+from circuit_synth.kicad.session import finish_editing
 from circuit_synth.kicad.spice_hygiene import make_spice_clean
 from circuit_synth.verify import verify_project
 from circuit_synth.kicad.layout.extract import instance_renames
@@ -994,6 +995,10 @@ def main() -> int:
     report = verify_project(ROOT, CIRCUIT_JSON)
     print()
     print(report.summary())
+
+    # Leave the project in a state the next person can open: a lock left behind
+    # by a crashed session makes KiCad claim the project is already open.
+    finish_editing(PROJECT)
     return 0 if report.passed else 1
 
 

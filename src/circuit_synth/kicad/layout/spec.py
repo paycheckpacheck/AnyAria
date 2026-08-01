@@ -961,6 +961,12 @@ def apply_placement(
         ValueError: If the spec names a component the sheet does not have, or
             uses coordinates off the grid while ``snap_to_grid`` is set.
     """
+    # Rewriting a sheet KiCad has open is invisible to it, and saving from
+    # there would put the old version back.
+    from ..session import require_closed
+
+    require_closed(sheet_path.parent)
+
     text = sheet_path.read_text(encoding="utf-8")
 
     if snap_to_grid:

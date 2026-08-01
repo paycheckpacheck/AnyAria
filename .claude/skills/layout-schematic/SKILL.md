@@ -97,6 +97,29 @@ Applying a spec moves the symbols and redraws all of the wiring. Component
 UUIDs, properties and hierarchical instance paths are left alone, so the sheet
 stays the same design.
 
+## Close KiCad before you write, and leave it closed
+
+KiCad holds a project in memory from the moment it opens it. Rewriting the
+files underneath is invisible to it: the editor still shows what it loaded, the
+simulator still runs the deck it built, and anyone looking at the screen sees
+the old design with none of the fixes in it. Saving from that editor puts the
+stale copy back over the new one.
+
+The symptom is confusing rather than obvious - a problem fixed an hour ago
+reappears, quoting reference designators that no longer exist.
+
+So:
+
+- **If you opened KiCad to show somebody, close it before writing again.**
+  `circuit_synth.kicad.session.close_kicad()` asks rather than kills, so
+  anything unsaved is still theirs to keep.
+- **When you have finished writing, call `finish_editing(project_dir)`.** It
+  clears the lock files a crashed session leaves behind, which are what make
+  KiCad insist a project is already open on a machine where it is not.
+- `apply_placement` warns when it is about to write to a project KiCad has
+  open, and `verify_project` fails on it. Read those rather than working past
+  them: the layout you are about to look at is not the one on screen.
+
 ## Rules that are not negotiable
 
 - **Everything on the 1.27mm grid.** A wire that misses a pin by a fraction

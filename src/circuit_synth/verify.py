@@ -120,6 +120,7 @@ def verify_project(
     project = root_schematic.parent
     report = VerificationReport(project=project)
 
+    report.checks.append(_check_not_open(project))
     report.checks.append(_check_circuit_rules(circuit))
     report.checks.append(_check_sheets_open(project))
     report.checks.append(_check_layout(root_schematic, circuit_json))
@@ -133,6 +134,36 @@ def verify_project(
 
     logger.info("Verification of %s: %s", project.name, report.summary())
     return report
+
+
+def _check_not_open(project: Path) -> CheckResult:
+    """Check nothing is holding the project's own stale copy.
+
+    A project open in KiCad while it is being rewritten is the reason a fixed
+    problem comes back quoting reference designators that no longer exist.
+
+    Args:
+        project: The project directory.
+
+    Returns:
+        The result.
+    """
+    from .kicad.session import is_open_in_kicad, project_locks, release_stale_locks
+
+    name = "nothing is holding a stale copy of the project"
+    if is_open_in_kicad(project):
+        locks = project_locks(project)
+        return CheckResult(
+            name,
+            False,
+            f"{locks[0] if locks else 'the project'} - close KiCad and reopen it, "
+            f"or it will keep showing what it loaded before",
+        )
+
+    released = release_stale_locks(project)
+    if released:
+        return CheckResult(name, True, f"cleared {len(released)} stale lock(s)")
+    return CheckResult(name, True)
 
 
 def _check_circuit_rules(circuit: Optional[Any]) -> CheckResult:
