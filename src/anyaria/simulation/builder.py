@@ -4,7 +4,7 @@ Simulation Builder
 Generate Python simulation code for circuits.
 """
 
-from typing import Dict, Any
+from typing import Dict, Any, List
 import logging
 
 logger = logging.getLogger(__name__)
