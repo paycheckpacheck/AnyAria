@@ -1,0 +1,43 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "anyaria"
+version = "0.1.0"
+description = "Circuit design tooling built on circuit-synth"
+readme = "README.md"
+requires-python = ">=3.12"
+license = "MIT"
+authors = [{ name = "paycheckpacheck", email = "pachecked@gmail.com" }]
+
+# circuit-synth is pinned to the anyaria-base branch, which is upstream main
+# with the JLCPCB component import (PR #616) and hierarchical blocks (PR #617)
+# merged in. The schematic layout tools are on the schematic-styler branch and
+# are deliberately not pulled in yet, pending review.
+# The archive URL is used rather than git+ because circuit-synth records
+# submodule paths that have no .gitmodules entry, which makes a git clone of it
+# fail. The submodules are not needed: kicad-sch-api comes from PyPI.
+dependencies = [
+    "circuit-synth @ https://github.com/paycheckpacheck/circuit-synth/archive/refs/heads/anyaria-base.zip",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "black>=24.0",
+    "isort>=5.13",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.black]
+line-length = 88
+
+[tool.isort]
+profile = "black"
