@@ -1,0 +1,3274 @@
+{
+  "file_hash": "c9f0fe21e8a46d7503537322833345ba4299a2e6d0e7c018a8a4a4457f563191",
+  "symbols": {
+    "RP2040": {
+      "name": "RP2040",
+      "properties": {
+        "Reference": "U",
+        "Value": "RP2040",
+        "Footprint": "Package_DFN_QFN:QFN-56-1EP_7x7mm_P0.4mm_EP3.2x3.2mm",
+        "Datasheet": "https://datasheets.raspberrypi.com/rp2040/rp2040-datasheet.pdf",
+        "Description": "A microcontroller by Raspberry Pi, Dual ARM Cortex-M0+, 133MHz, no flash, 264KB SRAM, 8 PIO state machines, VQFN-56",
+        "private": "KLC_S4.2_VREG_VOUT",
+        "ki_keywords": "RPi Pico USB QSPI I2C UART SC0914",
+        "ki_fp_filters": "*QFN*7x7mm?P0.4mm?EP3.2x3.2mm*"
+      },
+      "description": "A microcontroller by Raspberry Pi, Dual ARM Cortex-M0+, 133MHz, no flash, 264KB SRAM, 8 PIO state machines, VQFN-56",
+      "datasheet": "https://datasheets.raspberrypi.com/rp2040/rp2040-datasheet.pdf",
+      "keywords": null,
+      "fp_filters": "*QFN*7x7mm?P0.4mm?EP3.2x3.2mm*",
+      "pins": [
+        {
+          "function": "power_in",
+          "name": "IOVDD",
+          "number": "1",
+          "x": -2.54,
+          "y": 45.72,
+          "orientation": 270.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO0",
+          "number": "2",
+          "x": 25.4,
+          "y": 38.1,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO1",
+          "number": "3",
+          "x": 25.4,
+          "y": 35.56,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO2",
+          "number": "4",
+          "x": 25.4,
+          "y": 33.02,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO3",
+          "number": "5",
+          "x": 25.4,
+          "y": 30.48,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO4",
+          "number": "6",
+          "x": 25.4,
+          "y": 27.94,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO5",
+          "number": "7",
+          "x": 25.4,
+          "y": 25.4,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO6",
+          "number": "8",
+          "x": 25.4,
+          "y": 22.86,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO7",
+          "number": "9",
+          "x": 25.4,
+          "y": 20.32,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "passive",
+          "name": "IOVDD",
+          "number": "10",
+          "x": -2.54,
+          "y": 45.72,
+          "orientation": 270.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO8",
+          "number": "11",
+          "x": 25.4,
+          "y": 17.78,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO9",
+          "number": "12",
+          "x": 25.4,
+          "y": 15.24,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO10",
+          "number": "13",
+          "x": 25.4,
+          "y": 12.7,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO11",
+          "number": "14",
+          "x": 25.4,
+          "y": 10.16,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO12",
+          "number": "15",
+          "x": 25.4,
+          "y": 7.62,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO13",
+          "number": "16",
+          "x": 25.4,
+          "y": 5.08,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO14",
+          "number": "17",
+          "x": 25.4,
+          "y": 2.54,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO15",
+          "number": "18",
+          "x": 25.4,
+          "y": 0.0,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "input",
+          "name": "TESTEN",
+          "number": "19",
+          "x": -25.4,
+          "y": 30.48,
+          "orientation": 0.0,
+          "length": 3.81
+        },
+        {
+          "function": "input",
+          "name": "XIN",
+          "number": "20",
+          "x": -25.4,
+          "y": -15.24,
+          "orientation": 0.0,
+          "length": 3.81
+        },
+        {
+          "function": "output",
+          "name": "XOUT",
+          "number": "21",
+          "x": -25.4,
+          "y": -25.4,
+          "orientation": 0.0,
+          "length": 3.81
+        },
+        {
+          "function": "passive",
+          "name": "IOVDD",
+          "number": "22",
+          "x": -2.54,
+          "y": 45.72,
+          "orientation": 270.0,
+          "length": 3.81
+        },
+        {
+          "function": "power_in",
+          "name": "DVDD",
+          "number": "23",
+          "x": 12.7,
+          "y": 45.72,
+          "orientation": 270.0,
+          "length": 3.81
+        },
+        {
+          "function": "input",
+          "name": "SWCLK",
+          "number": "24",
+          "x": -25.4,
+          "y": -33.02,
+          "orientation": 0.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "SWDIO",
+          "number": "25",
+          "x": -25.4,
+          "y": -35.56,
+          "orientation": 0.0,
+          "length": 3.81
+        },
+        {
+          "function": "input",
+          "name": "RUN",
+          "number": "26",
+          "x": -25.4,
+          "y": 22.86,
+          "orientation": 0.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO16",
+          "number": "27",
+          "x": 25.4,
+          "y": -2.54,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO17",
+          "number": "28",
+          "x": 25.4,
+          "y": -5.08,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO18",
+          "number": "29",
+          "x": 25.4,
+          "y": -7.62,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO19",
+          "number": "30",
+          "x": 25.4,
+          "y": -10.16,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO20",
+          "number": "31",
+          "x": 25.4,
+          "y": -12.7,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO21",
+          "number": "32",
+          "x": 25.4,
+          "y": -15.24,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "passive",
+          "name": "IOVDD",
+          "number": "33",
+          "x": -2.54,
+          "y": 45.72,
+          "orientation": 270.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO22",
+          "number": "34",
+          "x": 25.4,
+          "y": -17.78,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO23",
+          "number": "35",
+          "x": 25.4,
+          "y": -20.32,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO24",
+          "number": "36",
+          "x": 25.4,
+          "y": -22.86,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO25",
+          "number": "37",
+          "x": 25.4,
+          "y": -25.4,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO26/ADC0",
+          "number": "38",
+          "x": 25.4,
+          "y": -30.48,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO27/ADC1",
+          "number": "39",
+          "x": 25.4,
+          "y": -33.02,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO28/ADC2",
+          "number": "40",
+          "x": 25.4,
+          "y": -35.56,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO29/ADC3",
+          "number": "41",
+          "x": 25.4,
+          "y": -38.1,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "passive",
+          "name": "IOVDD",
+          "number": "42",
+          "x": -2.54,
+          "y": 45.72,
+          "orientation": 270.0,
+          "length": 3.81
+        },
+        {
+          "function": "power_in",
+          "name": "ADC_AVDD",
+          "number": "43",
+          "x": -10.16,
+          "y": 45.72,
+          "orientation": 270.0,
+          "length": 3.81
+        },
+        {
+          "function": "power_in",
+          "name": "VREG_VIN",
+          "number": "44",
+          "x": 2.54,
+          "y": 45.72,
+          "orientation": 270.0,
+          "length": 3.81
+        },
+        {
+          "function": "power_out",
+          "name": "VREG_VOUT",
+          "number": "45",
+          "x": 7.62,
+          "y": 45.72,
+          "orientation": 270.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "USB_DM",
+          "number": "46",
+          "x": -25.4,
+          "y": 15.24,
+          "orientation": 0.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "USB_DP",
+          "number": "47",
+          "x": -25.4,
+          "y": 12.7,
+          "orientation": 0.0,
+          "length": 3.81
+        },
+        {
+          "function": "power_in",
+          "name": "USB_VDD",
+          "number": "48",
+          "x": -12.7,
+          "y": 45.72,
+          "orientation": 270.0,
+          "length": 3.81
+        },
+        {
+          "function": "passive",
+          "name": "IOVDD",
+          "number": "49",
+          "x": -2.54,
+          "y": 45.72,
+          "orientation": 270.0,
+          "length": 3.81
+        },
+        {
+          "function": "passive",
+          "name": "DVDD",
+          "number": "50",
+          "x": 12.7,
+          "y": 45.72,
+          "orientation": 270.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "QSPI_SD3",
+          "number": "51",
+          "x": -25.4,
+          "y": -7.62,
+          "orientation": 0.0,
+          "length": 3.81
+        },
+        {
+          "function": "output",
+          "name": "QSPI_SCLK",
+          "number": "52",
+          "x": -25.4,
+          "y": 2.54,
+          "orientation": 0.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "QSPI_SD0",
+          "number": "53",
+          "x": -25.4,
+          "y": 0.0,
+          "orientation": 0.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "QSPI_SD2",
+          "number": "54",
+          "x": -25.4,
+          "y": -5.08,
+          "orientation": 0.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "QSPI_SD1",
+          "number": "55",
+          "x": -25.4,
+          "y": -2.54,
+          "orientation": 0.0,
+          "length": 3.81
+        },
+        {
+          "function": "output",
+          "name": "~{QSPI_SS}",
+          "number": "56",
+          "x": -25.4,
+          "y": 5.08,
+          "orientation": 0.0,
+          "length": 3.81
+        },
+        {
+          "function": "power_in",
+          "name": "GND",
+          "number": "57",
+          "x": 0.0,
+          "y": -45.72,
+          "orientation": 90.0,
+          "length": 3.81
+        }
+      ],
+      "graphics": [
+        {
+          "shape_type": "rectangle",
+          "points": [],
+          "start": [
+            -21.59,
+            41.91
+          ],
+          "end": [
+            21.59,
+            -41.91
+          ],
+          "center": null,
+          "radius": null,
+          "stroke_width": 0.254,
+          "stroke_type": "default",
+          "fill_type": "background"
+        }
+      ],
+      "is_power": false,
+      "unit_count": 1
+    },
+    "RP2350A": {
+      "name": "RP2350A",
+      "properties": {
+        "Reference": "U",
+        "Value": "RP2350A",
+        "Footprint": "Package_DFN_QFN:QFN-60-1EP_7x7mm_P0.4mm_EP3.4x3.4mm",
+        "Datasheet": "https://datasheets.raspberrypi.com/rp2350/rp2350-datasheet.pdf",
+        "Description": "A microcontroller by Raspberry Pi, dual CPU architecture (ARM Cortex-M33 / RISC-V Hazard3), 150MHz, no flash, 520KB SRAM, 12 PIO state machines, VQFN-60",
+        "private": "KLC_S4.2_VREG_LX",
+        "ki_keywords": "RPi Pico USB QSPI I2C UART ADC SC1509",
+        "ki_fp_filters": "*QFN*7x7mm?P0.4mm?EP3.4x3.4mm*"
+      },
+      "description": "A microcontroller by Raspberry Pi, dual CPU architecture (ARM Cortex-M33 / RISC-V Hazard3), 150MHz, no flash, 520KB SRAM, 12 PIO state machines, VQFN-60",
+      "datasheet": "https://datasheets.raspberrypi.com/rp2350/rp2350-datasheet.pdf",
+      "keywords": null,
+      "fp_filters": "*QFN*7x7mm?P0.4mm?EP3.4x3.4mm*",
+      "pins": [
+        {
+          "function": "power_in",
+          "name": "DVDD",
+          "number": "6",
+          "x": 12.7,
+          "y": 45.72,
+          "orientation": 270.0,
+          "length": 3.81
+        },
+        {
+          "function": "passive",
+          "name": "DVDD",
+          "number": "39",
+          "x": 12.7,
+          "y": 45.72,
+          "orientation": 270.0,
+          "length": 3.81
+        },
+        {
+          "function": "power_in",
+          "name": "VREG_AVDD",
+          "number": "46",
+          "x": -17.78,
+          "y": 45.72,
+          "orientation": 270.0,
+          "length": 3.81
+        },
+        {
+          "function": "power_in",
+          "name": "VREG_PGND",
+          "number": "47",
+          "x": -2.54,
+          "y": -45.72,
+          "orientation": 90.0,
+          "length": 3.81
+        },
+        {
+          "function": "power_in",
+          "name": "USB_OTP_VDD",
+          "number": "53",
+          "x": -12.7,
+          "y": 45.72,
+          "orientation": 270.0,
+          "length": 3.81
+        },
+        {
+          "function": "power_in",
+          "name": "QSPI_IOVDD",
+          "number": "54",
+          "x": -5.08,
+          "y": 45.72,
+          "orientation": 270.0,
+          "length": 3.81
+        },
+        {
+          "function": "power_in",
+          "name": "IOVDD",
+          "number": "1",
+          "x": -2.54,
+          "y": 45.72,
+          "orientation": 270.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO0",
+          "number": "2",
+          "x": 25.4,
+          "y": 38.1,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO1",
+          "number": "3",
+          "x": 25.4,
+          "y": 35.56,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO2",
+          "number": "4",
+          "x": 25.4,
+          "y": 33.02,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO3",
+          "number": "5",
+          "x": 25.4,
+          "y": 30.48,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO4",
+          "number": "7",
+          "x": 25.4,
+          "y": 27.94,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO5",
+          "number": "8",
+          "x": 25.4,
+          "y": 25.4,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO6",
+          "number": "9",
+          "x": 25.4,
+          "y": 22.86,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO7",
+          "number": "10",
+          "x": 25.4,
+          "y": 20.32,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "passive",
+          "name": "IOVDD",
+          "number": "11",
+          "x": -2.54,
+          "y": 45.72,
+          "orientation": 270.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO8",
+          "number": "12",
+          "x": 25.4,
+          "y": 17.78,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO9",
+          "number": "13",
+          "x": 25.4,
+          "y": 15.24,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO10",
+          "number": "14",
+          "x": 25.4,
+          "y": 12.7,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO11",
+          "number": "15",
+          "x": 25.4,
+          "y": 10.16,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO12",
+          "number": "16",
+          "x": 25.4,
+          "y": 7.62,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO13",
+          "number": "17",
+          "x": 25.4,
+          "y": 5.08,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO14",
+          "number": "18",
+          "x": 25.4,
+          "y": 2.54,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO15",
+          "number": "19",
+          "x": 25.4,
+          "y": 0.0,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "passive",
+          "name": "IOVDD",
+          "number": "20",
+          "x": -2.54,
+          "y": 45.72,
+          "orientation": 270.0,
+          "length": 3.81
+        },
+        {
+          "function": "input",
+          "name": "XIN",
+          "number": "21",
+          "x": -25.4,
+          "y": -15.24,
+          "orientation": 0.0,
+          "length": 3.81
+        },
+        {
+          "function": "output",
+          "name": "XOUT",
+          "number": "22",
+          "x": -25.4,
+          "y": -25.4,
+          "orientation": 0.0,
+          "length": 3.81
+        },
+        {
+          "function": "passive",
+          "name": "DVDD",
+          "number": "23",
+          "x": 12.7,
+          "y": 45.72,
+          "orientation": 270.0,
+          "length": 3.81
+        },
+        {
+          "function": "input",
+          "name": "SWCLK",
+          "number": "24",
+          "x": -25.4,
+          "y": -33.02,
+          "orientation": 0.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "SWDIO",
+          "number": "25",
+          "x": -25.4,
+          "y": -35.56,
+          "orientation": 0.0,
+          "length": 3.81
+        },
+        {
+          "function": "input",
+          "name": "RUN",
+          "number": "26",
+          "x": -25.4,
+          "y": 22.86,
+          "orientation": 0.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO16",
+          "number": "27",
+          "x": 25.4,
+          "y": -2.54,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO17",
+          "number": "28",
+          "x": 25.4,
+          "y": -5.08,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO18",
+          "number": "29",
+          "x": 25.4,
+          "y": -7.62,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "passive",
+          "name": "IOVDD",
+          "number": "30",
+          "x": -2.54,
+          "y": 45.72,
+          "orientation": 270.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO19",
+          "number": "31",
+          "x": 25.4,
+          "y": -10.16,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO20",
+          "number": "32",
+          "x": 25.4,
+          "y": -12.7,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO21",
+          "number": "33",
+          "x": 25.4,
+          "y": -15.24,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO22",
+          "number": "34",
+          "x": 25.4,
+          "y": -17.78,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO23",
+          "number": "35",
+          "x": 25.4,
+          "y": -20.32,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO24",
+          "number": "36",
+          "x": 25.4,
+          "y": -22.86,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO25",
+          "number": "37",
+          "x": 25.4,
+          "y": -25.4,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "passive",
+          "name": "IOVDD",
+          "number": "38",
+          "x": -2.54,
+          "y": 45.72,
+          "orientation": 270.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO26/ADC0",
+          "number": "40",
+          "x": 25.4,
+          "y": -30.48,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO27/ADC1",
+          "number": "41",
+          "x": 25.4,
+          "y": -33.02,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO28/ADC2",
+          "number": "42",
+          "x": 25.4,
+          "y": -35.56,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO29/ADC3",
+          "number": "43",
+          "x": 25.4,
+          "y": -38.1,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "power_in",
+          "name": "ADC_AVDD",
+          "number": "44",
+          "x": -10.16,
+          "y": 45.72,
+          "orientation": 270.0,
+          "length": 3.81
+        },
+        {
+          "function": "passive",
+          "name": "IOVDD",
+          "number": "45",
+          "x": -2.54,
+          "y": 45.72,
+          "orientation": 270.0,
+          "length": 3.81
+        },
+        {
+          "function": "power_out",
+          "name": "VREG_LX",
+          "number": "48",
+          "x": 5.08,
+          "y": 45.72,
+          "orientation": 270.0,
+          "length": 3.81
+        },
+        {
+          "function": "power_in",
+          "name": "VREG_VIN",
+          "number": "49",
+          "x": 2.54,
+          "y": 45.72,
+          "orientation": 270.0,
+          "length": 3.81
+        },
+        {
+          "function": "passive",
+          "name": "VREG_FB",
+          "number": "50",
+          "x": 7.62,
+          "y": 45.72,
+          "orientation": 270.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "USB_DM",
+          "number": "51",
+          "x": -25.4,
+          "y": 15.24,
+          "orientation": 0.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "USB_DP",
+          "number": "52",
+          "x": -25.4,
+          "y": 12.7,
+          "orientation": 0.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "QSPI_SD3",
+          "number": "55",
+          "x": -25.4,
+          "y": -7.62,
+          "orientation": 0.0,
+          "length": 3.81
+        },
+        {
+          "function": "output",
+          "name": "QSPI_SCLK",
+          "number": "56",
+          "x": -25.4,
+          "y": 2.54,
+          "orientation": 0.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "QSPI_SD0",
+          "number": "57",
+          "x": -25.4,
+          "y": 0.0,
+          "orientation": 0.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "QSPI_SD2",
+          "number": "58",
+          "x": -25.4,
+          "y": -5.08,
+          "orientation": 0.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "QSPI_SD1",
+          "number": "59",
+          "x": -25.4,
+          "y": -2.54,
+          "orientation": 0.0,
+          "length": 3.81
+        },
+        {
+          "function": "output",
+          "name": "~{QSPI_SS}",
+          "number": "60",
+          "x": -25.4,
+          "y": 5.08,
+          "orientation": 0.0,
+          "length": 3.81
+        },
+        {
+          "function": "power_in",
+          "name": "GND",
+          "number": "61",
+          "x": 0.0,
+          "y": -45.72,
+          "orientation": 90.0,
+          "length": 3.81
+        }
+      ],
+      "graphics": [
+        {
+          "shape_type": "rectangle",
+          "points": [],
+          "start": [
+            -21.59,
+            41.91
+          ],
+          "end": [
+            21.59,
+            -41.91
+          ],
+          "center": null,
+          "radius": null,
+          "stroke_width": 0.254,
+          "stroke_type": "default",
+          "fill_type": "background"
+        }
+      ],
+      "is_power": false,
+      "unit_count": 1
+    },
+    "RP2350B": {
+      "name": "RP2350B",
+      "properties": {
+        "Reference": "U",
+        "Value": "RP2350B",
+        "Footprint": "Package_DFN_QFN:QFN-80-1EP_10x10mm_P0.4mm_EP3.4x3.4mm",
+        "Datasheet": "https://datasheets.raspberrypi.com/rp2350/rp2350-datasheet.pdf",
+        "Description": "A microcontroller by Raspberry Pi, dual CPU architecture (ARM Cortex-M33 / RISC-V Hazard3), 150MHz, no flash, 520KB SRAM, 12 PIO state machines, VQFN-80",
+        "private": "KLC_S4.2_VREG_LX",
+        "ki_keywords": "RPi Pico USB QSPI I2C UART ADC SC1510",
+        "ki_fp_filters": "*QFN*10x10mm?P0.4mm?EP3.4x3.4mm*"
+      },
+      "description": "A microcontroller by Raspberry Pi, dual CPU architecture (ARM Cortex-M33 / RISC-V Hazard3), 150MHz, no flash, 520KB SRAM, 12 PIO state machines, VQFN-80",
+      "datasheet": "https://datasheets.raspberrypi.com/rp2350/rp2350-datasheet.pdf",
+      "keywords": null,
+      "fp_filters": "*QFN*10x10mm?P0.4mm?EP3.4x3.4mm*",
+      "pins": [
+        {
+          "function": "power_in",
+          "name": "DVDD",
+          "number": "10",
+          "x": 12.7,
+          "y": 55.88,
+          "orientation": 270.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO30",
+          "number": "38",
+          "x": 25.4,
+          "y": -27.94,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO31",
+          "number": "39",
+          "x": 25.4,
+          "y": -30.48,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO32",
+          "number": "40",
+          "x": 25.4,
+          "y": -33.02,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO33",
+          "number": "42",
+          "x": 25.4,
+          "y": -35.56,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO34",
+          "number": "43",
+          "x": 25.4,
+          "y": -38.1,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO35",
+          "number": "44",
+          "x": 25.4,
+          "y": -40.64,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO36",
+          "number": "45",
+          "x": 25.4,
+          "y": -43.18,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO37",
+          "number": "46",
+          "x": 25.4,
+          "y": -45.72,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO38",
+          "number": "47",
+          "x": 25.4,
+          "y": -48.26,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO39",
+          "number": "48",
+          "x": 25.4,
+          "y": -50.8,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO40/ADC0",
+          "number": "49",
+          "x": -25.4,
+          "y": -33.02,
+          "orientation": 0.0,
+          "length": 3.81
+        },
+        {
+          "function": "passive",
+          "name": "IOVDD",
+          "number": "50",
+          "x": -2.54,
+          "y": 55.88,
+          "orientation": 270.0,
+          "length": 3.81
+        },
+        {
+          "function": "passive",
+          "name": "DVDD",
+          "number": "51",
+          "x": 12.7,
+          "y": 55.88,
+          "orientation": 270.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO41/ADC1",
+          "number": "52",
+          "x": -25.4,
+          "y": -35.56,
+          "orientation": 0.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO42/ADC2",
+          "number": "53",
+          "x": -25.4,
+          "y": -38.1,
+          "orientation": 0.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO43/ADC3",
+          "number": "54",
+          "x": -25.4,
+          "y": -40.64,
+          "orientation": 0.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO44/ADC4",
+          "number": "55",
+          "x": -25.4,
+          "y": -43.18,
+          "orientation": 0.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO45/ADC5",
+          "number": "56",
+          "x": -25.4,
+          "y": -45.72,
+          "orientation": 0.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO46/ADC6",
+          "number": "57",
+          "x": -25.4,
+          "y": -48.26,
+          "orientation": 0.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO47/ADC7",
+          "number": "58",
+          "x": -25.4,
+          "y": -50.8,
+          "orientation": 0.0,
+          "length": 3.81
+        },
+        {
+          "function": "passive",
+          "name": "IOVDD",
+          "number": "60",
+          "x": -2.54,
+          "y": 55.88,
+          "orientation": 270.0,
+          "length": 3.81
+        },
+        {
+          "function": "power_in",
+          "name": "VREG_AVDD",
+          "number": "61",
+          "x": -17.78,
+          "y": 55.88,
+          "orientation": 270.0,
+          "length": 3.81
+        },
+        {
+          "function": "power_in",
+          "name": "VREG_PGND",
+          "number": "62",
+          "x": -2.54,
+          "y": -58.42,
+          "orientation": 90.0,
+          "length": 3.81
+        },
+        {
+          "function": "power_in",
+          "name": "USB_OTP_VDD",
+          "number": "68",
+          "x": -12.7,
+          "y": 55.88,
+          "orientation": 270.0,
+          "length": 3.81
+        },
+        {
+          "function": "power_in",
+          "name": "QSPI_IOVDD",
+          "number": "69",
+          "x": -5.08,
+          "y": 55.88,
+          "orientation": 270.0,
+          "length": 3.81
+        },
+        {
+          "function": "passive",
+          "name": "IOVDD",
+          "number": "76",
+          "x": -2.54,
+          "y": 55.88,
+          "orientation": 270.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO4",
+          "number": "1",
+          "x": 25.4,
+          "y": 38.1,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO5",
+          "number": "2",
+          "x": 25.4,
+          "y": 35.56,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO6",
+          "number": "3",
+          "x": 25.4,
+          "y": 33.02,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO7",
+          "number": "4",
+          "x": 25.4,
+          "y": 30.48,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "power_in",
+          "name": "IOVDD",
+          "number": "5",
+          "x": -2.54,
+          "y": 55.88,
+          "orientation": 270.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO8",
+          "number": "6",
+          "x": 25.4,
+          "y": 27.94,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO9",
+          "number": "7",
+          "x": 25.4,
+          "y": 25.4,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO10",
+          "number": "8",
+          "x": 25.4,
+          "y": 22.86,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO11",
+          "number": "9",
+          "x": 25.4,
+          "y": 20.32,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO12",
+          "number": "11",
+          "x": 25.4,
+          "y": 17.78,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO13",
+          "number": "12",
+          "x": 25.4,
+          "y": 15.24,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO14",
+          "number": "13",
+          "x": 25.4,
+          "y": 12.7,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO15",
+          "number": "14",
+          "x": 25.4,
+          "y": 10.16,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "passive",
+          "name": "IOVDD",
+          "number": "15",
+          "x": -2.54,
+          "y": 55.88,
+          "orientation": 270.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO16",
+          "number": "16",
+          "x": 25.4,
+          "y": 7.62,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO17",
+          "number": "17",
+          "x": 25.4,
+          "y": 5.08,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO18",
+          "number": "18",
+          "x": 25.4,
+          "y": 2.54,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO19",
+          "number": "19",
+          "x": 25.4,
+          "y": 0.0,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO20",
+          "number": "20",
+          "x": 25.4,
+          "y": -2.54,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO21",
+          "number": "21",
+          "x": 25.4,
+          "y": -5.08,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO22",
+          "number": "22",
+          "x": 25.4,
+          "y": -7.62,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO23",
+          "number": "23",
+          "x": 25.4,
+          "y": -10.16,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "passive",
+          "name": "IOVDD",
+          "number": "24",
+          "x": -2.54,
+          "y": 55.88,
+          "orientation": 270.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO24",
+          "number": "25",
+          "x": 25.4,
+          "y": -12.7,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO25",
+          "number": "26",
+          "x": 25.4,
+          "y": -15.24,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO26",
+          "number": "27",
+          "x": 25.4,
+          "y": -17.78,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO27",
+          "number": "28",
+          "x": 25.4,
+          "y": -20.32,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "passive",
+          "name": "IOVDD",
+          "number": "29",
+          "x": -2.54,
+          "y": 55.88,
+          "orientation": 270.0,
+          "length": 3.81
+        },
+        {
+          "function": "input",
+          "name": "XIN",
+          "number": "30",
+          "x": -25.4,
+          "y": -5.08,
+          "orientation": 0.0,
+          "length": 3.81
+        },
+        {
+          "function": "output",
+          "name": "XOUT",
+          "number": "31",
+          "x": -25.4,
+          "y": -15.24,
+          "orientation": 0.0,
+          "length": 3.81
+        },
+        {
+          "function": "passive",
+          "name": "DVDD",
+          "number": "32",
+          "x": 12.7,
+          "y": 55.88,
+          "orientation": 270.0,
+          "length": 3.81
+        },
+        {
+          "function": "input",
+          "name": "SWCLK",
+          "number": "33",
+          "x": -25.4,
+          "y": -22.86,
+          "orientation": 0.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "SWDIO",
+          "number": "34",
+          "x": -25.4,
+          "y": -25.4,
+          "orientation": 0.0,
+          "length": 3.81
+        },
+        {
+          "function": "input",
+          "name": "RUN",
+          "number": "35",
+          "x": -25.4,
+          "y": 33.02,
+          "orientation": 0.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO28",
+          "number": "36",
+          "x": 25.4,
+          "y": -22.86,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO29",
+          "number": "37",
+          "x": 25.4,
+          "y": -25.4,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "passive",
+          "name": "IOVDD",
+          "number": "41",
+          "x": -2.54,
+          "y": 55.88,
+          "orientation": 270.0,
+          "length": 3.81
+        },
+        {
+          "function": "power_in",
+          "name": "ADC_AVDD",
+          "number": "59",
+          "x": -10.16,
+          "y": 55.88,
+          "orientation": 270.0,
+          "length": 3.81
+        },
+        {
+          "function": "power_out",
+          "name": "VREG_LX",
+          "number": "63",
+          "x": 5.08,
+          "y": 55.88,
+          "orientation": 270.0,
+          "length": 3.81
+        },
+        {
+          "function": "power_in",
+          "name": "VREG_VIN",
+          "number": "64",
+          "x": 2.54,
+          "y": 55.88,
+          "orientation": 270.0,
+          "length": 3.81
+        },
+        {
+          "function": "passive",
+          "name": "VREG_FB",
+          "number": "65",
+          "x": 7.62,
+          "y": 55.88,
+          "orientation": 270.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "USB_DM",
+          "number": "66",
+          "x": -25.4,
+          "y": 25.4,
+          "orientation": 0.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "USB_DP",
+          "number": "67",
+          "x": -25.4,
+          "y": 22.86,
+          "orientation": 0.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "QSPI_SD3",
+          "number": "70",
+          "x": -25.4,
+          "y": 2.54,
+          "orientation": 0.0,
+          "length": 3.81
+        },
+        {
+          "function": "output",
+          "name": "QSPI_SCLK",
+          "number": "71",
+          "x": -25.4,
+          "y": 12.7,
+          "orientation": 0.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "QSPI_SD0",
+          "number": "72",
+          "x": -25.4,
+          "y": 10.16,
+          "orientation": 0.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "QSPI_SD2",
+          "number": "73",
+          "x": -25.4,
+          "y": 5.08,
+          "orientation": 0.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "QSPI_SD1",
+          "number": "74",
+          "x": -25.4,
+          "y": 7.62,
+          "orientation": 0.0,
+          "length": 3.81
+        },
+        {
+          "function": "output",
+          "name": "~{QSPI_SS}",
+          "number": "75",
+          "x": -25.4,
+          "y": 15.24,
+          "orientation": 0.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO0",
+          "number": "77",
+          "x": 25.4,
+          "y": 48.26,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO1",
+          "number": "78",
+          "x": 25.4,
+          "y": 45.72,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO2",
+          "number": "79",
+          "x": 25.4,
+          "y": 43.18,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO3",
+          "number": "80",
+          "x": 25.4,
+          "y": 40.64,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "power_in",
+          "name": "GND",
+          "number": "81",
+          "x": 0.0,
+          "y": -58.42,
+          "orientation": 90.0,
+          "length": 3.81
+        }
+      ],
+      "graphics": [
+        {
+          "shape_type": "rectangle",
+          "points": [],
+          "start": [
+            -21.59,
+            52.07
+          ],
+          "end": [
+            21.59,
+            -54.61
+          ],
+          "center": null,
+          "radius": null,
+          "stroke_width": 0.254,
+          "stroke_type": "default",
+          "fill_type": "background"
+        }
+      ],
+      "is_power": false,
+      "unit_count": 1
+    },
+    "RP2354A": {
+      "name": "RP2354A",
+      "properties": {
+        "Reference": "U",
+        "Value": "RP2354A",
+        "Footprint": "Package_DFN_QFN:QFN-60-1EP_7x7mm_P0.4mm_EP3.4x3.4mm",
+        "Datasheet": "https://datasheets.raspberrypi.com/rp2350/rp2350-datasheet.pdf",
+        "Description": "A microcontroller by Raspberry Pi, dual CPU architecture (ARM Cortex-M33 / RISC-V Hazard3), 150MHz, 2MB flash, 520KB SRAM, 12 PIO state machines, VQFN-60",
+        "ki_keywords": "RPi Pico USB QSPI I2C UART ADC SC1511",
+        "ki_fp_filters": "*QFN*7x7mm?P0.4mm?EP3.4x3.4mm*",
+        "private": "KLC_S4.2_VREG_LX"
+      },
+      "description": "A microcontroller by Raspberry Pi, dual CPU architecture (ARM Cortex-M33 / RISC-V Hazard3), 150MHz, 2MB flash, 520KB SRAM, 12 PIO state machines, VQFN-60",
+      "datasheet": "https://datasheets.raspberrypi.com/rp2350/rp2350-datasheet.pdf",
+      "keywords": null,
+      "fp_filters": "*QFN*7x7mm?P0.4mm?EP3.4x3.4mm*",
+      "pins": [
+        {
+          "function": "power_in",
+          "name": "DVDD",
+          "number": "6",
+          "x": 12.7,
+          "y": 45.72,
+          "orientation": 270.0,
+          "length": 3.81
+        },
+        {
+          "function": "passive",
+          "name": "DVDD",
+          "number": "39",
+          "x": 12.7,
+          "y": 45.72,
+          "orientation": 270.0,
+          "length": 3.81
+        },
+        {
+          "function": "power_in",
+          "name": "VREG_AVDD",
+          "number": "46",
+          "x": -17.78,
+          "y": 45.72,
+          "orientation": 270.0,
+          "length": 3.81
+        },
+        {
+          "function": "power_in",
+          "name": "VREG_PGND",
+          "number": "47",
+          "x": -2.54,
+          "y": -45.72,
+          "orientation": 90.0,
+          "length": 3.81
+        },
+        {
+          "function": "power_in",
+          "name": "USB_OTP_VDD",
+          "number": "53",
+          "x": -12.7,
+          "y": 45.72,
+          "orientation": 270.0,
+          "length": 3.81
+        },
+        {
+          "function": "power_in",
+          "name": "QSPI_IOVDD",
+          "number": "54",
+          "x": -5.08,
+          "y": 45.72,
+          "orientation": 270.0,
+          "length": 3.81
+        },
+        {
+          "function": "power_in",
+          "name": "IOVDD",
+          "number": "1",
+          "x": -2.54,
+          "y": 45.72,
+          "orientation": 270.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO0",
+          "number": "2",
+          "x": 25.4,
+          "y": 38.1,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO1",
+          "number": "3",
+          "x": 25.4,
+          "y": 35.56,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO2",
+          "number": "4",
+          "x": 25.4,
+          "y": 33.02,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO3",
+          "number": "5",
+          "x": 25.4,
+          "y": 30.48,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO4",
+          "number": "7",
+          "x": 25.4,
+          "y": 27.94,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO5",
+          "number": "8",
+          "x": 25.4,
+          "y": 25.4,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO6",
+          "number": "9",
+          "x": 25.4,
+          "y": 22.86,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO7",
+          "number": "10",
+          "x": 25.4,
+          "y": 20.32,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "passive",
+          "name": "IOVDD",
+          "number": "11",
+          "x": -2.54,
+          "y": 45.72,
+          "orientation": 270.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO8",
+          "number": "12",
+          "x": 25.4,
+          "y": 17.78,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO9",
+          "number": "13",
+          "x": 25.4,
+          "y": 15.24,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO10",
+          "number": "14",
+          "x": 25.4,
+          "y": 12.7,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO11",
+          "number": "15",
+          "x": 25.4,
+          "y": 10.16,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO12",
+          "number": "16",
+          "x": 25.4,
+          "y": 7.62,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO13",
+          "number": "17",
+          "x": 25.4,
+          "y": 5.08,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO14",
+          "number": "18",
+          "x": 25.4,
+          "y": 2.54,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO15",
+          "number": "19",
+          "x": 25.4,
+          "y": 0.0,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "passive",
+          "name": "IOVDD",
+          "number": "20",
+          "x": -2.54,
+          "y": 45.72,
+          "orientation": 270.0,
+          "length": 3.81
+        },
+        {
+          "function": "input",
+          "name": "XIN",
+          "number": "21",
+          "x": -25.4,
+          "y": -15.24,
+          "orientation": 0.0,
+          "length": 3.81
+        },
+        {
+          "function": "output",
+          "name": "XOUT",
+          "number": "22",
+          "x": -25.4,
+          "y": -25.4,
+          "orientation": 0.0,
+          "length": 3.81
+        },
+        {
+          "function": "passive",
+          "name": "DVDD",
+          "number": "23",
+          "x": 12.7,
+          "y": 45.72,
+          "orientation": 270.0,
+          "length": 3.81
+        },
+        {
+          "function": "input",
+          "name": "SWCLK",
+          "number": "24",
+          "x": -25.4,
+          "y": -33.02,
+          "orientation": 0.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "SWDIO",
+          "number": "25",
+          "x": -25.4,
+          "y": -35.56,
+          "orientation": 0.0,
+          "length": 3.81
+        },
+        {
+          "function": "input",
+          "name": "RUN",
+          "number": "26",
+          "x": -25.4,
+          "y": 22.86,
+          "orientation": 0.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO16",
+          "number": "27",
+          "x": 25.4,
+          "y": -2.54,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO17",
+          "number": "28",
+          "x": 25.4,
+          "y": -5.08,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO18",
+          "number": "29",
+          "x": 25.4,
+          "y": -7.62,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "passive",
+          "name": "IOVDD",
+          "number": "30",
+          "x": -2.54,
+          "y": 45.72,
+          "orientation": 270.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO19",
+          "number": "31",
+          "x": 25.4,
+          "y": -10.16,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO20",
+          "number": "32",
+          "x": 25.4,
+          "y": -12.7,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO21",
+          "number": "33",
+          "x": 25.4,
+          "y": -15.24,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO22",
+          "number": "34",
+          "x": 25.4,
+          "y": -17.78,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO23",
+          "number": "35",
+          "x": 25.4,
+          "y": -20.32,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO24",
+          "number": "36",
+          "x": 25.4,
+          "y": -22.86,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO25",
+          "number": "37",
+          "x": 25.4,
+          "y": -25.4,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "passive",
+          "name": "IOVDD",
+          "number": "38",
+          "x": -2.54,
+          "y": 45.72,
+          "orientation": 270.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO26/ADC0",
+          "number": "40",
+          "x": 25.4,
+          "y": -30.48,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO27/ADC1",
+          "number": "41",
+          "x": 25.4,
+          "y": -33.02,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO28/ADC2",
+          "number": "42",
+          "x": 25.4,
+          "y": -35.56,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO29/ADC3",
+          "number": "43",
+          "x": 25.4,
+          "y": -38.1,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "power_in",
+          "name": "ADC_AVDD",
+          "number": "44",
+          "x": -10.16,
+          "y": 45.72,
+          "orientation": 270.0,
+          "length": 3.81
+        },
+        {
+          "function": "passive",
+          "name": "IOVDD",
+          "number": "45",
+          "x": -2.54,
+          "y": 45.72,
+          "orientation": 270.0,
+          "length": 3.81
+        },
+        {
+          "function": "power_out",
+          "name": "VREG_LX",
+          "number": "48",
+          "x": 5.08,
+          "y": 45.72,
+          "orientation": 270.0,
+          "length": 3.81
+        },
+        {
+          "function": "power_in",
+          "name": "VREG_VIN",
+          "number": "49",
+          "x": 2.54,
+          "y": 45.72,
+          "orientation": 270.0,
+          "length": 3.81
+        },
+        {
+          "function": "passive",
+          "name": "VREG_FB",
+          "number": "50",
+          "x": 7.62,
+          "y": 45.72,
+          "orientation": 270.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "USB_DM",
+          "number": "51",
+          "x": -25.4,
+          "y": 15.24,
+          "orientation": 0.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "USB_DP",
+          "number": "52",
+          "x": -25.4,
+          "y": 12.7,
+          "orientation": 0.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "QSPI_SD3",
+          "number": "55",
+          "x": -25.4,
+          "y": -7.62,
+          "orientation": 0.0,
+          "length": 3.81
+        },
+        {
+          "function": "output",
+          "name": "QSPI_SCLK",
+          "number": "56",
+          "x": -25.4,
+          "y": 2.54,
+          "orientation": 0.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "QSPI_SD0",
+          "number": "57",
+          "x": -25.4,
+          "y": 0.0,
+          "orientation": 0.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "QSPI_SD2",
+          "number": "58",
+          "x": -25.4,
+          "y": -5.08,
+          "orientation": 0.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "QSPI_SD1",
+          "number": "59",
+          "x": -25.4,
+          "y": -2.54,
+          "orientation": 0.0,
+          "length": 3.81
+        },
+        {
+          "function": "output",
+          "name": "~{QSPI_SS}",
+          "number": "60",
+          "x": -25.4,
+          "y": 5.08,
+          "orientation": 0.0,
+          "length": 3.81
+        },
+        {
+          "function": "power_in",
+          "name": "GND",
+          "number": "61",
+          "x": 0.0,
+          "y": -45.72,
+          "orientation": 90.0,
+          "length": 3.81
+        }
+      ],
+      "graphics": [
+        {
+          "shape_type": "rectangle",
+          "points": [],
+          "start": [
+            -21.59,
+            41.91
+          ],
+          "end": [
+            21.59,
+            -41.91
+          ],
+          "center": null,
+          "radius": null,
+          "stroke_width": 0.254,
+          "stroke_type": "default",
+          "fill_type": "background"
+        }
+      ],
+      "is_power": false,
+      "unit_count": 1
+    },
+    "RP2354B": {
+      "name": "RP2354B",
+      "properties": {
+        "Reference": "U",
+        "Value": "RP2354B",
+        "Footprint": "Package_DFN_QFN:QFN-80-1EP_10x10mm_P0.4mm_EP3.4x3.4mm",
+        "Datasheet": "https://datasheets.raspberrypi.com/rp2350/rp2350-datasheet.pdf",
+        "Description": "A microcontroller by Raspberry Pi, dual CPU architecture (ARM Cortex-M33 / RISC-V Hazard3), 150MHz, 2MB flash, 520KB SRAM, 12 PIO state machines, VQFN-80",
+        "ki_keywords": "RPi Pico USB QSPI I2C UART ADC SC1512",
+        "ki_fp_filters": "*QFN*10x10mm?P0.4mm?EP3.4x3.4mm*",
+        "private": "KLC_S4.2_VREG_LX"
+      },
+      "description": "A microcontroller by Raspberry Pi, dual CPU architecture (ARM Cortex-M33 / RISC-V Hazard3), 150MHz, 2MB flash, 520KB SRAM, 12 PIO state machines, VQFN-80",
+      "datasheet": "https://datasheets.raspberrypi.com/rp2350/rp2350-datasheet.pdf",
+      "keywords": null,
+      "fp_filters": "*QFN*10x10mm?P0.4mm?EP3.4x3.4mm*",
+      "pins": [
+        {
+          "function": "power_in",
+          "name": "DVDD",
+          "number": "10",
+          "x": 12.7,
+          "y": 55.88,
+          "orientation": 270.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO30",
+          "number": "38",
+          "x": 25.4,
+          "y": -27.94,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO31",
+          "number": "39",
+          "x": 25.4,
+          "y": -30.48,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO32",
+          "number": "40",
+          "x": 25.4,
+          "y": -33.02,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO33",
+          "number": "42",
+          "x": 25.4,
+          "y": -35.56,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO34",
+          "number": "43",
+          "x": 25.4,
+          "y": -38.1,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO35",
+          "number": "44",
+          "x": 25.4,
+          "y": -40.64,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO36",
+          "number": "45",
+          "x": 25.4,
+          "y": -43.18,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO37",
+          "number": "46",
+          "x": 25.4,
+          "y": -45.72,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO38",
+          "number": "47",
+          "x": 25.4,
+          "y": -48.26,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO39",
+          "number": "48",
+          "x": 25.4,
+          "y": -50.8,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO40/ADC0",
+          "number": "49",
+          "x": -25.4,
+          "y": -33.02,
+          "orientation": 0.0,
+          "length": 3.81
+        },
+        {
+          "function": "passive",
+          "name": "IOVDD",
+          "number": "50",
+          "x": -2.54,
+          "y": 55.88,
+          "orientation": 270.0,
+          "length": 3.81
+        },
+        {
+          "function": "passive",
+          "name": "DVDD",
+          "number": "51",
+          "x": 12.7,
+          "y": 55.88,
+          "orientation": 270.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO41/ADC1",
+          "number": "52",
+          "x": -25.4,
+          "y": -35.56,
+          "orientation": 0.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO42/ADC2",
+          "number": "53",
+          "x": -25.4,
+          "y": -38.1,
+          "orientation": 0.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO43/ADC3",
+          "number": "54",
+          "x": -25.4,
+          "y": -40.64,
+          "orientation": 0.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO44/ADC4",
+          "number": "55",
+          "x": -25.4,
+          "y": -43.18,
+          "orientation": 0.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO45/ADC5",
+          "number": "56",
+          "x": -25.4,
+          "y": -45.72,
+          "orientation": 0.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO46/ADC6",
+          "number": "57",
+          "x": -25.4,
+          "y": -48.26,
+          "orientation": 0.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO47/ADC7",
+          "number": "58",
+          "x": -25.4,
+          "y": -50.8,
+          "orientation": 0.0,
+          "length": 3.81
+        },
+        {
+          "function": "passive",
+          "name": "IOVDD",
+          "number": "60",
+          "x": -2.54,
+          "y": 55.88,
+          "orientation": 270.0,
+          "length": 3.81
+        },
+        {
+          "function": "power_in",
+          "name": "VREG_AVDD",
+          "number": "61",
+          "x": -17.78,
+          "y": 55.88,
+          "orientation": 270.0,
+          "length": 3.81
+        },
+        {
+          "function": "power_in",
+          "name": "VREG_PGND",
+          "number": "62",
+          "x": -2.54,
+          "y": -58.42,
+          "orientation": 90.0,
+          "length": 3.81
+        },
+        {
+          "function": "power_in",
+          "name": "USB_OTP_VDD",
+          "number": "68",
+          "x": -12.7,
+          "y": 55.88,
+          "orientation": 270.0,
+          "length": 3.81
+        },
+        {
+          "function": "power_in",
+          "name": "QSPI_IOVDD",
+          "number": "69",
+          "x": -5.08,
+          "y": 55.88,
+          "orientation": 270.0,
+          "length": 3.81
+        },
+        {
+          "function": "passive",
+          "name": "IOVDD",
+          "number": "76",
+          "x": -2.54,
+          "y": 55.88,
+          "orientation": 270.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO4",
+          "number": "1",
+          "x": 25.4,
+          "y": 38.1,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO5",
+          "number": "2",
+          "x": 25.4,
+          "y": 35.56,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO6",
+          "number": "3",
+          "x": 25.4,
+          "y": 33.02,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO7",
+          "number": "4",
+          "x": 25.4,
+          "y": 30.48,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "power_in",
+          "name": "IOVDD",
+          "number": "5",
+          "x": -2.54,
+          "y": 55.88,
+          "orientation": 270.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO8",
+          "number": "6",
+          "x": 25.4,
+          "y": 27.94,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO9",
+          "number": "7",
+          "x": 25.4,
+          "y": 25.4,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO10",
+          "number": "8",
+          "x": 25.4,
+          "y": 22.86,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO11",
+          "number": "9",
+          "x": 25.4,
+          "y": 20.32,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO12",
+          "number": "11",
+          "x": 25.4,
+          "y": 17.78,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO13",
+          "number": "12",
+          "x": 25.4,
+          "y": 15.24,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO14",
+          "number": "13",
+          "x": 25.4,
+          "y": 12.7,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO15",
+          "number": "14",
+          "x": 25.4,
+          "y": 10.16,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "passive",
+          "name": "IOVDD",
+          "number": "15",
+          "x": -2.54,
+          "y": 55.88,
+          "orientation": 270.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO16",
+          "number": "16",
+          "x": 25.4,
+          "y": 7.62,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO17",
+          "number": "17",
+          "x": 25.4,
+          "y": 5.08,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO18",
+          "number": "18",
+          "x": 25.4,
+          "y": 2.54,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO19",
+          "number": "19",
+          "x": 25.4,
+          "y": 0.0,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO20",
+          "number": "20",
+          "x": 25.4,
+          "y": -2.54,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO21",
+          "number": "21",
+          "x": 25.4,
+          "y": -5.08,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO22",
+          "number": "22",
+          "x": 25.4,
+          "y": -7.62,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO23",
+          "number": "23",
+          "x": 25.4,
+          "y": -10.16,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "passive",
+          "name": "IOVDD",
+          "number": "24",
+          "x": -2.54,
+          "y": 55.88,
+          "orientation": 270.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO24",
+          "number": "25",
+          "x": 25.4,
+          "y": -12.7,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO25",
+          "number": "26",
+          "x": 25.4,
+          "y": -15.24,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO26",
+          "number": "27",
+          "x": 25.4,
+          "y": -17.78,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO27",
+          "number": "28",
+          "x": 25.4,
+          "y": -20.32,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "passive",
+          "name": "IOVDD",
+          "number": "29",
+          "x": -2.54,
+          "y": 55.88,
+          "orientation": 270.0,
+          "length": 3.81
+        },
+        {
+          "function": "input",
+          "name": "XIN",
+          "number": "30",
+          "x": -25.4,
+          "y": -5.08,
+          "orientation": 0.0,
+          "length": 3.81
+        },
+        {
+          "function": "output",
+          "name": "XOUT",
+          "number": "31",
+          "x": -25.4,
+          "y": -15.24,
+          "orientation": 0.0,
+          "length": 3.81
+        },
+        {
+          "function": "passive",
+          "name": "DVDD",
+          "number": "32",
+          "x": 12.7,
+          "y": 55.88,
+          "orientation": 270.0,
+          "length": 3.81
+        },
+        {
+          "function": "input",
+          "name": "SWCLK",
+          "number": "33",
+          "x": -25.4,
+          "y": -22.86,
+          "orientation": 0.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "SWDIO",
+          "number": "34",
+          "x": -25.4,
+          "y": -25.4,
+          "orientation": 0.0,
+          "length": 3.81
+        },
+        {
+          "function": "input",
+          "name": "RUN",
+          "number": "35",
+          "x": -25.4,
+          "y": 33.02,
+          "orientation": 0.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO28",
+          "number": "36",
+          "x": 25.4,
+          "y": -22.86,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO29",
+          "number": "37",
+          "x": 25.4,
+          "y": -25.4,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "passive",
+          "name": "IOVDD",
+          "number": "41",
+          "x": -2.54,
+          "y": 55.88,
+          "orientation": 270.0,
+          "length": 3.81
+        },
+        {
+          "function": "power_in",
+          "name": "ADC_AVDD",
+          "number": "59",
+          "x": -10.16,
+          "y": 55.88,
+          "orientation": 270.0,
+          "length": 3.81
+        },
+        {
+          "function": "power_out",
+          "name": "VREG_LX",
+          "number": "63",
+          "x": 5.08,
+          "y": 55.88,
+          "orientation": 270.0,
+          "length": 3.81
+        },
+        {
+          "function": "power_in",
+          "name": "VREG_VIN",
+          "number": "64",
+          "x": 2.54,
+          "y": 55.88,
+          "orientation": 270.0,
+          "length": 3.81
+        },
+        {
+          "function": "passive",
+          "name": "VREG_FB",
+          "number": "65",
+          "x": 7.62,
+          "y": 55.88,
+          "orientation": 270.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "USB_DM",
+          "number": "66",
+          "x": -25.4,
+          "y": 25.4,
+          "orientation": 0.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "USB_DP",
+          "number": "67",
+          "x": -25.4,
+          "y": 22.86,
+          "orientation": 0.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "QSPI_SD3",
+          "number": "70",
+          "x": -25.4,
+          "y": 2.54,
+          "orientation": 0.0,
+          "length": 3.81
+        },
+        {
+          "function": "output",
+          "name": "QSPI_SCLK",
+          "number": "71",
+          "x": -25.4,
+          "y": 12.7,
+          "orientation": 0.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "QSPI_SD0",
+          "number": "72",
+          "x": -25.4,
+          "y": 10.16,
+          "orientation": 0.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "QSPI_SD2",
+          "number": "73",
+          "x": -25.4,
+          "y": 5.08,
+          "orientation": 0.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "QSPI_SD1",
+          "number": "74",
+          "x": -25.4,
+          "y": 7.62,
+          "orientation": 0.0,
+          "length": 3.81
+        },
+        {
+          "function": "output",
+          "name": "~{QSPI_SS}",
+          "number": "75",
+          "x": -25.4,
+          "y": 15.24,
+          "orientation": 0.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO0",
+          "number": "77",
+          "x": 25.4,
+          "y": 48.26,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO1",
+          "number": "78",
+          "x": 25.4,
+          "y": 45.72,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO2",
+          "number": "79",
+          "x": 25.4,
+          "y": 43.18,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "bidirectional",
+          "name": "GPIO3",
+          "number": "80",
+          "x": 25.4,
+          "y": 40.64,
+          "orientation": 180.0,
+          "length": 3.81
+        },
+        {
+          "function": "power_in",
+          "name": "GND",
+          "number": "81",
+          "x": 0.0,
+          "y": -58.42,
+          "orientation": 90.0,
+          "length": 3.81
+        }
+      ],
+      "graphics": [
+        {
+          "shape_type": "rectangle",
+          "points": [],
+          "start": [
+            -21.59,
+            52.07
+          ],
+          "end": [
+            21.59,
+            -54.61
+          ],
+          "center": null,
+          "radius": null,
+          "stroke_width": 0.254,
+          "stroke_type": "default",
+          "fill_type": "background"
+        }
+      ],
+      "is_power": false,
+      "unit_count": 1
+    }
+  }
+}

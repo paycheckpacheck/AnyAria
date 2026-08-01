@@ -1,0 +1,73 @@
+"""
+Shared pytest configuration and fixtures for circuit-synth tests.
+
+Test Organization:
+- tests/unit/ - Fast unit tests (pure Python, no I/O)
+- tests/integration/ - Integration tests (file I/O, no external tools)
+- tests/e2e/ - End-to-end tests (external tools like kicad-cli allowed)
+- tests/fixtures/ - Centralized test data and fixtures
+
+This conftest.py provides shared fixtures used across all test categories.
+"""
+import os
+import shutil
+from pathlib import Path
+
+import pytest
+
+
+def pytest_ignore_collect(collection_path, config):
+    """
+    Ignore collection of Test* classes from src/ directory.
+    These are domain classes (TestEquipment, TestProcedure, etc.) not pytest tests.
+    """
+    path_str = str(collection_path)
+    # Ignore any file in src/ directory
+    if "/src/" in path_str or "\\src\\" in path_str:
+        return True
+    return False
+
+from circuit_synth.core.circuit import Circuit
+from circuit_synth.core.decorators import get_current_circuit, set_current_circuit
+from circuit_synth.kicad.kicad_symbol_cache import SymbolLibCache
+
+
+@pytest.fixture(scope="session", autouse=True)
+def configure_kicad_paths():
+    """
+    Configure KiCad paths and clear symbol cache for tests.
+
+    Now that KiCad is installed in CI, we can use real KiCad symbols everywhere.
+    """
+    # Clear any existing cache
+    cache_dir = SymbolLibCache._get_cache_dir()
+    if cache_dir.exists():
+        shutil.rmtree(cache_dir)
+    cache_dir.mkdir(parents=True, exist_ok=True)
+
+    # Clear in-memory cache
+    SymbolLibCache._library_data.clear()
+    SymbolLibCache._symbol_index.clear()
+    SymbolLibCache._library_index.clear()
+    SymbolLibCache._index_built = False
+
+    yield
+
+    # Clean up after tests
+    cache_dir = SymbolLibCache._get_cache_dir()
+    if cache_dir.exists():
+        shutil.rmtree(cache_dir)
+
+
+@pytest.fixture(autouse=True, scope="function")
+def mock_active_circuit():
+    """
+    Automatically create a throwaway circuit before each test,
+    so that Component(...) does not fail with 'No active circuit found'.
+    """
+    old_circuit = get_current_circuit()
+    set_current_circuit(Circuit(name="TestCircuit"))
+    try:
+        yield
+    finally:
+        set_current_circuit(old_circuit)

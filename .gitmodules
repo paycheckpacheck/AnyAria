@@ -1,0 +1,21 @@
+[submodule "kicad-libraries/symbols"]
+	path = kicad-libraries/symbols
+	url = https://gitlab.com/kicad/libraries/kicad-symbols.git
+[submodule "kicad-libraries/footprints"]
+	path = kicad-libraries/footprints
+	url = https://gitlab.com/kicad/libraries/kicad-footprints.git
+[submodule "submodules/kicad-cli-docker"]
+	path = submodules/kicad-cli-docker
+	url = https://gitlab.com/kicad/packaging/kicad-cli-docker.git
+[submodule "submodules/kicad-mcp"]
+	path = submodules/kicad-mcp
+	url = https://github.com/lamaalrajih/kicad-mcp.git
+[submodule "submodules/modm-devices"]
+	path = submodules/modm-devices
+	url = https://github.com/modm-io/modm-devices.git
+[submodule "submodules/atopile"]
+	path = submodules/atopile
+	url = https://github.com/atopile/atopile
+[submodule "submodules/digikey-kicad"]
+	path = submodules/digikey-kicad
+	url = https://github.com/Digi-Key/digikey-kicad-library.git

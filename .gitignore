@@ -1,14 +1,76 @@
+# Python
 __pycache__/
 *.py[cod]
+*$py.class
+*.so
+
+# Virtual environments
 .venv/
+venv/
+ENV/
+
+# Build artifacts
 build/
 dist/
 *.egg-info/
-.pytest_cache/
+
+# Test coverage
 .coverage
 htmlcov/
+.pytest_cache/
 
-# Generated KiCad output
-*.kicad_prl
+# Type checking
+.mypy_cache/
+
+# IDEs
+.idea/
+.vscode/
+
+# macOS
+.DS_Store
+
+# Claude Code local settings
+.claude/local.md
+
+# KiCad auto-generated backup files
+*.kicad_pcb-bak
+*.kicad_sch-bak
+*.kicad_pro-bak
 *-backups/
 fp-info-cache
+*.kicad_sch.lck
+
+# User credentials (never commit)
+.env
+.pypirc
+PRD-*.md
+
+
+# Session-specific files (should not be committed)
+SESSION-*.md
+QUICK-START-*.txt
+*-deploy-test.log
+coordinator-integration-example.py
+
+# Hook logs (runtime generated)
+.claude/hook_logs/
+
+# Debug and test files
+debug_*.py
+debug_*/
+test_hierarchical.py
+test_hierarchical/
+power_supply_module/
+agents/
+release.log
+tests/unit/test_hierarchical_decorator.py
+tests/unit/test_issue_538_regression.py
+release.log
+HIERARCHICAL_CIRCUITS_GUIDE.md
+SETUP.md
+test_openrouter.py
+DEPLOYMENT.md
+
+# Local build output and caches
+examples/build/
+.symcache/
