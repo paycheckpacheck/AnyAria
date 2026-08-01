@@ -26,11 +26,34 @@ Example Usage:
 """
 
 from .analysis import ACAnalysis, DCAnalysis, TransientAnalysis
+from .annotate import Note, annotate_project, annotate_schematic, clear_notes
 from .converter import SpiceConverter
+from .datasheet import (
+    Datasheet,
+    DatasheetNotFound,
+    Equation,
+    Parameter,
+    lookup,
+    register,
+    require,
+)
+from .figures import Basis, BlockAnalysis, Figure, format_value
 from .manufacturer_models import ManufacturerModels, get_manufacturer_models
 from .models import ModelLibrary, SpiceModel, get_model_library
+from .ngspice_run import (
+    SimulationFailed,
+    SimulationUnavailable,
+    Waveforms,
+    export_spice_netlist,
+    missing_elements,
+    run_transient,
+    simulate_schematic,
+)
+from .probe import ProbeProject, Substitution, make_probeable
 from .simulator import CircuitSimulator, SimulationResult
+from .spice_models import Assignment, ModelFile, ModelGap, ModelSpec, assign_models
 from .testbench import TestBenchGenerator, generate_testbench_for_circuit
+from .vdmos import FittedModel, VdmosParameters, fit
 from .visualization import SimulationVisualizer, enhance_simulation_result
 
 # Enhance SimulationResult with export capabilities
@@ -51,4 +74,39 @@ __all__ = [
     "TestBenchGenerator",
     "generate_testbench_for_circuit",
     "SimulationVisualizer",
+    # Datasheet-driven analysis of a hierarchical block. See the
+    # datasheet-simulation skill and examples/simulate_half_bridge.py.
+    "Basis",
+    "BlockAnalysis",
+    "Figure",
+    "format_value",
+    "Datasheet",
+    "DatasheetNotFound",
+    "Equation",
+    "Parameter",
+    "lookup",
+    "register",
+    "require",
+    "Assignment",
+    "ModelFile",
+    "ModelGap",
+    "ModelSpec",
+    "assign_models",
+    "ProbeProject",
+    "Substitution",
+    "make_probeable",
+    "SimulationFailed",
+    "SimulationUnavailable",
+    "Waveforms",
+    "export_spice_netlist",
+    "missing_elements",
+    "run_transient",
+    "simulate_schematic",
+    "Note",
+    "annotate_project",
+    "annotate_schematic",
+    "clear_notes",
+    "FittedModel",
+    "VdmosParameters",
+    "fit",
 ]
