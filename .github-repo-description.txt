@@ -1,0 +1,1 @@
+AI-powered circuit design for KiCad. Uses Claude to research online, select JLC PCB components, and generate complete circuits with simulation. Research-driven design - learns from datasheets instead of hardcoded knowledge.
