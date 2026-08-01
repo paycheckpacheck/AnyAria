@@ -488,24 +488,45 @@ As you execute tasks, identify opportunities to improve instructions, commands, 
 
 ---
 
+## Asked for a whole board?
+
+`design-board` is the front door. "Make me a 2.5GHz SDR", "a high power buck
+converter", "an eval board for this part" - it works out the blocks, chooses
+the parts, stops once for approval, then fans out an agent per block and
+composes the result.
+
+Everything below is what that skill runs. It is also what to run by hand when
+the request is a change to an existing board rather than a new one.
+
 ## Building a circuit: the order that gets it right first time
 
-Four things happen in order, and each has a skill that will not let you skip
-it. Doing them out of order is what turns one request into five rounds of
+Six things happen in order, and each has a skill that will not let you skip it.
+Doing them out of order is what turns one request into five rounds of
 corrections.
 
 ```
 1. circuit-hierarchy   decide the blocks and what nests in what, before
                        any component is written
-2. reference-circuit   for every part with a published application circuit,
+2. source-parts        every part, passives included, from JLCPCB, in stock
+                       and priced; import its real symbol and footprint
+                       rather than writing one from memory
+3. reference-circuit   for every part with a published application circuit,
                        copy it verbatim, then check line by line that it was
                        copied exactly
-3. review-circuit      review the Python until two consecutive passes find
+4. review-circuit      review the Python until two consecutive passes find
                        nothing new - voltage compatibility, pin numbers,
                        supplies, values against their purpose, what is missing
-4. layout-schematic    generate, place, wire, group, validate, render, look
+5. layout-schematic    generate, place, wire, group, validate, render, look
                        at it, refine
+6. verify_project      run every check the toolchain has, and get one verdict
 ```
+
+Step 6 is `circuit_synth.verify.verify_project`. It sequences the checks that
+all existed and never ran together: circuit rules, every sheet opens, the
+drawing matches the Python, ERC, the SPICE deck loads, and the renders. Run
+`make_spice_clean` before it, or the project will not open in a simulator: a
+value an engineer writes is not a value ngspice reads, and a fuse called F1 is
+a controlled source as far as SPICE is concerned.
 
 Nothing downstream can catch a mistake made upstream. `validate_layout`
 compares the drawing with the Python and cannot tell you the Python is wrong.
