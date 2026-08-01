@@ -18,7 +18,7 @@ Feedback into commutation:
 * current   three low-side shunts, one INA181 each, into ADC0..ADC2. Used for
             torque control and for over-current shutdown.
 * back-EMF  each phase divided by 11 and compared against the virtual neutral
-            by an LM339. Its three open-collector outputs are the zero-crossing
+            by a TLV3501 comparator. Its three outputs are the zero-crossing
             edges the commutation state machine advances on.
 * rail      the motor rail divided into ADC3, so the duty cycle can be
             compensated for supply droop.
@@ -437,21 +437,26 @@ def bemf_sense(
     """Zero-crossing detection for sensorless commutation.
 
     Each divided phase is compared against a virtual neutral made from the same
-    three phases through matched resistors. The comparator outputs are open
-    collector, so each gets a pullup to 3.3V and hands the MCU a clean edge
-    every time a phase crosses the neutral point.
+    three phases through matched resistors, handing the MCU a clean edge every
+    time a phase crosses the neutral point.
     """
-    comparator = Component(
-        symbol="Comparator:LM339",
-        ref="U",
-        value="LM339",
-        footprint="Package_SO:SOIC-14_3.9x8.7mm_P1.27mm",
-    )
+    # One comparator per phase. Single-part comparators are used rather than a
+    # quad, because each unit of a multi-part symbol would otherwise have to be
+    # placed and labelled individually.
+    comparators = [
+        Component(
+            symbol="Comparator:TLV3501AIDBV",
+            ref="U",
+            value="TLV3501",
+            footprint="Package_TO_SOT_SMD:SOT-23-6",
+        )
+        for _ in range(3)
+    ]
     neutral_resistors = [resistor("10k") for _ in range(3)]
     pullups = [resistor("10k") for _ in range(3)]
     rail_top = resistor(DIVIDER_TOP)
     rail_bottom = resistor(DIVIDER_BOTTOM)
-    supply_cap = decoupling()
+    supply_caps = [decoupling() for _ in range(3)]
 
     gnd = Net("GND")
     neutral = Net("VNEUTRAL")
@@ -461,29 +466,22 @@ def bemf_sense(
         element[1] += source
         element[2] += neutral
 
-    comparator[3] += V3V3  # V+
-    comparator[12] += gnd  # V-
-    supply_cap[1] += V3V3
-    supply_cap[2] += gnd
-
-    # Three of the four comparators, one per phase.
-    comparator[5] += BEMF_A  # 1+
-    comparator[4] += neutral  # 1-
-    comparator[2] += ZC_A
-    comparator[7] += BEMF_B  # 2+
-    comparator[6] += neutral  # 2-
-    comparator[1] += ZC_B
-    comparator[9] += BEMF_C  # 3+
-    comparator[8] += neutral  # 3-
-    comparator[14] += ZC_C
-
-    for pullup, output in zip(pullups, (ZC_A, ZC_B, ZC_C)):
+    phases = ((BEMF_A, ZC_A), (BEMF_B, ZC_B), (BEMF_C, ZC_C))
+    for comparator, cap, pullup, (bemf, zero_cross) in zip(
+        comparators, supply_caps, pullups, phases
+    ):
+        comparator[3] += bemf  # +
+        comparator[1] += neutral  # -
+        comparator[5] += zero_cross  # output
+        comparator[4] += V3V3  # V+
+        comparator[2] += gnd  # V-
+        comparator[6] += V3V3  # SHDN, held high to keep the part enabled
+        cap[1] += V3V3
+        cap[2] += gnd
+        # The output is push-pull, but a pullup keeps the edge defined while
+        # the part starts up.
         pullup[1] += V3V3
-        pullup[2] += output
-
-    # Spare comparator inputs are tied off rather than left floating.
-    comparator[11] += neutral
-    comparator[10] += neutral
+        pullup[2] += zero_cross
 
     # Rail monitor, so the duty cycle can be corrected for supply droop.
     rail_top[1] += VMOTOR

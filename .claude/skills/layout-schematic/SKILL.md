@@ -1,6 +1,6 @@
 ---
 name: layout-schematic
-description: Lay out a generated KiCad schematic so it reads like a schematic an engineer drew - grouped by function, wired with orthogonal wires, power symbols on the rails, nothing overlapping. Use when converting a circuit-synth Python script to KiCad, or when an existing generated project looks messy. Triggers on "generate the schematic", "convert this to KiCad", "the schematic looks bad", "lay out the schematic", "tidy the schematic".
+description: Lay out a generated KiCad schematic so it reads like one an engineer drew - grouped by function, wired orthogonally, power symbols on the rails, nothing overlapping. RUN THIS EVERY TIME a KiCad project is generated, without being asked: a generated schematic is not finished until it has been laid out. Triggers on generating a circuit or schematic, converting Python to KiCad, running a circuit script or example, generate_kicad_project, cs-new-project, "the schematic looks bad", "lay out the schematic", "tidy the schematic".
 ---
 
 # Laying out a generated schematic

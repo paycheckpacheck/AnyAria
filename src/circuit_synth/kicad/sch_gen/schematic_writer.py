@@ -1366,7 +1366,7 @@ class SchematicWriter:
                 self._add_wire((x, y), position)
             self._add_power_symbol(
                 lib_id=lib_id,
-                reference=f"#PWR0{power_counter:02d}",
+                reference=self._power_reference(power_counter),
                 value=net_name,
                 position=position,
                 rotation=rotation,
@@ -1698,6 +1698,26 @@ class SchematicWriter:
                 ],
             }
         )
+
+    def _power_reference(self, index: int) -> str:
+        """Build a power symbol reference that is unique across the project.
+
+        Power symbols are numbered per sheet, so two sheets both starting at
+        one would give two parts the same reference. KiCad then reports an
+        annotation error and drops components from the netlist. Deriving a
+        block from the circuit name keeps each sheet's numbers to itself, and
+        keeps them stable between runs.
+
+        Args:
+            index: The symbol's number within this sheet, from one.
+
+        Returns:
+            The reference designator.
+        """
+        import zlib
+
+        block = zlib.crc32(str(self.circuit.name).encode("utf-8")) % 90 + 10
+        return f"#PWR{block:02d}{index:02d}"
 
     def _add_power_symbol(
         self,
@@ -2109,7 +2129,7 @@ class SchematicWriter:
                     and hasattr(net, "power_symbol")
                 ):
                     # Generate power symbol instead of hierarchical label
-                    power_ref = f"#PWR0{power_symbol_counter:02d}"
+                    power_ref = self._power_reference(power_symbol_counter)
                     power_symbol_counter += 1
 
                     logger.debug(

@@ -488,6 +488,48 @@ As you execute tasks, identify opportunities to improve instructions, commands, 
 
 ---
 
+## Generating a circuit: the layout pass is not optional
+
+Generating a schematic and laying one out are two different jobs. The generator
+works out what connects to what. Nothing in it decides where a part goes, which
+way round it faces, or how the sheet reads, so its raw output is electrically
+correct and unpleasant to look at: parts scattered where the placement
+algorithm dropped them, a half-bridge split across the page, decoupling
+capacitors nowhere near the pin they decouple.
+
+**Whenever you generate a KiCad project, you run the layout pass afterwards.**
+Every time, without being asked. A generated schematic is not finished until it
+has been laid out, and it is not to be shown to the user or described as done
+before then.
+
+Use the `layout-schematic` skill. It walks the loop:
+
+```
+generate -> describe each sheet -> decide the placement -> apply it
+         -> validate the connectivity -> render it -> LOOK at it -> refine
+```
+
+Two parts of that loop are the ones people skip, so they are called out:
+
+- **Validate.** `validate_layout()` compares the schematic KiCad reads back
+  against the circuit the Python described, pin for pin. A placement decides
+  where wires run, so it can change the circuit, and nothing else in the
+  toolchain would notice. If it reports anything, the wiring is wrong. Fix it.
+- **Look at it.** `render_sheets()` writes a PNG per sheet. Read the image.
+  Judge it as an engineer would: does the signal flow left to right, is each
+  functional block a recognisable unit, does anything overlap? The first pass
+  gets the topology right; it usually takes two or three before it reads well.
+
+A hook (`.claude/hooks/require_schematic_layout.py`) prints a reminder into the
+transcript whenever a generating command runs, so this is hard to forget. The
+reminder is not a substitute for doing it.
+
+If a sheet genuinely cannot be made clean - thirty parts with no structure, or
+a block that wants splitting - say so and suggest the change, rather than
+producing something dense and calling it done.
+
+---
+
 ## 📚 Project Context
 
 ### Codebase Structure

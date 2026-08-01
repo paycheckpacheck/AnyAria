@@ -12,6 +12,7 @@ import json
 import logging
 import re
 import uuid as uuid_module
+import zlib
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Dict, List, Optional, Sequence, Tuple
@@ -465,6 +466,12 @@ def apply_placement(
         line_start = text.rfind("\n", 0, start)
         text = text[:line_start] + text[end:]
 
+    # Power symbol references have to be unique across the whole project, not
+    # just this sheet, or KiCad reports an annotation error and drops parts from
+    # the netlist. The block is derived from the sheet name so it is stable
+    # between runs and distinct from the other sheets.
+    reference_block = zlib.crc32(sheet_path.stem.encode("utf-8")) % 90 + 10
+
     additions = []
     for start, end in spec.wires:
         additions.append(_wire_sexp(start, end))
@@ -475,7 +482,7 @@ def apply_placement(
     for label in spec.labels:
         additions.append(_label_sexp(label))
     for index, power in enumerate(spec.power, start=1):
-        reference = power.reference or f"#PWR{index:03d}"
+        reference = power.reference or f"#PWR{reference_block:02d}{index:02d}"
         additions.append(_power_sexp(power, reference, project))
 
     text = sexp.insert_before_end(text, "".join(additions))
