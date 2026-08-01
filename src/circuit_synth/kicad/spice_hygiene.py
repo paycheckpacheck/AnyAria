@@ -298,6 +298,51 @@ def deck_problems(deck: str) -> List[str]:
     return problems
 
 
+def deck_is_simulatable(deck: str) -> Tuple[bool, str]:
+    """Report whether a deck has anything to solve, not just whether it parses.
+
+    A deck can be perfectly well formed and still be nothing a simulator can
+    do anything with. A board schematic usually is: every active part needs a
+    model it does not have, so it is excluded, and what remains is passives
+    with nothing driving them and no analysis to run.
+
+    That is not a defect in the schematic. A board is a description of what to
+    build, and a simulation needs a testbench - sources, models and a stimulus
+    - which is a different document. Saying so is more useful than reporting
+    that the deck loaded.
+
+    Args:
+        deck: The exported deck.
+
+    Returns:
+        A ``(simulatable, reason)`` pair. ``reason`` says what is missing.
+    """
+    sources = 0
+    directives = set()
+
+    for line in deck.splitlines():
+        stripped = line.strip()
+        if stripped.startswith("."):
+            directives.add(stripped.split()[0].lower())
+        elif stripped[:1].upper() in ("V", "I"):
+            sources += 1
+
+    analyses = {".tran", ".ac", ".dc", ".op", ".noise"} & directives
+    missing = []
+    if not sources:
+        missing.append("no source drives anything")
+    if not analyses:
+        missing.append("no analysis command says what to run")
+
+    if missing:
+        return False, (
+            f"the deck is well formed but {' and '.join(missing)}. "
+            f"A board schematic is not a testbench; build one for the block "
+            f"you want to look at."
+        )
+    return True, ""
+
+
 def _is_spice_number(token: str) -> bool:
     """Report whether a deck token is a number ngspice will accept.
 

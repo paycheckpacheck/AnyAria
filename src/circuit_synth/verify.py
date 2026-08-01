@@ -271,11 +271,21 @@ def _check_spice(root_schematic: Path) -> CheckResult:
     Returns:
         The result.
     """
-    from .kicad.spice_hygiene import deck_loads
+    from .kicad.spice_hygiene import deck_is_simulatable, deck_loads
 
     name = "SPICE deck loads"
     loaded, detail = deck_loads(root_schematic)
-    return CheckResult(name, loaded, detail)
+    if not loaded:
+        return CheckResult(name, False, detail)
+
+    # Loading and being worth running are different things, and reporting only
+    # the first is how somebody ends up opening an empty simulator.
+    deck = root_schematic.parent / "spice_check.cir"
+    if deck.exists():
+        runnable, reason = deck_is_simulatable(deck.read_text(encoding="utf-8"))
+        if not runnable:
+            return CheckResult(name, True, reason, skipped=True)
+    return CheckResult(name, True)
 
 
 def _render(root_schematic: Path, out_dir: Path) -> tuple:
