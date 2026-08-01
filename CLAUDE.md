@@ -488,6 +488,59 @@ As you execute tasks, identify opportunities to improve instructions, commands, 
 
 ---
 
+## Deciding the hierarchy: put a block where it is repeated
+
+Before writing any components, decide what the blocks are and how they nest. A
+`@circuit` block is a class and each call is an instance, so the question to ask
+about every piece of a design is: **how many of these are there?**
+
+If there is one per phase, per channel, per port, per cell - it belongs *inside*
+the block that is repeated, not beside it.
+
+The mistake to avoid, using a three-phase driver as the example:
+
+```python
+# WRONG. BemfSense senses all three phases, so it writes out per-phase
+# hardware three times inside itself - while HalfBridge, the thing that is
+# actually repeated three times, does not contain the sensing for its own phase.
+half_bridge(a_high, a_low, phase_a, ...)   # x3
+bemf_sense(bemf_a, bemf_b, bemf_c, zc_a, zc_b, zc_c)
+
+# RIGHT. One phase's sensing is one block, nested in the block that repeats.
+# Three half-bridges give three of everything a phase needs, for free.
+@circuit(name="HalfBridge")
+def half_bridge(HI, LI, PHASE, VM, VDRV, ISENSE, NEUTRAL, ZC):
+    ...
+    back_emf(PHASE, NEUTRAL, VDRV, ZC)     # one per phase, because it is inside
+```
+
+The test: if a block's ports come in numbered groups (`BEMF_A`, `BEMF_B`,
+`BEMF_C`), or its body has a `for` loop over the channels, it is one block doing
+the job of N and should be one block instantiated N times instead.
+
+**Shared nets are ports, not a reason to flatten.** The thing that usually
+pushes people to write the wide block is one signal every instance touches - a
+virtual neutral, a shared bus, a common reference. That is a port on the
+repeated block, passed the same net from the parent. In the driver above, each
+`BackEmf` feeds one resistor into `NEUTRAL` and the three together make the
+star point, with no block sensing more than its own phase.
+
+**Put a measurement with what it measures.** The rail monitor divider belongs in
+`Power`, whose output it measures, not in a sensing block that happens to also
+own an ADC divider.
+
+**Do not force nesting.** Nest when the inner block is genuinely one repeated
+unit with its own interface. A block created only to hold two resistors that are
+already next to their part is noise: it costs a sheet, a set of sheet pins and a
+page turn to read. If it is not repeated and has no clean interface, leave it
+inline.
+
+Say the hierarchy out loud before writing the code - one line per block, with
+its port list and how many instances there are. A hierarchy that has to be
+unpicked later means regenerating and laying out every sheet again.
+
+---
+
 ## Generating a circuit: the layout pass is not optional
 
 Generating a schematic and laying one out are two different jobs. The generator
@@ -519,6 +572,13 @@ Two parts of that loop are the ones people skip, so they are called out:
   Judge it as an engineer would: does the signal flow left to right, is each
   functional block a recognisable unit, does anything overlap? The first pass
   gets the topology right; it usually takes two or three before it reads well.
+
+Wires go **around** parts, never over them. A wire crossing a symbol body reads
+as a connection to that part and hides what it crosses, and because it changes
+nothing electrically the netlist comparison cannot see it. `route_around()`
+works out the fewest-corner detour that keeps clear of every body, and
+`validate_layout()` reports any crossing still on the sheet as an `over`
+problem. Treat those the same as a broken net: fix them before shipping.
 
 A hook (`.claude/hooks/require_schematic_layout.py`) prints a reminder into the
 transcript whenever a generating command runs, so this is hard to forget. The

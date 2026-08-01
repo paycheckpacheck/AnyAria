@@ -8,6 +8,7 @@ the hierarchical instance paths all survive, so the sheet stays the same design
 and only its drawing changes.
 """
 
+import hashlib
 import json
 import logging
 import re
@@ -23,6 +24,12 @@ logger = logging.getLogger(__name__)
 
 Point = Tuple[float, float]
 GRID = 1.27
+
+# KiCad stores a direction on every sheet pin, but connectivity comes from the
+# name alone and the direction only decides the arrow drawn on the edge. The
+# child sheet's hierarchical labels carry the real directions, so the sheet pins
+# are drawn plainly rather than contradicting them.
+SHEET_PIN_SHAPE = "bidirectional"
 
 
 @dataclass
@@ -77,11 +84,65 @@ class PowerPlacement:
 
 
 @dataclass
+class SheetPinPlacement:
+    """One pin on a hierarchical sheet symbol.
+
+    Attributes:
+        name: The port name, which must match a hierarchical label inside the
+            child sheet exactly or the two will not connect.
+        side: ``"left"`` or ``"right"``. Inputs belong on the left and outputs
+            on the right, so the page reads the way the signals travel.
+        offset: How far down the sheet body's top edge the pin sits, in mm.
+    """
+
+    name: str
+    side: str
+    offset: float
+
+
+@dataclass
+class SheetPlacement:
+    """Where one hierarchical sheet symbol goes and how its pins are arranged.
+
+    Attributes:
+        name: The child sheet's name, as its ``Sheetname`` property gives it.
+        at: The ``(x, y)`` of the body's top-left corner.
+        size: The body's ``(width, height)`` in mm.
+        pins: The pins to draw on it. Every port of the child sheet must
+            appear, or the ones left out lose their connection.
+    """
+
+    name: str
+    at: Point
+    size: Tuple[float, float]
+    pins: List[SheetPinPlacement] = field(default_factory=list)
+
+
+@dataclass
+class NotePlacement:
+    """Where a text box on the sheet goes.
+
+    The generator writes each block's docstring onto its sheet as a text box,
+    dropped wherever there was room in the file rather than on the page. Left
+    alone it lands on top of the parts, which is worse than not being there.
+
+    Attributes:
+        at: The ``(x, y)`` of the box's top-left corner.
+        size: The box's ``(width, height)`` in mm.
+    """
+
+    at: Point
+    size: Tuple[float, float]
+
+
+@dataclass
 class PlacementSpec:
     """A complete placement for one sheet.
 
     Attributes:
         components: Where each real part goes.
+        sheets: Where each child hierarchical sheet symbol goes.
+        notes: Where the sheet's text boxes go, in the order the file has them.
         wires: Wire segments as ``(start, end)`` point pairs.
         junctions: Points where three or more connections meet.
         labels: Net labels.
@@ -90,6 +151,8 @@ class PlacementSpec:
     """
 
     components: List[ComponentPlacement] = field(default_factory=list)
+    sheets: List[SheetPlacement] = field(default_factory=list)
+    notes: List[NotePlacement] = field(default_factory=list)
     wires: List[Tuple[Point, Point]] = field(default_factory=list)
     junctions: List[Point] = field(default_factory=list)
     labels: List[LabelPlacement] = field(default_factory=list)
@@ -128,6 +191,11 @@ class PlacementSpec:
                 PowerPlacement(item.lib_id, move(item.at), item.rotation, item.reference)
                 for item in self.power
             ],
+            sheets=[
+                SheetPlacement(item.name, move(item.at), item.size, list(item.pins))
+                for item in self.sheets
+            ],
+            notes=[NotePlacement(move(item.at), item.size) for item in self.notes],
             no_connects=[move(point) for point in self.no_connects],
             paper=self.paper,
         )
@@ -137,12 +205,14 @@ class PlacementSpec:
 
         Two instances of one block have the same shape and different reference
         designators, so a layout written for one can be reused for the others.
+        Child sheet names are looked up in the same mapping, since repeated
+        instances of a block get numbered sheet names in the same way.
 
         Args:
-            mapping: Old reference to new reference.
+            mapping: Old reference or sheet name to its replacement.
 
         Returns:
-            A new spec addressing the renamed components.
+            A new spec addressing the renamed components and sheets.
         """
         renamed = PlacementSpec(
             components=[
@@ -151,6 +221,16 @@ class PlacementSpec:
                 )
                 for item in self.components
             ],
+            sheets=[
+                SheetPlacement(
+                    mapping.get(item.name, item.name),
+                    item.at,
+                    item.size,
+                    list(item.pins),
+                )
+                for item in self.sheets
+            ],
+            notes=list(self.notes),
             wires=list(self.wires),
             junctions=list(self.junctions),
             labels=list(self.labels),
@@ -202,6 +282,26 @@ class PlacementSpec:
                     reference=entry.get("reference"),
                 )
                 for entry in data.get("power", [])
+            ],
+            sheets=[
+                SheetPlacement(
+                    name=entry["name"],
+                    at=tuple(entry["at"]),
+                    size=tuple(entry["size"]),
+                    pins=[
+                        SheetPinPlacement(
+                            name=pin["name"],
+                            side=pin.get("side", "left"),
+                            offset=float(pin["offset"]),
+                        )
+                        for pin in entry.get("pins", [])
+                    ],
+                )
+                for entry in data.get("sheets", [])
+            ],
+            notes=[
+                NotePlacement(at=tuple(entry["at"]), size=tuple(entry["size"]))
+                for entry in data.get("notes", [])
             ],
             no_connects=[tuple(point) for point in data.get("no_connects", [])],
             paper=data.get("paper"),
@@ -363,6 +463,218 @@ def _power_sexp(power: PowerPlacement, reference: str, project: str) -> str:
     )
 
 
+def _sheet_pin_sexp(pin: SheetPinPlacement, sheet: SheetPlacement) -> str:
+    """Render one pin of a hierarchical sheet symbol.
+
+    Args:
+        pin: The pin to draw.
+        sheet: The sheet symbol it belongs to.
+
+    Returns:
+        The pin block, indented to sit inside a sheet block.
+
+    Raises:
+        ValueError: If the pin is not on the left or right edge.
+    """
+    if pin.side not in ("left", "right"):
+        raise ValueError(f"sheet pin {pin.name!r} has side {pin.side!r}")
+
+    on_left = pin.side == "left"
+    x = sheet.at[0] if on_left else sheet.at[0] + sheet.size[0]
+    y = sheet.at[1] + pin.offset
+
+    # KiCad reads the angle as which way the pin points away from the body, and
+    # relocates a pin whose angle disagrees with the edge it sits on - silently
+    # disconnecting it. 180 is the left edge, 0 the right.
+    angle = 180 if on_left else 0
+    justify = "left" if on_left else "right"
+
+    return (
+        f'\n\t\t(pin "{pin.name}" {SHEET_PIN_SHAPE}\n'
+        f"\t\t\t(at {x:g} {y:g} {angle})\n"
+        f"\t\t\t(effects\n"
+        f"\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t)\n"
+        f"\t\t\t\t(justify {justify})\n"
+        f"\t\t\t)\n"
+        f"\t\t\t(uuid \"{_stable_uuid(sheet.name, pin.name)}\")\n"
+        f"\t\t)"
+    )
+
+
+def _stable_uuid(sheet_name: str, pin_name: str) -> str:
+    """Make a UUID for a sheet pin that does not change between runs.
+
+    A pin rewritten with a fresh UUID every time turns every layout pass into a
+    large diff and loses whatever KiCad had associated with it.
+
+    Args:
+        sheet_name: The sheet the pin is on.
+        pin_name: The pin's name.
+
+    Returns:
+        A UUID string.
+    """
+    digest = hashlib.sha1(f"{sheet_name}/{pin_name}".encode("utf-8")).hexdigest()
+    return (
+        f"{digest[0:8]}-{digest[8:12]}-{digest[12:16]}-{digest[16:20]}-{digest[20:32]}"
+    )
+
+
+def _apply_sheets(text: str, spec: PlacementSpec, sheet_name: str) -> Tuple[str, int]:
+    """Move the child sheet symbols and redraw their pins.
+
+    Args:
+        text: The file contents.
+        spec: The placement being applied.
+        sheet_name: Name of the file being rewritten, for error messages.
+
+    Returns:
+        The updated text and how many sheet symbols were moved.
+
+    Raises:
+        ValueError: If the spec names a child sheet that is not on this page.
+    """
+    if not spec.sheets:
+        return text, 0
+
+    wanted = {placement.name: placement for placement in spec.sheets}
+    moved = 0
+
+    # Back to front, so the offsets in front of each edit stay valid.
+    for extent in sorted(sexp.iter_blocks(text, "sheet"), reverse=True):
+        block = sexp.block_text(text, extent)
+        name = sexp.read_property(block, "Sheetname")
+        placement = wanted.pop(name, None)
+        if placement is None:
+            continue
+
+        position = sexp.read_position(block)
+        if position is None:
+            continue
+
+        # Move the body and its two property labels together, then put the size
+        # and the pins back from the spec.
+        updated = sexp.replace_positions(
+            block, placement.at[0] - position[0], placement.at[1] - position[1], None
+        )
+        updated = re.sub(
+            r"\(size\s+-?[\d.]+\s+-?[\d.]+\s*\)",
+            f"(size {placement.size[0]:g} {placement.size[1]:g})",
+            updated,
+            count=1,
+        )
+        updated = _strip_sheet_pins(updated)
+        updated = _place_sheet_properties(updated, placement)
+
+        pins = "".join(_sheet_pin_sexp(pin, placement) for pin in placement.pins)
+        # KiCad writes the pins before the instance paths, so put them back
+        # where it expects them rather than at the end of the block.
+        instances = re.search(r"\n\t\t\(instances\s", updated)
+        if instances:
+            cut = instances.start()
+        else:
+            closing = updated.rstrip().rfind(")")
+            cut = updated.rfind("\n", 0, closing)
+        updated = updated[:cut] + pins + updated[cut:]
+
+        text = text[: extent[0]] + updated + text[extent[1] :]
+        moved += 1
+
+    if wanted:
+        raise ValueError(f"sheet {sheet_name} has no child sheet(s) {sorted(wanted)}")
+    return text, moved
+
+
+def _place_sheet_properties(block: str, placement: SheetPlacement) -> str:
+    """Put a sheet symbol's name and filename back against its body.
+
+    Both properties keep whatever offset they had from the old body, so a sheet
+    that changes size ends up with its filename written across its own pins.
+    KiCad's own convention puts the name just above the box and the filename
+    just below it.
+
+    Args:
+        block: The sheet block text.
+        placement: Where the sheet now is.
+
+    Returns:
+        The block with both properties repositioned.
+    """
+    x = placement.at[0]
+    above = placement.at[1] - 1.27
+    below = placement.at[1] + placement.size[1] + 1.27
+
+    for name, y in (("Sheetname", above), ("Sheetfile", below)):
+        pattern = re.compile(
+            rf'(\(property\s+"{name}"\s+"[^"]*"\s*\n\s*)'
+            r"\(at\s+-?[\d.]+\s+-?[\d.]+(?:\s+-?[\d.]+)?\s*\)"
+        )
+        block = pattern.sub(rf"\g<1>(at {x:g} {y:g} 0)", block, count=1)
+    return block
+
+
+def _apply_notes(text: str, spec: PlacementSpec) -> Tuple[str, int]:
+    """Move the sheet's text boxes to where the spec puts them.
+
+    Boxes are matched to placements by their order in the file. A sheet with
+    more boxes than placements keeps the extra ones where they are.
+
+    Args:
+        text: The file contents.
+        spec: The placement being applied.
+
+    Returns:
+        The updated text and how many boxes were moved.
+    """
+    if not spec.notes:
+        return text, 0
+
+    extents = list(sexp.iter_blocks(text, "text_box"))
+    moved = 0
+
+    # Back to front, so the offsets in front of each edit stay valid.
+    for index, extent in reversed(list(enumerate(extents))):
+        if index >= len(spec.notes):
+            continue
+        note = spec.notes[index]
+        block = sexp.block_text(text, extent)
+        position = sexp.read_position(block)
+        if position is None:
+            continue
+
+        updated = sexp.replace_positions(
+            block, note.at[0] - position[0], note.at[1] - position[1], None
+        )
+        updated = re.sub(
+            r"\(size\s+-?[\d.]+\s+-?[\d.]+\s*\)",
+            f"(size {note.size[0]:g} {note.size[1]:g})",
+            updated,
+            count=1,
+        )
+        text = text[: extent[0]] + updated + text[extent[1] :]
+        moved += 1
+
+    return text, moved
+
+
+def _strip_sheet_pins(block: str) -> str:
+    """Remove every pin from a sheet symbol block.
+
+    Args:
+        block: The sheet block text.
+
+    Returns:
+        The block with its pins removed.
+    """
+    result = block
+    while True:
+        match = re.search(r"\n\t\t\(pin\s", result)
+        if not match:
+            return result
+        start, end = sexp.find_block(result, match.start() + 3)
+        result = result[: match.start()] + result[end:]
+
+
 def apply_placement(
     sheet_path: Path, spec: PlacementSpec, snap_to_grid: bool = True
 ) -> Dict[str, int]:
@@ -390,6 +702,12 @@ def apply_placement(
         points += list(spec.junctions)
         points += [label.at for label in spec.labels]
         points += [power.at for power in spec.power]
+        points += [
+            (sheet.at[0] + (0 if pin.side == "left" else sheet.size[0]),
+             sheet.at[1] + pin.offset)
+            for sheet in spec.sheets
+            for pin in sheet.pins
+        ]
         off = _off_grid(points)
         if off:
             raise ValueError(
@@ -439,6 +757,9 @@ def apply_placement(
         raise ValueError(
             f"sheet {sheet_path.name} has no component(s) named " f"{sorted(wanted)}"
         )
+
+    text, sheets_moved = _apply_sheets(text, spec, sheet_path.name)
+    text, notes_moved = _apply_notes(text, spec)
 
     # Replace all of the drawing. Everything here is generated from the spec,
     # so nothing is lost by clearing it first.
@@ -490,6 +811,8 @@ def apply_placement(
 
     written = {
         "components_moved": moved,
+        "sheets_moved": sheets_moved,
+        "notes_moved": notes_moved,
         "wires": len(spec.wires),
         "junctions": len(spec.junctions),
         "labels": len(spec.labels),

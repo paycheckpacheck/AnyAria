@@ -36,6 +36,9 @@ layout-schematic skill, which walks the loop:
     describe the sheet -> decide the placement -> apply it
     -> validate the connectivity -> render it -> look at it -> refine
 
+Wires go around parts, never over them: route_around() works out the detour and
+validate_layout() reports any crossing left as an "over" problem.
+
 Do not describe a generated schematic as finished, or show it to the user,
 until that has run and validate_layout() reports no problems.\
 """

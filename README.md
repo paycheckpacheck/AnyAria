@@ -92,20 +92,25 @@ uv run python examples/three_phase_driver.py
 
 ```
 ThreePhaseDriver (root)
-+-- Power          VBUS in -> motor rail and 3.3V logic
++-- Power          VBUS in -> motor rail, 3.3V logic, rail sense
 +-- UsbProgramming USB-C, CC resistors, D+/D- to the MCU
 +-- Mcu            RP2040, QSPI flash, crystal, SWD
-+-- HalfBridge x3  HI/LI in -> PHASE out, plus ISENSE and BEMF out
-+-- BemfSense      three BEMF taps -> three zero-crossing edges
++-- HalfBridge x3  HI/LI in -> PHASE out, plus ISENSE and ZC out
+    +-- BackEmf    that phase's divider, neutral tap and comparator
 ```
+
+Everything that exists once per phase lives inside `HalfBridge`, because
+`HalfBridge` is the block that is repeated. Only the virtual neutral is shared,
+so it arrives as a port. The `circuit-hierarchy` skill covers how to make that
+call.
 
 Feedback into commutation:
 
 * **current** - three low-side Kelvin shunts, one INA181 each, into ADC0..ADC2,
   for torque control and over-current shutdown
 * **back-EMF** - each phase divided by 11 and compared against a virtual
-  neutral by an LM339, whose outputs are the zero-crossing edges the
-  commutation state machine advances on
+  neutral by that phase's own comparator, whose output is the zero-crossing
+  edge the commutation state machine advances on
 * **rail** - the motor rail divided into ADC3, so the duty cycle can be
   compensated for supply droop
 

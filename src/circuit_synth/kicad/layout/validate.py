@@ -45,7 +45,7 @@ class LayoutProblem:
     """One way a layout differs from the circuit it should draw.
 
     Attributes:
-        kind: ``"shorted"``, ``"broken"`` or ``"missing"``.
+        kind: ``"shorted"``, ``"broken"``, ``"missing"`` or ``"over"``.
         pin: The ``"REF.PIN"`` token affected.
         detail: What changed about it.
     """
@@ -204,7 +204,8 @@ def validate_layout(
             project directory.
 
     Returns:
-        The differences found, empty when the layout draws the circuit exactly.
+        The differences found, empty when the layout draws the circuit exactly
+        and no wire is drawn across a part.
     """
     expected = intended_partition(circuit_json)
     actual = kicad_partition(root_schematic, work_dir or root_schematic.parent)
@@ -225,6 +226,45 @@ def validate_layout(
             problems.append(LayoutProblem("shorted", pin, f"also joined to {extra}"))
         else:
             problems.append(LayoutProblem("broken", pin, f"no longer joined to {lost}"))
+
+    # A wire across a body does not change the connectivity, so nothing above
+    # would catch it, but it reads as a connection that is not there.
+    problems += wires_over_parts(root_schematic.parent)
+    return problems
+
+
+def wires_over_parts(project_dir: Path) -> List[LayoutProblem]:
+    """Find the wires drawn across a symbol body anywhere in a project.
+
+    Args:
+        project_dir: The project directory holding the sheets.
+
+    Returns:
+        One problem per crossing, of kind ``"over"``.
+    """
+    from .routing import notes_over_components, wires_over_components
+
+    problems: List[LayoutProblem] = []
+    for sheet in sorted(Path(project_dir).glob("*.kicad_sch")):
+        for hit in wires_over_components(sheet):
+            problems.append(
+                LayoutProblem(
+                    "over",
+                    f"{sheet.stem}:{hit.reference}",
+                    f"a wire from ({hit.start[0]:g},{hit.start[1]:g}) to "
+                    f"({hit.end[0]:g},{hit.end[1]:g}) is drawn across it; "
+                    f"route it around with route_around()",
+                )
+            )
+        for reference, note in notes_over_components(sheet):
+            problems.append(
+                LayoutProblem(
+                    "over",
+                    f"{sheet.stem}:{reference}",
+                    f"a text box at ({note.min_x:g},{note.min_y:g}) covers it; "
+                    f"move it with a NotePlacement in the spec",
+                )
+            )
     return problems
 
 

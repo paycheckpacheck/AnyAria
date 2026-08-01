@@ -7,11 +7,17 @@ virtual neutral to give the zero-crossing edges that commutation times from,
 which is what makes the drive sensorless.
 
     ThreePhaseDriver (root)
-    +-- Power          VBUS in -> 12V motor rail and 3.3V logic
+    +-- Power          VBUS in -> motor rail, 3.3V logic, rail sense
     +-- UsbProgramming USB-C, CC resistors, D+/D- to the MCU
     +-- Mcu            RP2040, QSPI flash, crystal, SWD
-    +-- HalfBridge x3  HI/LI in -> PHASE out, plus ISENSE and BEMF out
-    +-- BemfSense      three BEMF taps -> three zero-crossing edges
+    +-- HalfBridge x3  HI/LI in -> PHASE out, plus ISENSE and ZC out
+        +-- BackEmf    that phase's divider, neutral tap and comparator
+
+Everything that exists once per phase lives inside HalfBridge, including the
+back-EMF sensing, because HalfBridge is the thing that is repeated. Only the
+virtual neutral is shared: each BackEmf feeds one resistor into it, and the
+three together make the star point, which is why NEUTRAL is a port rather than
+a block of its own.
 
 Feedback into commutation:
 
@@ -28,7 +34,7 @@ Run it with ``uv run python examples/three_phase_driver.py``.
 
 from pathlib import Path
 
-from circuit_synth import Component, Input, Net, Output, circuit
+from circuit_synth import Bidirectional, Component, Input, Net, Output, circuit
 
 # Resistor divider from a phase down to an ADC or comparator input. 100k over
 # 10k divides by 11, which keeps a 36V rail inside the 3.3V input range with
@@ -68,8 +74,12 @@ def resistor(value: str, footprint: str = "Resistor_SMD:R_0603_1608Metric") -> C
 
 
 @circuit(name="Power")
-def power(VBUS: Input, VMOTOR: Output, V3V3: Output):
-    """Board supply: the motor rail straight off VBUS, and 3.3V for the logic."""
+def power(VBUS: Input, VMOTOR: Output, V3V3: Output, VRAIL_SENSE: Output):
+    """Board supply: the motor rail straight off VBUS, and 3.3V for the logic.
+
+    The rail monitor belongs here rather than with the sensing, because what it
+    measures is this block's own output.
+    """
     bulk = Component(
         symbol="Device:C_Polarized",
         ref="C",
@@ -88,6 +98,8 @@ def power(VBUS: Input, VMOTOR: Output, V3V3: Output):
     regulator_in = decoupling("10uF")
     regulator_out = decoupling("22uF")
     motor_rail_cap = decoupling("1uF/50V")
+    rail_top = resistor(DIVIDER_TOP)
+    rail_bottom = resistor(DIVIDER_BOTTOM)
 
     gnd = Net("GND")
 
@@ -105,6 +117,12 @@ def power(VBUS: Input, VMOTOR: Output, V3V3: Output):
     regulator_in[2] += gnd
     regulator_out[1] += V3V3
     regulator_out[2] += gnd
+
+    # Rail monitor, so the duty cycle can be corrected for supply droop.
+    rail_top[1] += VMOTOR
+    rail_top[2] += VRAIL_SENSE
+    rail_bottom[1] += VRAIL_SENSE
+    rail_bottom[2] += gnd
 
 
 @circuit(name="UsbProgramming")
@@ -217,6 +235,10 @@ def mcu(
         rp2040[pin] += V3V3
     rp2040["44"] += V3V3  # VREG_VIN
     rp2040["45"] += v1v1  # VREG_VOUT
+    # Both DVDD pins take the core rail. The symbol stacks them on one point,
+    # so leaving either off makes KiCad join it to the rail anyway and the
+    # schematic stops matching the Python.
+    rp2040["23"] += v1v1  # DVDD
     rp2040["50"] += v1v1  # DVDD
     rp2040["48"] += V3V3  # USB_VDD
     rp2040["57"] += gnd
@@ -294,6 +316,64 @@ def mcu(
     rp2040["11"] += ZC_C  # GPIO8
 
 
+@circuit(name="BackEmf")
+def back_emf(
+    PHASE: Input,
+    NEUTRAL: Bidirectional,
+    V3V3: Input,
+    ZC: Output,
+):
+    """One phase's back-EMF sensing: divider, neutral tap and comparator.
+
+    There is one of these per phase, so it sits inside HalfBridge rather than
+    beside it - a block that senses all three phases at once would have to be
+    written three times over inside itself.
+
+    NEUTRAL is the one thing the three instances share. Each contributes a
+    matched resistor from its own divided phase into it, and the three together
+    form the star point every phase is measured against, so it arrives as a
+    port instead of being made here.
+    """
+    divider_top = resistor(DIVIDER_TOP)
+    divider_bottom = resistor(DIVIDER_BOTTOM)
+    neutral_resistor = resistor("10k")
+    pullup = resistor("10k")
+    comparator = Component(
+        symbol="Comparator:TLV3501AIDBV",
+        ref="U",
+        value="TLV3501",
+        footprint="Package_TO_SOT_SMD:SOT-23-6",
+    )
+    supply_cap = decoupling()
+
+    gnd = Net("GND")
+    bemf = Net("BEMF")
+
+    # Divide the phase down to something the comparator can take.
+    divider_top[1] += PHASE
+    divider_top[2] += bemf
+    divider_bottom[1] += bemf
+    divider_bottom[2] += gnd
+
+    # This phase's contribution to the shared star point.
+    neutral_resistor[1] += bemf
+    neutral_resistor[2] += NEUTRAL
+
+    comparator[3] += bemf  # +
+    comparator[1] += NEUTRAL  # -
+    comparator[5] += ZC  # output
+    comparator[4] += V3V3  # V+
+    comparator[2] += gnd  # V-
+    comparator[6] += V3V3  # SHDN, held high to keep the part enabled
+    supply_cap[1] += V3V3
+    supply_cap[2] += gnd
+
+    # The output is push-pull, but a pullup keeps the edge defined while the
+    # part starts up.
+    pullup[1] += V3V3
+    pullup[2] += ZC
+
+
 @circuit(name="HalfBridge")
 def half_bridge(
     HI: Input,
@@ -302,14 +382,16 @@ def half_bridge(
     VM: Input,
     VDRV: Input,
     ISENSE: Output,
-    BEMF: Output,
+    NEUTRAL: Bidirectional,
+    ZC: Output,
 ):
     """One half-bridge with its own current and back-EMF measurement.
 
     An IR2101 drives a pair of N-channel MOSFETs. The low side returns through
     a Kelvin shunt, and an INA181 amplifies the shunt voltage by 20 into the
-    MCU's ADC. A divider on the phase output brings the back-EMF into range for
-    the zero-crossing comparator.
+    MCU's ADC. The back-EMF sensing for this phase is a nested BackEmf block,
+    so instantiating this block three times gives three of everything a phase
+    needs and nothing has to be written out per phase anywhere else.
     """
     driver = Component(
         symbol="Driver_FET:IR2101",
@@ -356,9 +438,6 @@ def half_bridge(
     amp_cap = decoupling()
     amp_filter = resistor("1k")
     amp_filter_cap = decoupling("1nF")
-
-    bemf_top = resistor(DIVIDER_TOP)
-    bemf_bottom = resistor(DIVIDER_BOTTOM)
 
     gnd = Net("GND")
     boot = Net("BOOT")
@@ -416,77 +495,9 @@ def half_bridge(
     amp_filter_cap[1] += ISENSE
     amp_filter_cap[2] += gnd
 
-    # Back-EMF divider
-    bemf_top[1] += PHASE
-    bemf_top[2] += BEMF
-    bemf_bottom[1] += BEMF
-    bemf_bottom[2] += gnd
+    # This phase's back-EMF sensing, as its own nested sheet.
+    back_emf(PHASE, NEUTRAL, VDRV, ZC)
 
-
-@circuit(name="BemfSense")
-def bemf_sense(
-    BEMF_A: Input,
-    BEMF_B: Input,
-    BEMF_C: Input,
-    VMOTOR: Input,
-    V3V3: Input,
-    ZC_A: Output,
-    ZC_B: Output,
-    ZC_C: Output,
-):
-    """Zero-crossing detection for sensorless commutation.
-
-    Each divided phase is compared against a virtual neutral made from the same
-    three phases through matched resistors, handing the MCU a clean edge every
-    time a phase crosses the neutral point.
-    """
-    # One comparator per phase. Single-part comparators are used rather than a
-    # quad, because each unit of a multi-part symbol would otherwise have to be
-    # placed and labelled individually.
-    comparators = [
-        Component(
-            symbol="Comparator:TLV3501AIDBV",
-            ref="U",
-            value="TLV3501",
-            footprint="Package_TO_SOT_SMD:SOT-23-6",
-        )
-        for _ in range(3)
-    ]
-    neutral_resistors = [resistor("10k") for _ in range(3)]
-    pullups = [resistor("10k") for _ in range(3)]
-    rail_top = resistor(DIVIDER_TOP)
-    rail_bottom = resistor(DIVIDER_BOTTOM)
-    supply_caps = [decoupling() for _ in range(3)]
-
-    gnd = Net("GND")
-    neutral = Net("VNEUTRAL")
-
-    # Virtual neutral: the star point the phases are measured against.
-    for source, element in zip((BEMF_A, BEMF_B, BEMF_C), neutral_resistors):
-        element[1] += source
-        element[2] += neutral
-
-    phases = ((BEMF_A, ZC_A), (BEMF_B, ZC_B), (BEMF_C, ZC_C))
-    for comparator, cap, pullup, (bemf, zero_cross) in zip(
-        comparators, supply_caps, pullups, phases
-    ):
-        comparator[3] += bemf  # +
-        comparator[1] += neutral  # -
-        comparator[5] += zero_cross  # output
-        comparator[4] += V3V3  # V+
-        comparator[2] += gnd  # V-
-        comparator[6] += V3V3  # SHDN, held high to keep the part enabled
-        cap[1] += V3V3
-        cap[2] += gnd
-        # The output is push-pull, but a pullup keeps the edge defined while
-        # the part starts up.
-        pullup[1] += V3V3
-        pullup[2] += zero_cross
-
-    # Rail monitor, so the duty cycle can be corrected for supply droop.
-    rail_top[1] += VMOTOR
-    rail_bottom[2] += gnd
-    rail_top[2] += rail_bottom[1]
 
 
 @circuit(name="ThreePhaseDriver")
@@ -498,6 +509,10 @@ def three_phase_driver():
     usb_dp = Net("USB_DP")
     usb_dm = Net("USB_DM")
     rail_sense = Net("VRAIL_SENSE")
+    # The star point the three phases are measured against. It is made from all
+    # three at once, so it is the one back-EMF net that cannot live inside a
+    # single phase's block.
+    neutral = Net("VNEUTRAL")
 
     phases = []
     for name in ("A", "B", "C"):
@@ -507,13 +522,12 @@ def three_phase_driver():
                 "low": Net(f"{name}L"),
                 "phase": Net(f"PHASE_{name}"),
                 "current": Net(f"ISENSE_{name}"),
-                "bemf": Net(f"BEMF_{name}"),
                 "zero_cross": Net(f"ZC_{name}"),
             }
         )
 
     usb_programming(vbus, usb_dp, usb_dm)
-    power(vbus, v_motor, v3v3)
+    power(vbus, v_motor, v3v3, rail_sense)
 
     mcu(
         v3v3, usb_dp, usb_dm,
@@ -528,14 +542,8 @@ def three_phase_driver():
     for leg in phases:
         half_bridge(
             leg["high"], leg["low"], leg["phase"], v_motor, v3v3,
-            leg["current"], leg["bemf"],
+            leg["current"], neutral, leg["zero_cross"],
         )
-
-    bemf_sense(
-        phases[0]["bemf"], phases[1]["bemf"], phases[2]["bemf"],
-        v_motor, v3v3,
-        phases[0]["zero_cross"], phases[1]["zero_cross"], phases[2]["zero_cross"],
-    )
 
     motor = Component(
         symbol="Connector_Generic:Conn_01x03",

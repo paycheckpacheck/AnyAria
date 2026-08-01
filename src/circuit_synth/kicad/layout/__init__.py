@@ -14,6 +14,8 @@ instead:
   compact enough to reason over.
 * :mod:`spec` applies a placement decision back onto the sheet, moving symbols
   and redrawing the wires, junctions, labels and power symbols.
+* :mod:`routing` keeps wires off the parts they run between - it finds the ones
+  drawn across a body and routes a replacement around it.
 * :mod:`validate` checks the result against the circuit it came from, so a
   layout can never quietly change the connectivity.
 * :mod:`render` turns a sheet into a PNG so the result can be looked at.
@@ -21,15 +23,44 @@ instead:
 
 from .extract import SheetDescription, describe_sheet
 from .render import render_sheets
-from .spec import PlacementSpec, apply_placement
+from .routing import (
+    Box,
+    boxes_overlap,
+    notes_over_components,
+    WireOverComponent,
+    path_is_clear,
+    route_around,
+    segments_of,
+    sheet_bodies,
+    wires_over_components,
+)
+from .spec import (
+    NotePlacement,
+    PlacementSpec,
+    SheetPinPlacement,
+    SheetPlacement,
+    apply_placement,
+)
 from .validate import LayoutProblem, validate_layout
 
 __all__ = [
     "SheetDescription",
     "describe_sheet",
     "PlacementSpec",
+    "NotePlacement",
+    "SheetPlacement",
+    "SheetPinPlacement",
     "apply_placement",
     "LayoutProblem",
     "validate_layout",
     "render_sheets",
+    "Box",
+    "WireOverComponent",
+    "boxes_overlap",
+    "notes_over_components",
+    "path_is_clear",
+    "route_around",
+    "segments_of",
+    "sheet_bodies",
+    "wires_over_components",
 ]

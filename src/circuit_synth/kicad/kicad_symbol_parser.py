@@ -129,9 +129,22 @@ def _parse_symbol_body(name: str, body: List[Any]) -> Dict[str, Any]:
         k = _key(elem[0])
         if k == "property":
             # (property "Reference" "R" (at ...) (effects ...))
-            if len(elem) >= 3:
-                prop_name = str(elem[1])
-                prop_value = str(elem[2])
+            #
+            # A property may carry bare flag tokens before its name, as in
+            # (property private "KLC_S4.2_DVDD" "Not a standalone ..."). Those
+            # are unquoted symbols rather than strings, so the name and value
+            # sit further along than usual. Reading them positionally makes the
+            # flag the name and the name the value, and leaves the real value
+            # to be written back unquoted, which produces a symbol KiCad
+            # refuses to load.
+            fields = [
+                item
+                for item in elem[1:]
+                if not isinstance(item, list) and not _is_bare_flag(item)
+            ]
+            if len(fields) >= 2:
+                prop_name = str(fields[0])
+                prop_value = str(fields[1])
                 # Store generically
                 result["properties"][prop_name] = prop_value
                 # Also store specific standard properties directly
@@ -437,6 +450,18 @@ def _flatten_symbol(
         "is_power": sym_data["is_power"],
         "unit_count": unit_count,
     }
+
+
+def _is_bare_flag(obj: Any) -> bool:
+    """
+    Report whether an s-expression atom is an unquoted flag rather than a value.
+
+    KiCad writes flags such as the "private" on a property as bare symbols,
+    while names and values are always quoted strings. sexpdata reads a bare
+    symbol as a Symbol and a quoted string as a str, so the distinction
+    survives parsing.
+    """
+    return isinstance(obj, sexpdata.Symbol)
 
 
 def _key(obj: Any) -> str:

@@ -789,6 +789,27 @@ class Circuit:
             )
 
             if result.get("success", True):  # Default to success if not specified
+                # A sheet KiCad refuses to open fails quietly: the root still
+                # exports, the broken page comes up empty and every part on it
+                # vanishes from the netlist. Ask KiCad before saying this
+                # worked.
+                from ..kicad.sheet_check import describe_unloadable, unloadable_sheets
+
+                broken = unloadable_sheets(output_path)
+                if broken:
+                    error_msg = describe_unloadable(broken)
+                    context_logger.error(
+                        error_msg, component="CIRCUIT", project_name=project_name
+                    )
+                    print(f"\nERROR: {error_msg}\n")
+                    return {
+                        "success": False,
+                        "error": error_msg,
+                        "unloadable_sheets": broken,
+                        "json_path": json_path,
+                        "project_path": output_path,
+                    }
+
                 context_logger.info(
                     "KiCad project generated successfully",
                     component="CIRCUIT",

@@ -75,6 +75,12 @@ description rather than assuming.
 ```json
 {
   "components": [{"ref": "U3", "at": [76.2, 88.9], "rotation": 0}],
+  "sheets": [
+    {"name": "BackEmf", "at": [241.3, 91.44], "size": [50.8, 33.02],
+     "pins": [{"name": "PHASE", "side": "left", "offset": 7.62},
+              {"name": "ZC", "side": "right", "offset": 7.62}]}
+  ],
+  "notes": [{"at": [55.88, 175.26], "size": [152.4, 25.4]}],
   "wires": [[[83.82, 81.28], [102.87, 81.28]]],
   "junctions": [[102.87, 81.28]],
   "labels": [
@@ -99,6 +105,10 @@ stays the same design.
   back against the circuit JSON, pin for pin. If it reports anything, your
   wiring is wrong - fix it, do not ship it.
 - **Orthogonal wires only.** Horizontal and vertical segments, never diagonal.
+- **Never route a wire over a component.** A wire crossing a symbol body reads
+  as a connection to that part and hides what it crosses. Take it around, even
+  when that costs two more corners. `route_around` works the detour out for
+  you and `validate_layout` reports every crossing left on the sheet.
 - **A junction wherever three or more connections meet.** Two wires that merely
   cross are separate nets in KiCad; three that meet without a junction are not
   connected at all.
@@ -140,12 +150,48 @@ pick the paper size to suit.
 over the symbol body. Check the render, since symbol reference and value text
 moves with the symbol and collides in ways the coordinates do not show.
 
+**Wires around parts, not through them.** Leave a channel between blocks for
+wires that have to get past. A wire that must cross the sheet goes above or
+below the parts in its way, not through them:
+
+```python
+from circuit_synth.kicad.layout import route_around, segments_of, sheet_bodies
+
+bodies = sheet_bodies(sheet_path)              # every printed outline
+detour = route_around(start, end, bodies.values())
+spec.wires += segments_of(detour)              # the corners, as wire segments
+```
+
+`route_around` returns the fewest-corner orthogonal path that keeps 1.27mm off
+every body, and falls back to a plain L route when the sheet is too crowded to
+avoid everything - which is a sign to move a part, not to accept the crossing.
+Check what is left with `wires_over_components(sheet_path)`.
+
 ## Sheets of hierarchical blocks
 
 A sheet whose parts are all sheet symbols is laid out the same way, using the
 same flow: source blocks on the left, consumers to the right, one sheet symbol
 per block with its pins on the side the signal travels. Give each sheet symbol
 room for its pin names.
+
+`sheets` places them: `at` is the body's top-left corner, `size` its width and
+height, and each pin gives its name, the edge it sits on and how far down that
+edge it goes. **Every port of the child sheet must appear** - a port left out
+of the list loses its connection, and nothing else will notice.
+
+A page of sheet symbols is a block diagram, so wire it like one: give every
+sheet pin a short stub with a **label** on it rather than running wires from
+block to block. Point-to-point wiring between six blocks with eight pins each
+is a rat's nest; the same page in labels reads at a glance. The same goes for a
+dense part - an MCU with fifty pins gets stubs and labels, not fifty wires.
+
+## Text boxes
+
+The generator writes each block's docstring onto its sheet as a text box, and
+puts it wherever there was room in the file - which is usually straight over
+the parts. `notes` moves it: one entry per box, in file order, each with the
+`at` of its top-left corner and its `size`. Put it in clear space below or
+beside the drawing. `validate_layout` reports a box left sitting on a part.
 
 ## When you cannot make something clean
 
