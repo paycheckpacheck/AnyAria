@@ -15,12 +15,9 @@ import logging
 import sys
 from pathlib import Path
 
-from circuit_synth.kicad.layout import (
-    PlacementSpec,
-    apply_placement,
-    render_sheets,
-    validate_layout,
-)
+from circuit_synth.kicad.layout import PlacementSpec, apply_placement
+from circuit_synth.kicad.spice_hygiene import make_spice_clean
+from circuit_synth.verify import verify_project
 from circuit_synth.kicad.layout.extract import instance_renames
 from circuit_synth.kicad.layout.spec import ComponentPlacement as C
 from circuit_synth.kicad.layout.spec import LabelPlacement as L
@@ -321,6 +318,8 @@ POWER = PlacementSpec(
         # VBUS in, through the fuse, into the motor rail
         ((45.72, 76.2), (59.69, 76.2)),
         ((45.72, 76.2), (45.72, 71.12)),
+        ((45.72, 71.12), (35.56, 71.12)),
+        ((88.9, 91.44), (80.01, 91.44)),
         ((67.31, 76.2), (165.1, 76.2)),
         ((88.9, 76.2), (88.9, 80.01)),
         ((104.14, 76.2), (104.14, 80.01)),
@@ -359,6 +358,8 @@ POWER = PlacementSpec(
     ],
     notes=[N((33.02, 175.26), (177.8, 20.32))],
     junctions=[
+        (45.72, 71.12),
+        (88.9, 91.44),
         (88.9, 76.2),
         (104.14, 76.2),
         (127.0, 76.2),
@@ -374,6 +375,8 @@ POWER = PlacementSpec(
     ],
     power=[
         P("power:VBUS", (45.72, 71.12), 0),
+        P("power:PWR_FLAG", (35.56, 71.12), 0),
+        P("power:PWR_FLAG", (80.01, 91.44), 0),
         ground((88.9, 91.44)),
         ground((104.14, 91.44)),
         ground((76.2, 106.68)),
@@ -442,6 +445,10 @@ USB = PlacementSpec(
         ),
     ],
     notes=[N((43.18, 165.1), (127.0, 25.4))],
+    no_connects=[
+        (78.74, 101.6),
+        (78.74, 104.14),
+    ],
     junctions=[
         (114.3, 73.66),
         (83.82, 88.9),
@@ -607,6 +614,7 @@ MCU = PlacementSpec(
         ((265.43, 116.84), (252.73, 116.84)),
         ((304.8, 100.33), (304.8, 95.25)),
         ((304.8, 107.95), (304.8, 111.76)),
+        ((304.8, 95.25), (317.5, 95.25)),
         # --- Reset and boot straps
         ((58.42, 198.12), (58.42, 193.04)),
         ((58.42, 205.74), (58.42, 210.82)),
@@ -682,6 +690,29 @@ MCU = PlacementSpec(
         ((508.0, 238.76), (514.35, 238.76)),
     ],
     notes=[N((38.1, 25.4), (304.8, 30.48))],
+    # The GPIO this design does not use, and TESTEN, are marked no-connect
+    # rather than left bare: an unmarked floating pin and a pin somebody forgot
+    # look identical to ERC, and only one of them is deliberate.
+    no_connects=[
+        (508.0, 185.42),
+        (508.0, 187.96),
+        (508.0, 190.5),
+        (508.0, 193.04),
+        (508.0, 195.58),
+        (508.0, 198.12),
+        (508.0, 200.66),
+        (508.0, 203.2),
+        (508.0, 205.74),
+        (508.0, 208.28),
+        (508.0, 210.82),
+        (508.0, 213.36),
+        (508.0, 215.9),
+        (508.0, 218.44),
+        (508.0, 220.98),
+        (508.0, 223.52),
+        (508.0, 226.06),
+        (457.2, 170.18),
+    ],
     junctions=[
         (68.58, 95.25),
         (81.28, 95.25),
@@ -767,6 +798,7 @@ MCU = PlacementSpec(
         ground((157.48, 111.76)),
         ground((240.03, 111.76)),
         ground((304.8, 111.76)),
+        P("power:PWR_FLAG", (317.5, 95.25), 0),
         ground((76.2, 210.82)),
         ground((144.78, 218.44)),
         ground((88.9, 327.66)),
@@ -944,25 +976,25 @@ def sheets() -> dict:
 
 
 def main() -> int:
-    """Apply every sheet layout, then check and render the result.
+    """Apply every sheet layout, then check the whole project.
 
     Returns:
-        Process exit status: non-zero when the layout changed the circuit.
+        Process exit status: non-zero when any check failed.
     """
     for name, spec in sheets().items():
         written = apply_placement(PROJECT / f"{name}.kicad_sch", spec)
         print(f"{name:16s} {written}")
 
-    problems = validate_layout(ROOT, CIRCUIT_JSON)
-    print(f"\nproblems: {len(problems)}")
-    for problem in problems[:20]:
-        print("  ", problem)
-    if problems:
-        return 1
+    # The values an engineer wants to read - 220uF/50V - are not values a
+    # simulator can read, and a fuse called F1 is a controlled source as far as
+    # SPICE is concerned. This gives every part a model or an exemption, so the
+    # project opens in KiCad's simulator instead of failing to load.
+    print(f"\n{make_spice_clean(PROJECT).summary()}")
 
-    images = render_sheets(ROOT, PROJECT / "img")
-    print(f"rendered {len(images)} sheet(s) to {PROJECT / 'img'}")
-    return 0
+    report = verify_project(ROOT, CIRCUIT_JSON)
+    print()
+    print(report.summary())
+    return 0 if report.passed else 1
 
 
 if __name__ == "__main__":

@@ -862,6 +862,86 @@ def _strip_sheet_pins(block: str) -> str:
         result = result[: match.start()] + result[end:]
 
 
+def _ensure_lib_symbols(text: str, lib_ids: Sequence[str]) -> str:
+    """Make sure every symbol used on the sheet is defined in ``lib_symbols``.
+
+    A sheet carries its own copy of each symbol it uses, and KiCad reads the
+    pins from that copy rather than from the library. The generator writes the
+    definitions for the parts the circuit had; a power symbol added afterwards
+    by a placement has none, and then KiCad cannot see its pin at all. The
+    symbol draws, the wire touches it, and the connection does not exist - which
+    is exactly the kind of silent failure this toolchain exists to prevent.
+
+    Args:
+        text: The sheet contents.
+        lib_ids: The library identifiers the sheet is about to use.
+
+    Returns:
+        The sheet with any missing definition added.
+    """
+    missing = [
+        lib_id
+        for lib_id in dict.fromkeys(lib_ids)
+        if f'(symbol "{lib_id}"' not in text
+    ]
+    if not missing:
+        return text
+
+    definitions = []
+    for lib_id in missing:
+        definition = _library_definition(lib_id)
+        if definition:
+            definitions.append(definition)
+        else:
+            logger.warning("No library definition found for %s", lib_id)
+
+    if not definitions:
+        return text
+
+    # The block is `(lib_symbols ... )` at one tab; insert before its close.
+    for start, end in sexp.iter_blocks(text, "lib_symbols"):
+        closing = text.rfind(")", start, end)
+        return text[:closing] + "".join(definitions) + text[closing:]
+    return text
+
+
+def _library_definition(lib_id: str) -> str:
+    """Read a symbol's definition out of its library, ready to embed.
+
+    Args:
+        lib_id: The ``"Library:Name"`` identifier.
+
+    Returns:
+        The definition block, indented for a sheet's ``lib_symbols``, or an
+        empty string when the symbol cannot be found.
+    """
+    from ..kicad_symbol_cache import SymbolLibCache
+
+    if ":" not in lib_id:
+        return ""
+    library, name = lib_id.split(":", 1)
+
+    path = SymbolLibCache.get_all_libraries().get(library)
+    if not path or not Path(path).exists():
+        return ""
+
+    source = Path(path).read_text(encoding="utf-8")
+    marker = source.find(f'(symbol "{name}"')
+    if marker < 0:
+        return ""
+
+    start, end = sexp.find_block(source, marker - 1 if source[marker - 1] == "(" else marker)
+    block = source[start:end]
+
+    # The library names the symbol by itself; a sheet names it by library too.
+    block = block.replace(f'(symbol "{name}"', f'(symbol "{lib_id}"', 1)
+    indented = "\n".join(
+        ("\t\t" + line.lstrip("\t")) if line.strip() else line
+        for line in block.splitlines()
+    )
+    return "\n" + indented + "\n\t"
+
+
 def apply_placement(
     sheet_path: Path, spec: PlacementSpec, snap_to_grid: bool = True
 ) -> Dict[str, int]:
@@ -986,6 +1066,10 @@ def apply_placement(
     # the netlist. The block is derived from the sheet name so it is stable
     # between runs and distinct from the other sheets.
     reference_block = zlib.crc32(sheet_path.stem.encode("utf-8")) % 90 + 10
+
+    # A power symbol the placement introduces has no definition on the sheet
+    # yet, and KiCad reads pins from the sheet's own copy.
+    text = _ensure_lib_symbols(text, [power.lib_id for power in spec.power])
 
     additions = []
     for group in spec.groups:
