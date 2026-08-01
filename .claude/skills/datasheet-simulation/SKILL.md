@@ -66,6 +66,72 @@ successful run.
 9. **Annotate.** Write the figures onto the design sheet.
 10. **Report.** Lead with what could not be established.
 
+## The whole board: firmware in, waveforms out
+
+Most boards cannot be simulated by SPICE at all, and it is worth being clear
+about why before choosing a tool.
+
+A gate driver, a shunt amplifier, a comparator, a PLL, a mixer, an LDO - none
+of them has a netlist a solver can do anything with, and the vendor's model,
+where one exists, will not run in ngspice. And the behaviour of a controller
+board *is* its control loop: simulating the power stage with a fixed stimulus
+leaves out the part under test.
+
+So a board is simulated as three kinds of block over shared nets, in
+`circuit_synth.simulation.cosim`:
+
+| Block | What it is | Built from |
+|---|---|---|
+| `Firmware` | the excitation - Python standing in for what the MCU will run | the control algorithm under test |
+| `DeviceModel` | one function per IC | its datasheet |
+| `SwitchingLeg`, `StateSpaceNetwork`, `SpiceNetwork` | the passives and primitives | the components |
+
+```python
+class Commutation(Firmware):
+    def control(self, t, feedback):
+        """Read the sensors, decide the drive, once per control period."""
+        if feedback["ZC_A"] > 1.65:
+            self.step = (self.step + 1) % 6
+        return self.gates()
+
+CoSimulation([
+    Commutation("firmware", inputs=["ZC_A", "ISENSE_A"], outputs=["AH", "AL"]),
+    GateDriver("driver", "AH", "AL", "HGATE", "LGATE", "VDRV", datasheet=ir2101,
+               propagation_delay=680e-9, uvlo_rising=8.9, uvlo_falling=8.2,
+               output_high=12.0, input_threshold=2.5),
+    SwitchingLeg("leg", "HGATE", "LGATE", "VMOTOR", "BEMF", "PHASE", "I", "VSHUNT",
+                 inductance=250e-6, resistance=0.35, shunt=0.005),
+    CurrentSenseAmplifier("isense", "VSHUNT", "ISENSE_A", datasheet=ina181,
+                          gain=50.0, bandwidth=350e3, supply=3.3),
+]).run(duration=0.05, control_period=20e-6, dt=200e-9)
+```
+
+Time advances in slices. **The firmware sees the feedback from the previous
+slice**, which is not a simplification: a controller acts on samples it has
+already taken, and modelling the loop as instantaneous hides the delay that
+decides whether it is stable.
+
+### Writing a device model
+
+One class per part, from the datasheet's own table. `input_threshold` is the
+part's V_IH; `propagation_delay` is its specified delay; `uvlo_rising` and
+`uvlo_falling` are the lockout thresholds; `bandwidth` is the small-signal
+bandwidth. Take each from the document, and record the document number and
+revision in a `Datasheet`.
+
+**Every model lists what it does not represent**, in `gaps`. A gate driver
+model that says "no figure for output impedance, so edge shape is not
+modelled" is useful. One that assumes 2 ohms because that is typical is a trap,
+because the number it produces looks exactly as trustworthy as a real one.
+
+### What this catches that a schematic review does not
+
+The driver in the example above, given the 3.3V logic rail, never leaves
+under-voltage lockout: the gates stay at 0V and the board does nothing. Every
+connection in the schematic is correct, ERC is clean, and the netlist says
+nothing at all about it. That class of fault - a part outside its operating
+conditions, on a board that is wired perfectly - is what this is for.
+
 ## Which tool for which question
 
 This is the decision that most affects whether the numbers are worth
