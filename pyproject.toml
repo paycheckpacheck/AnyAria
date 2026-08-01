@@ -32,8 +32,12 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+# circuit-synth with JLC integration and hierarchical blocks
+# Uses paycheckpacheck's PRs:
+# - feat/jlc-import-components (JLCPCB component import)
+# - feat/circuit-generation-agents (Hierarchical block generation)
 circuit-synth = [
-    "circuit-synth>=0.12.1",
+    "circuit-synth @ git+https://github.com/circuit-synth/circuit-synth.git@feat/jlc-import-components",
 ]
 dev = [
     "pytest>=7.4.0",
