@@ -185,6 +185,38 @@ block to block. Point-to-point wiring between six blocks with eight pins each
 is a rat's nest; the same page in labels reads at a glance. The same goes for a
 dense part - an MCU with fifty pins gets stubs and labels, not fifty wires.
 
+## Group boxes: one per circuit, titled, with the reason written on it
+
+A sheet usually holds several circuits that happen to share a page. Box each
+one and title it, so a reader knows what they are looking at before they have
+traced a wire.
+
+```json
+{"groups": [
+  {"title": "12MHZ CRYSTAL", "at": [165.1, 278.13], "size": [177.8, 77.47],
+   "rationale": "The circuit from RP-008279-DS section 2.3, copied rather\nthan reworked: ..."}
+]}
+```
+
+The box is drawn to the conventions measured out of the OpenBeam project -
+see [OPENBEAM_STYLE.md](OPENBEAM_STYLE.md), which is the reference for what
+"reads well" means here. A 0.508mm dim-grey rounded rectangle; the title above
+it, centred, 2.54mm bold dark red; the reasoning inside along the bottom at
+label size.
+
+**The rationale is the point, not the box.** Write why the circuit is correct:
+which datasheet figure it was copied from and its document number, what the
+values were chosen against, and which parts are deliberate departures from the
+reference. A reviewer should be able to check the page without opening the
+datasheets. "Decoupling capacitors" says nothing; "one 100nF per power pin as
+RP-008279-DS section 2.1.2 asks for, except C16, which is the 1uF the internal
+regulator wants at its input" is a sentence someone can check.
+
+Leave room for it. The note sits inside the bottom of the box and grows
+upward, about 2mm per line plus 3.3mm of margin, so a six-line reason wants
+16mm of clear space below the circuit. Boxes may be different heights; make
+them fit their contents rather than making the contents fit a grid.
+
 ## Text boxes
 
 The generator writes each block's docstring onto its sheet as a text box, and

@@ -184,7 +184,15 @@ def mcu(
     ZC_C: Input,
     VRAIL_SENSE: Input,
 ):
-    """RP2040 with its QSPI flash, crystal and SWD header.
+    """RP2040 with its QSPI flash, crystal, BOOTSEL strap and SWD header.
+
+    The supply, flash, crystal and USB circuits are copied from the minimal
+    design in "Hardware design with RP2040" (RP-008279-DS, chapter 2) rather
+    than reinvented: 100nF on every power pin, 1uF at both ends of the internal
+    regulator, a 10k pull-up and a 1k BOOTSEL strap on QSPI_SS, 15pF load
+    capacitors and a 1k series resistor on the 12MHz crystal, and 27R series
+    termination on the USB pair. The only additions are the RUN pull-up and
+    capacitor, and the 10R filter into ADC_AVDD, both noted where they appear.
 
     The six PWM outputs come from three PWM slices, so each half-bridge gets a
     complementary pair. The three phase currents land on ADC0 to ADC2, the rail
@@ -210,19 +218,30 @@ def mcu(
         footprint="Crystal:Crystal_SMD_3225-4Pin_3.2x2.5mm",
     )
     crystal_caps = [decoupling("15pF") for _ in range(2)]
+    crystal_series = resistor("1k")
     swd_header = Component(
         symbol="Connector_Generic:Conn_01x03",
         ref="J",
         value="SWD",
         footprint="Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical",
     )
+    boot_header = Component(
+        symbol="Connector_Generic:Conn_01x02",
+        ref="J",
+        value="USB_BOOT",
+        footprint="Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical",
+    )
+    boot_resistor = resistor("1k")
     run_pullup = resistor("10k")
     run_cap = decoupling("100nF")
     flash_cs_pullup = resistor("10k")
     io_decoupling = [decoupling() for _ in range(6)]
-    core_decoupling = decoupling("1uF")
+    usb_vdd_decoupling = decoupling("100nF")
+    vreg_in_cap = decoupling("1uF")
+    vreg_out_cap = decoupling("1uF")
     adc_decoupling = decoupling("100nF")
     adc_filter = resistor("10R")
+    usb_series = [resistor("27R") for _ in range(2)]
 
     gnd = Net("GND")
     v1v1 = Net("V1V1")
@@ -242,11 +261,21 @@ def mcu(
     rp2040["50"] += v1v1  # DVDD
     rp2040["48"] += V3V3  # USB_VDD
     rp2040["57"] += gnd
-    core_decoupling[1] += v1v1
-    core_decoupling[2] += gnd
+
+    # One 100nF per power pin, as the hardware design guide asks for: six for
+    # the IOVDD pins and one for USB_VDD.
     for cap in io_decoupling:
         cap[1] += V3V3
         cap[2] += gnd
+    usb_vdd_decoupling[1] += V3V3
+    usb_vdd_decoupling[2] += gnd
+
+    # The internal regulator is the exception: it wants 1uF at both its input
+    # and its output, not 100nF, or the 1.1V core rail is not stable.
+    vreg_in_cap[1] += V3V3
+    vreg_in_cap[2] += gnd
+    vreg_out_cap[1] += v1v1
+    vreg_out_cap[2] += gnd
 
     # The ADC supply is filtered from the digital 3.3V so switching noise does
     # not land on the current measurements.
@@ -256,16 +285,25 @@ def mcu(
     adc_decoupling[1] += adc_avdd
     adc_decoupling[2] += gnd
 
-    # Reset and boot
+    # Reset. The RP2040 holds RUN high through an internal pull-up, so the
+    # reference design leaves it bare; the pull-up and capacitor here are a
+    # deliberate addition, to condition the edge if a reset button is fitted.
     rp2040["26"] += run
     run_pullup[1] += V3V3
     run_pullup[2] += run
     run_cap[1] += run
     run_cap[2] += gnd
 
-    # Crystal
+    # Crystal, wired the way the hardware design guide draws it: 12MHz, two
+    # 15pF load capacitors at the crystal's own terminals, and a 1k series
+    # resistor between XOUT and the crystal so the crystal is not over-driven
+    # at an IOVDD of 3.3V. Any deviation from this needs testing over
+    # temperature, so it is copied exactly.
+    xout_driven = Net("XOUT_DRV")
     rp2040["20"] += crystal[1]  # XIN
-    rp2040["21"] += crystal[2]  # XOUT
+    rp2040["21"] += xout_driven  # XOUT
+    crystal_series[1] += xout_driven
+    crystal_series[2] += crystal[2]
     crystal_caps[0][1] += crystal[1]
     crystal_caps[0][2] += gnd
     crystal_caps[1][1] += crystal[2]
@@ -289,9 +327,21 @@ def mcu(
     flash_cs_pullup[1] += V3V3
     flash_cs_pullup[2] += qspi["SS"]
 
-    # USB
-    rp2040["47"] += USB_DP
-    rp2040["46"] += USB_DM
+    # BOOTSEL. QSPI_SS is read as a strap at reset: shorting it low through
+    # this 1k puts the part into USB mass-storage mode, which is the only way
+    # to load the first program over USB. Without it the board cannot be
+    # programmed.
+    boot_resistor[1] += qspi["SS"]
+    boot_resistor[2] += boot_header[1]
+    boot_header[2] += gnd
+
+    # USB, with the 27R series termination the design guide requires on both
+    # data lines to meet the 90 ohm differential impedance. They belong close
+    # to the RP2040, not to the connector.
+    usb_series[0][1] += rp2040["47"]  # USB_DP
+    usb_series[0][2] += USB_DP
+    usb_series[1][1] += rp2040["46"]  # USB_DM
+    usb_series[1][2] += USB_DM
 
     # SWD
     swd_header[1] += rp2040["24"]  # SWCLK

@@ -488,6 +488,40 @@ As you execute tasks, identify opportunities to improve instructions, commands, 
 
 ---
 
+## Building a circuit: the order that gets it right first time
+
+Four things happen in order, and each has a skill that will not let you skip
+it. Doing them out of order is what turns one request into five rounds of
+corrections.
+
+```
+1. circuit-hierarchy   decide the blocks and what nests in what, before
+                       any component is written
+2. reference-circuit   for every part with a published application circuit,
+                       copy it verbatim, then check line by line that it was
+                       copied exactly
+3. review-circuit      review the Python until two consecutive passes find
+                       nothing new - voltage compatibility, pin numbers,
+                       supplies, values against their purpose, what is missing
+4. layout-schematic    generate, place, wire, group, validate, render, look
+                       at it, refine
+```
+
+Nothing downstream can catch a mistake made upstream. `validate_layout`
+compares the drawing with the Python and cannot tell you the Python is wrong.
+ERC checks the drawing's own consistency and cannot tell you a gate driver is
+being fed below its UVLO. The review at step 3 is the only place a wrong
+circuit gets caught before it becomes a wrong board.
+
+**Every group of parts on a sheet gets a box, a title and a written reason.**
+The reason is the deliverable, not decoration: it says which datasheet figure
+the circuit came from, what the values were chosen against, and which parts
+are deliberate departures. A reviewer should be able to check the page without
+having the datasheets open, and a year later you should be able to see why you
+did what you did.
+
+---
+
 ## Deciding the hierarchy: put a block where it is repeated
 
 Before writing any components, decide what the blocks are and how they nest. A

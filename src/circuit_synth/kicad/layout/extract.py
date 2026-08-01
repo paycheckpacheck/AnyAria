@@ -270,6 +270,74 @@ def sheet_nets(circuit_json: Path) -> Dict[str, Dict[str, List[str]]]:
     return result
 
 
+def instance_renames(circuit_json: Path) -> Dict[str, Dict[str, str]]:
+    """Map one block instance's references onto every other instance's.
+
+    A block instantiated three times gets three sets of reference designators,
+    and they move whenever a part is added anywhere earlier in the design. A
+    layout written against the first instance would have to be re-tabulated by
+    hand every time, so the mapping is worked out from the generated circuit
+    instead: instances of one block hold their components in the same creation
+    order, so position in that order identifies the same part in each.
+
+    Args:
+        circuit_json: The generated circuit JSON.
+
+    Returns:
+        Sheet name to the mapping that turns the first instance's references
+        into that sheet's. Each mapping also carries the sheet's own name, so a
+        spec that places a child sheet symbol is renamed with it. The first
+        instance maps to itself and is included, so every sheet can be looked
+        up the same way.
+    """
+    data = json.loads(circuit_json.read_text(encoding="utf-8"))
+    seen: Dict[str, int] = {}
+    sheet_of: Dict[int, str] = {}
+
+    def name_sheets(node: dict) -> None:
+        """Give every circuit in the tree the sheet name it was written to."""
+        name = node.get("name", "")
+        seen[name] = seen.get(name, 0) + 1
+        sheet_of[id(node)] = name if seen[name] == 1 else f"{name}{seen[name]}"
+        for child in node.get("subcircuits") or []:
+            name_sheets(child)
+
+    name_sheets(data)
+
+    def subtree(node: dict) -> Tuple[List[str], List[str]]:
+        """Collect a circuit's references and child sheet names, in order."""
+        refs = list((node.get("components") or {}).keys())
+        sheets: List[str] = []
+        for child in node.get("subcircuits") or []:
+            sheets.append(sheet_of[id(child)])
+            child_refs, child_sheets = subtree(child)
+            refs += child_refs
+            sheets += child_sheets
+        return refs, sheets
+
+    by_block: Dict[str, List[Tuple[str, List[str], List[str]]]] = {}
+
+    def collect(node: dict) -> None:
+        refs, sheets = subtree(node)
+        by_block.setdefault(node.get("name", ""), []).append(
+            (sheet_of[id(node)], refs, sheets)
+        )
+        for child in node.get("subcircuits") or []:
+            collect(child)
+
+    collect(data)
+
+    result: Dict[str, Dict[str, str]] = {}
+    for instances in by_block.values():
+        first_sheet, first_refs, first_sheets = instances[0]
+        for sheet, refs, sheets in instances:
+            mapping = dict(zip(first_refs, refs))
+            mapping.update(zip(first_sheets, sheets))
+            mapping[first_sheet] = sheet
+            result[sheet] = mapping
+    return result
+
+
 def sheet_ports(circuit_json: Path) -> Dict[str, Dict[str, str]]:
     """Read the declared hierarchical ports of each block from a circuit JSON.
 

@@ -10,6 +10,7 @@ and only its drawing changes.
 
 import hashlib
 import json
+import math
 import logging
 import re
 import uuid as uuid_module
@@ -30,6 +31,22 @@ GRID = 1.27
 # child sheet's hierarchical labels carry the real directions, so the sheet pins
 # are drawn plainly rather than contradicting them.
 SHEET_PIN_SHAPE = "bidirectional"
+
+# How a group box is drawn. These are the conventions measured out of the
+# OpenBeam project, which is what "reads well" means here: see
+# .claude/skills/layout-schematic/OPENBEAM_STYLE.md.
+GROUP_STROKE = 0.508
+GROUP_STROKE_COLOUR = (105, 105, 105)
+GROUP_TITLE_SIZE = 2.54
+GROUP_TITLE_THICKNESS = 0.762
+GROUP_TITLE_COLOUR = (151, 0, 0)
+# How far above the box's top edge the title's anchor sits.
+GROUP_TITLE_RISE = 3.048
+GROUP_NOTE_SIZE = 1.27
+# The clear space to leave inside a box, and how far the note sits above the
+# bottom edge.
+GROUP_MARGIN = 3.81
+GROUP_NOTE_RISE = 3.302
 
 
 @dataclass
@@ -136,12 +153,44 @@ class NotePlacement:
 
 
 @dataclass
+class GroupPlacement:
+    """A titled box drawn around one functional circuit on a sheet.
+
+    A sheet usually holds several circuits that happen to share a page. Drawn
+    plainly they run into one another and a reader has to work out where one
+    ends. A box around each, with its name on it, says what the reader is
+    looking at before they have traced a single wire.
+
+    The reasoning is written under the title as a note. A box that only says
+    what a circuit is called adds a line; a box that says why the circuit is
+    the way it is - which datasheet figure it came from, what the values were
+    chosen for - is what makes the sheet reviewable without the datasheet open
+    beside it.
+
+    Attributes:
+        title: The circuit's name, drawn large along the top of the box.
+        at: The ``(x, y)`` of the box's top-left corner.
+        size: The box's ``(width, height)`` in mm.
+        rationale: Why this circuit is correct, in a sentence or three. Left
+            empty only when the box is a bare visual grouping.
+        radius: Corner radius in mm.
+    """
+
+    title: str
+    at: Point
+    size: Tuple[float, float]
+    rationale: str = ""
+    radius: float = 2.54
+
+
+@dataclass
 class PlacementSpec:
     """A complete placement for one sheet.
 
     Attributes:
         components: Where each real part goes.
         sheets: Where each child hierarchical sheet symbol goes.
+        groups: Titled boxes drawn around the circuits on the sheet.
         notes: Where the sheet's text boxes go, in the order the file has them.
         wires: Wire segments as ``(start, end)`` point pairs.
         junctions: Points where three or more connections meet.
@@ -152,6 +201,7 @@ class PlacementSpec:
 
     components: List[ComponentPlacement] = field(default_factory=list)
     sheets: List[SheetPlacement] = field(default_factory=list)
+    groups: List[GroupPlacement] = field(default_factory=list)
     notes: List[NotePlacement] = field(default_factory=list)
     wires: List[Tuple[Point, Point]] = field(default_factory=list)
     junctions: List[Point] = field(default_factory=list)
@@ -195,6 +245,12 @@ class PlacementSpec:
                 SheetPlacement(item.name, move(item.at), item.size, list(item.pins))
                 for item in self.sheets
             ],
+            groups=[
+                GroupPlacement(
+                    item.title, move(item.at), item.size, item.rationale, item.radius
+                )
+                for item in self.groups
+            ],
             notes=[NotePlacement(move(item.at), item.size) for item in self.notes],
             no_connects=[move(point) for point in self.no_connects],
             paper=self.paper,
@@ -230,6 +286,7 @@ class PlacementSpec:
                 )
                 for item in self.sheets
             ],
+            groups=list(self.groups),
             notes=list(self.notes),
             wires=list(self.wires),
             junctions=list(self.junctions),
@@ -298,6 +355,16 @@ class PlacementSpec:
                     ],
                 )
                 for entry in data.get("sheets", [])
+            ],
+            groups=[
+                GroupPlacement(
+                    title=entry["title"],
+                    at=tuple(entry["at"]),
+                    size=tuple(entry["size"]),
+                    rationale=entry.get("rationale", ""),
+                    radius=float(entry.get("radius", 2.54)),
+                )
+                for entry in data.get("groups", [])
             ],
             notes=[
                 NotePlacement(at=tuple(entry["at"]), size=tuple(entry["size"]))
@@ -585,6 +652,126 @@ def _apply_sheets(text: str, spec: PlacementSpec, sheet_name: str) -> Tuple[str,
     return text, moved
 
 
+def _rounded_rect_sexp(group: "GroupPlacement") -> str:
+    """Render the box itself.
+
+    Args:
+        group: The box to draw.
+
+    Returns:
+        The rectangle block.
+    """
+    left, top = group.at
+    right, bottom = left + group.size[0], top + group.size[1]
+    red, green, blue = GROUP_STROKE_COLOUR
+    return (
+        f"\n\t(rectangle\n\t\t(start {left:g} {top:g})"
+        f"\n\t\t(end {right:g} {bottom:g})"
+        f"\n\t\t(radius {group.radius:g})"
+        f"\n\t\t(stroke\n\t\t\t(width {GROUP_STROKE:g})\n\t\t\t(type default)"
+        f"\n\t\t\t(color {red} {green} {blue} 1)\n\t\t)"
+        f"\n\t\t(fill\n\t\t\t(type none)\n\t\t)"
+        f'\n\t\t(uuid "{uuid_module.uuid4()}")\n\t)'
+    )
+
+
+def _text_sexp(
+    text: str,
+    at: Point,
+    size: float,
+    bold: bool = False,
+    thickness: Optional[float] = None,
+    colour: Optional[Tuple[int, int, int]] = None,
+    justify: Optional[str] = "left top",
+) -> str:
+    """Render a free text item.
+
+    Args:
+        text: The text, which may contain newlines.
+        at: The anchor point.
+        size: Font size in mm.
+        bold: Whether to embolden it.
+        thickness: Stroke thickness in mm, or None for the default.
+        colour: An ``(r, g, b)`` override, or None for the default colour.
+        justify: KiCad justification, or None to leave the text centred on the
+            anchor, which is what a centred title needs.
+
+    Returns:
+        The text block.
+    """
+    escaped = text.replace("\\", "\\\\").replace('"', '\\"').replace("\n", "\\n")
+    font = [f"(size {size:g} {size:g})"]
+    if thickness is not None:
+        font.append(f"(thickness {thickness:g})")
+    if bold:
+        font.append("(bold yes)")
+    if colour is not None:
+        font.append(f"(color {colour[0]} {colour[1]} {colour[2]} 1)")
+    font_body = "".join(f"\n\t\t\t\t{item}" for item in font)
+    justify_body = f"\n\t\t\t(justify {justify})" if justify else ""
+    return (
+        f'\n\t(text "{escaped}"'
+        f"\n\t\t(exclude_from_sim yes)"
+        f"\n\t\t(at {at[0]:g} {at[1]:g} 0)"
+        f"\n\t\t(effects\n\t\t\t(font{font_body}\n\t\t\t)"
+        f"{justify_body}\n\t\t)"
+        f'\n\t\t(uuid "{uuid_module.uuid4()}")\n\t)'
+    )
+
+
+def _group_sexp(group: GroupPlacement) -> str:
+    """Render a titled, round-cornered box around a circuit.
+
+    The title goes above the box, centred on it, in the size and colour the
+    reference project uses for one. The reasoning goes inside, along the
+    bottom, where it does not compete with the circuit for room.
+
+    Args:
+        group: The box to draw.
+
+    Returns:
+        The rectangle and text blocks that make it up.
+
+    Raises:
+        ValueError: If the radius does not fit inside the box.
+    """
+    left, top = group.at
+    bottom = top + group.size[1]
+
+    if group.radius * 2 > min(group.size):
+        raise ValueError(
+            f"group {group.title!r} has radius {group.radius} in a "
+            f"{group.size[0]}x{group.size[1]} box"
+        )
+
+    parts = [
+        _rounded_rect_sexp(group),
+        _text_sexp(
+            group.title,
+            (left + group.size[0] / 2, top - GROUP_TITLE_RISE),
+            GROUP_TITLE_SIZE,
+            bold=True,
+            thickness=GROUP_TITLE_THICKNESS,
+            colour=GROUP_TITLE_COLOUR,
+            justify=None,
+        ),
+    ]
+
+    if group.rationale:
+        lines = group.rationale.count("\n") + 1
+        parts.append(
+            _text_sexp(
+                group.rationale,
+                (
+                    left + GROUP_MARGIN,
+                    bottom - GROUP_NOTE_RISE - lines * GROUP_NOTE_SIZE * 1.6,
+                ),
+                GROUP_NOTE_SIZE,
+            )
+        )
+    return "".join(parts)
+
+
 def _place_sheet_properties(block: str, placement: SheetPlacement) -> str:
     """Put a sheet symbol's name and filename back against its body.
 
@@ -708,6 +895,7 @@ def apply_placement(
             for sheet in spec.sheets
             for pin in sheet.pins
         ]
+        points += [group.at for group in spec.groups]
         off = _off_grid(points)
         if off:
             raise ValueError(
@@ -772,6 +960,12 @@ def apply_placement(
             "hierarchical_label",
             "global_label",
             "no_connect",
+            # The generator draws none of these; everything here came from a
+            # previous run of the styler, so it is replaced wholesale.
+            "polyline",
+            "arc",
+            "rectangle",
+            "text",
         ],
     )
     for start, end in sorted(
@@ -794,6 +988,8 @@ def apply_placement(
     reference_block = zlib.crc32(sheet_path.stem.encode("utf-8")) % 90 + 10
 
     additions = []
+    for group in spec.groups:
+        additions.append(_group_sexp(group))
     for start, end in spec.wires:
         additions.append(_wire_sexp(start, end))
     for point in spec.junctions:
@@ -813,6 +1009,7 @@ def apply_placement(
         "components_moved": moved,
         "sheets_moved": sheets_moved,
         "notes_moved": notes_moved,
+        "groups": len(spec.groups),
         "wires": len(spec.wires),
         "junctions": len(spec.junctions),
         "labels": len(spec.labels),

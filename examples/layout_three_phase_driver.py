@@ -21,8 +21,10 @@ from circuit_synth.kicad.layout import (
     render_sheets,
     validate_layout,
 )
+from circuit_synth.kicad.layout.extract import instance_renames
 from circuit_synth.kicad.layout.spec import ComponentPlacement as C
 from circuit_synth.kicad.layout.spec import LabelPlacement as L
+from circuit_synth.kicad.layout.spec import GroupPlacement as G
 from circuit_synth.kicad.layout.spec import NotePlacement as N
 from circuit_synth.kicad.layout.spec import PowerPlacement as P
 from circuit_synth.kicad.layout.spec import SheetPinPlacement as SP
@@ -74,12 +76,12 @@ def ground(at) -> P:
 BACK_EMF = PlacementSpec(
     paper="A4",
     components=[
-        C("R8", (63.5, 80.01), 0),    # divider, top
-        C("R9", (63.5, 96.52), 0),    # divider, bottom
-        C("R10", (76.2, 90.17), 0),   # this phase's leg of the virtual neutral
-        C("R11", (127.0, 78.74), 0),  # output pullup
+        C("R12", (63.5, 80.01), 0),    # divider, top
+        C("R13", (63.5, 96.52), 0),    # divider, bottom
+        C("R14", (76.2, 90.17), 0),   # this phase's leg of the virtual neutral
+        C("R15", (127.0, 78.74), 0),  # output pullup
         C("U4", (101.6, 88.9), 0),    # zero-crossing comparator
-        C("C17", (137.16, 74.93), 0),  # comparator decoupling
+        C("C19", (137.16, 74.93), 0),  # comparator decoupling
     ],
     wires=[
         # Supply rail across the top, tapped by everything that needs it
@@ -112,7 +114,21 @@ BACK_EMF = PlacementSpec(
         ((114.3, 120.65), (133.35, 120.65)),
         ((127.0, 82.55), (127.0, 120.65)),
     ],
-    notes=[N((50.8, 132.08), (114.3, 25.4))],
+    groups=[
+        G(
+            "BACK-EMF ZERO CROSSING",
+            (38.1, 60.96),
+            (127.0, 95.25),
+            "R12 and R13 divide the phase by 11, which keeps a 36V rail inside the\n"
+            "comparator's 3.3V input range with margin. R14 is this phase's leg of the\n"
+            "star point the three phases share, so NEUTRAL sits at their average and the\n"
+            "comparator sees the phase cross it. U4 is a push-pull part; R15 only holds\n"
+            "the edge defined while it starts up. Valid because the comparison is\n"
+            "ratiometric: both inputs are divided by the same network, so the crossing\n"
+            "instant does not move with rail voltage.",
+        ),
+    ],
+    notes=[N((38.1, 165.1), (127.0, 25.4))],
     junctions=[
         (63.5, 83.82),
         (76.2, 83.82),
@@ -135,18 +151,6 @@ BACK_EMF = PlacementSpec(
     ],
 )
 
-# The three phases are the same block, so one layout serves all of them.
-BACK_EMF_RENAMES = {
-    "BackEmf2": {
-        "R8": "R16", "R9": "R17", "R10": "R18", "R11": "R19",
-        "U4": "U7", "C17": "C22",
-    },
-    "BackEmf3": {
-        "R8": "R24", "R9": "R25", "R10": "R26", "R11": "R27",
-        "U4": "U10", "C17": "C27",
-    },
-}
-
 # ------------------------------------------------------------ half bridge ---
 # The sheet reads in bands: the drive rail across the top, the bootstrap under
 # it, then the high side gate path, the phase tie, and the low side gate path.
@@ -157,18 +161,18 @@ HALF_BRIDGE = PlacementSpec(
     paper="A3",
     components=[
         C("U5", (88.9, 101.6), 0),      # IR2101 gate driver
-        C("C19", (68.58, 83.82), 0),    # driver decoupling
+        C("C21", (68.58, 83.82), 0),    # driver decoupling
         C("D1", (116.84, 76.2), 0),     # bootstrap diode
-        C("C18", (146.05, 88.9), 0),    # bootstrap capacitor
-        C("R12", (130.81, 96.52), 90),  # high side gate resistor
-        C("R13", (130.81, 109.22), 90),  # low side gate resistor
+        C("C20", (146.05, 88.9), 0),    # bootstrap capacitor
+        C("R16", (130.81, 96.52), 90),  # high side gate resistor
+        C("R17", (130.81, 109.22), 90),  # low side gate resistor
         C("Q1", (167.64, 91.44), 0),    # high side FET
         C("Q2", (167.64, 114.3), 0),    # low side FET
-        C("R14", (170.18, 127.0), 0),    # Kelvin shunt
+        C("R18", (170.18, 127.0), 0),    # Kelvin shunt
         C("U6", (196.85, 149.86), 0),    # current sense amplifier
-        C("C20", (241.3, 144.78), 0),    # amplifier supply decoupling
-        C("R15", (215.9, 149.86), 90),   # output filter resistor
-        C("C21", (226.06, 156.21), 0),   # output filter capacitor
+        C("C22", (241.3, 144.78), 0),    # amplifier supply decoupling
+        C("R19", (215.9, 149.86), 90),   # output filter resistor
+        C("C23", (226.06, 156.21), 0),   # output filter capacitor
     ],
     sheets=[
         S(
@@ -244,7 +248,21 @@ HALF_BRIDGE = PlacementSpec(
         ((234.95, 114.3), (241.3, 114.3)),
         ((292.1, 99.06), (299.72, 99.06)),
     ],
-    notes=[N((55.88, 175.26), (152.4, 25.4))],
+    groups=[
+        G(
+            "ONE PHASE: GATE DRIVE, POWER STAGE, CURRENT AND BACK-EMF SENSE",
+            (45.72, 60.96),
+            (266.7, 127.0),
+            "The IR2101 drives both gates from one rail, its high side referenced to the\n"
+            "phase node through the bootstrap D1/C20; C20 is refreshed every cycle the\n"
+            "low side is on, which the commutation scheme guarantees. R16 and R17 damp\n"
+            "the gate drive. The low side returns through R18, a Kelvin-connected shunt,\n"
+            "so U6 measures the shunt voltage alone and not the drop along the power\n"
+            "path; R19 and C23 roll the measurement off before the ADC. Back-EMF sensing\n"
+            "for this phase is the nested BackEmf block, fed from the phase node.",
+        ),
+    ],
+    notes=[N((45.72, 196.85), (203.2, 25.4))],
     junctions=[
         (68.58, 76.2),
         (88.9, 76.2),
@@ -283,21 +301,6 @@ HALF_BRIDGE = PlacementSpec(
         ground((226.06, 163.83)),
     ],
 )
-
-HALF_BRIDGE_RENAMES = {
-    "HalfBridge2": {
-        "U5": "U8", "Q1": "Q3", "Q2": "Q4", "R12": "R20", "R13": "R21",
-        "C18": "C23", "D1": "D2", "C19": "C24", "R14": "R22", "U6": "U9",
-        "C20": "C25", "R15": "R23", "C21": "C26",
-        "BackEmf": "BackEmf2",
-    },
-    "HalfBridge3": {
-        "U5": "U11", "Q1": "Q5", "Q2": "Q6", "R12": "R28", "R13": "R29",
-        "C18": "C28", "D1": "D3", "C19": "C29", "R14": "R30", "U6": "U12",
-        "C20": "C30", "R15": "R31", "C21": "C31",
-        "BackEmf": "BackEmf3",
-    },
-}
 
 # ------------------------------------------------------------------ power ---
 # Fused input into the motor rail, the linear regulator making 3.3V below it,
@@ -340,7 +343,21 @@ POWER = PlacementSpec(
         ((165.1, 87.63), (177.8, 87.63)),
         ((165.1, 100.33), (165.1, 104.14)),
     ],
-    notes=[N((45.72, 127.0), (139.7, 25.4))],
+    groups=[
+        G(
+            "BOARD SUPPLY AND RAIL MONITOR",
+            (33.02, 46.99),
+            (177.8, 120.65),
+            "F1 protects the board against a shorted bridge, which is the failure this\n"
+            "supply has to survive. C2 is the bulk the motor rail needs to absorb the\n"
+            "switching current, C5 the ceramic beside it for the fast edges the\n"
+            "electrolytic cannot follow. U1 makes the logic rail from the same input;\n"
+            "C3 and C4 are the input and output capacitors its datasheet asks for.\n"
+            "R3 and R4 divide the motor rail by 11 into the MCU's ADC, so the duty\n"
+            "cycle can be corrected for supply droop rather than assuming a fixed rail.",
+        ),
+    ],
+    notes=[N((33.02, 175.26), (177.8, 20.32))],
     junctions=[
         (88.9, 76.2),
         (104.14, 76.2),
@@ -411,7 +428,20 @@ USB = PlacementSpec(
         ((63.5, 111.76), (63.5, 115.57)),
         ((55.88, 111.76), (55.88, 115.57)),
     ],
-    notes=[N((55.88, 127.0), (114.3, 25.4))],
+    groups=[
+        G(
+            "USB-C DEVICE PORT",
+            (43.18, 55.88),
+            (127.0, 101.6),
+            "R1 and R2 are the 5.1k pulldowns a USB-C device puts on both CC pins; they\n"
+            "are what tells a source this is a device, and having one on each is what\n"
+            "lets the cable go in either way up. Both halves of the receptacle carry the\n"
+            "same D+ and D-, so each pair is tied together at the connector. C1 decouples\n"
+            "VBUS where it enters the board. Valid as a device-only port: no VBUS source\n"
+            "path, no Rp, so the board can never try to power a host.",
+        ),
+    ],
+    notes=[N((43.18, 165.1), (127.0, 25.4))],
     junctions=[
         (114.3, 73.66),
         (83.82, 88.9),
@@ -434,197 +464,316 @@ USB = PlacementSpec(
 
 # -------------------------------------------------------------------- mcu ---
 # A part with 57 pins does not get wired to everything by hand. The RP2040 sits
-# in the middle with its supplies stubbed up, its interfaces stubbed left and
-# its GPIO stubbed right, and the nets are carried by labels - which is how a
-# dense MCU page is drawn and the only way it stays readable.
+# on the right with its supplies stubbed up, its interfaces stubbed left and
+# its GPIO stubbed right; the nets are carried by labels, which is how a dense
+# MCU page is drawn and the only way it stays readable.
 #
-# What is wired is what belongs together: the decoupling along the rail at the
-# top, the support parts in one row beneath it, the crystal beside its own two
-# pins, and the flash and debug header off to the left.
+# Everything around it is grouped into the circuit it belongs to, each boxed
+# and titled, each carrying the reason it is drawn the way it is. The supply,
+# flash, crystal, strap and USB circuits are copied from the minimal design in
+# "Hardware design with RP2040" (RP-008279-DS chapter 2) rather than invented,
+# so most of the reasoning is a citation - which is the point of writing it
+# down: a reviewer can check the page against the document without guessing
+# which document.
 MCU = PlacementSpec(
-    paper="A3",
+    paper="A2",
     components=[
-        C("U2", (190.5, 152.4), 0),     # RP2040
-        C("U3", (95.25, 165.1), 0),     # QSPI flash
-        C("Y1", (146.05, 172.72), 270),  # 12MHz crystal
-        C("C6", (133.35, 167.64), 270),  # crystal load, XIN
-        C("C7", (133.35, 177.8), 270),   # crystal load, XOUT
-        C("J2", (127.0, 200.66), 0),    # SWD header
-        # IOVDD decoupling, one per supply pin, along the rail
-        C("C9", (63.5, 97.79), 0),
-        C("C10", (76.2, 97.79), 0),
-        C("C11", (88.9, 97.79), 0),
-        C("C12", (101.6, 97.79), 0),
-        C("C13", (114.3, 97.79), 0),
-        C("C14", (127.0, 97.79), 0),
-        # Support parts: reset, flash chip select, ADC supply, core rail
-        C("R5", (63.5, 132.08), 0),      # RUN pullup
-        C("C8", (76.2, 132.08), 0),      # RUN delay
-        C("R6", (88.9, 132.08), 0),      # QSPI_SS pullup
-        C("R7", (101.6, 132.08), 0),     # ADC supply filter
-        C("C16", (114.3, 132.08), 0),    # ADC supply decoupling
-        C("C15", (127.0, 132.08), 0),    # core rail decoupling
+        C("U2", (482.6, 200.66), 0),     # RP2040
+        # 3V3 decoupling
+        C("C9", (68.58, 104.14), 0),
+        C("C10", (81.28, 104.14), 0),
+        C("C11", (93.98, 104.14), 0),
+        C("C12", (106.68, 104.14), 0),
+        C("C13", (119.38, 104.14), 0),
+        C("C14", (132.08, 104.14), 0),
+        C("C15", (144.78, 104.14), 0),   # USB_VDD
+        C("C16", (157.48, 104.14), 0),   # VREG_VIN, 1uF
+        # Core rail and ADC supply
+        C("C17", (240.03, 104.14), 0),   # VREG_VOUT, 1uF
+        C("R9", (265.43, 104.14), 0),    # ADC supply filter
+        C("C18", (304.8, 104.14), 0),    # ADC supply decoupling
+        # Reset and boot straps
+        C("R7", (58.42, 201.93), 0),     # RUN pullup
+        C("C8", (76.2, 201.93), 0),      # RUN delay
+        C("R8", (93.98, 201.93), 0),     # QSPI_SS pullup
+        C("R6", (127.0, 201.93), 0),     # BOOTSEL strap resistor
+        C("J3", (156.21, 210.82), 0),    # USB_BOOT header
+        # USB series termination
+        C("R10", (279.4, 195.58), 90),
+        C("R11", (279.4, 208.28), 90),
+        # QSPI flash
+        C("U3", (88.9, 311.15), 0),
+        # Crystal
+        C("Y1", (215.9, 306.07), 0),
+        C("C6", (212.09, 316.23), 0),
+        C("C7", (219.71, 316.23), 0),
+        C("R5", (241.3, 306.07), 270),   # crystal series resistor
+        # SWD
+        C("J2", (393.7, 311.15), 0),
+    ],
+    groups=[
+        G(
+            "3V3 DECOUPLING",
+            (38.1, 76.2),
+            (152.4, 69.85),
+            "One 100nF per power pin, as RP-008279-DS section 2.1.2 asks for: six for the\n"
+            "IOVDD pins (C9-C14) and one for USB_VDD (C15). C16 is the exception the same\n"
+            "section makes, because the internal regulator wants 1uF at its input rather\n"
+            "than 100nF. Each capacitor taps the rail on its own stub, so on the board it\n"
+            "can sit against the pin it decouples.",
+        ),
+        G(
+            "CORE RAIL AND ADC SUPPLY",
+            (215.9, 76.2),
+            (114.3, 69.85),
+            "C17 is the second 1uF the internal regulator needs, on VREG_VOUT. R9 and C18\n"
+            "filter the ADC supply off the digital 3.3V; that is an addition to the\n"
+            "reference design, made because the three phase currents are measured through\n"
+            "this ADC and supply noise lands directly on those readings.",
+        ),
+        G(
+            "RESET AND BOOT STRAPS",
+            (38.1, 173.99),
+            (177.8, 76.2),
+            "R8 is the 10k pull-up RP-008279-DS section 2.2 requires on QSPI_SS, so the\n"
+            "flash sees its chip select high as the rails come up. R6 and J3 are the\n"
+            "BOOTSEL strap from the same section: shorting J3 pulls QSPI_SS low through 1k\n"
+            "at reset and the part enumerates as mass storage, which is the only way to\n"
+            "load the first program. R7 and C8 are an addition, to condition a reset\n"
+            "button; the reference design leaves RUN bare on its internal pull-up.",
+        ),
+        G(
+            "USB SERIES TERMINATION",
+            (241.3, 173.99),
+            (101.6, 76.2),
+            "27R in series with each data line, from RP-008279-DS section 2.4.1, to meet\n"
+            "the 90 ohm differential impedance of the USB pair. They belong against the\n"
+            "RP2040 rather than the connector. No pull-ups or pull-downs are fitted: the\n"
+            "RP2040's USB pins have them built in.",
+        ),
+        G(
+            "QSPI FLASH",
+            (38.1, 278.13),
+            (101.6, 77.47),
+            "W25Q128JVS, the device the reference design uses and the largest the RP2040\n"
+            "supports. The six QSPI signals go straight to it. They are the fastest nets\n"
+            "on the page, so on the board they want to be short and kept away from\n"
+            "everything else.",
+        ),
+        G(
+            "12MHZ CRYSTAL",
+            (165.1, 278.13),
+            (177.8, 77.47),
+            "The circuit from RP-008279-DS section 2.3, copied rather than reworked: a\n"
+            "12MHz ABM8-272-T3, two 15pF load capacitors at the crystal's own terminals,\n"
+            "and R5, a 1k series resistor between XOUT and the crystal so it is not\n"
+            "over-driven at an IOVDD of 3.3V. 15pF each gives 7.5pF in series, plus about\n"
+            "3pF of parasitic, which is the 10pF the crystal is specified for. Any change\n"
+            "here needs testing over temperature, which is why none was made.",
+        ),
+        G(
+            "SWD DEBUG",
+            (355.6, 278.13),
+            (76.2, 77.47),
+            "SWCLK and SWDIO on a 3-pin header with ground, for a debug probe. Not part\n"
+            "of the reference design; the board can be programmed over USB without it,\n"
+            "but not single-stepped.",
+        ),
     ],
     wires=[
-        # 3.3V rail with a decoupling capacitor under each supply pin
-        ((57.15, 88.9), (127.0, 88.9)),
-        ((63.5, 88.9), (63.5, 93.98)),
-        ((76.2, 88.9), (76.2, 93.98)),
-        ((88.9, 88.9), (88.9, 93.98)),
-        ((101.6, 88.9), (101.6, 93.98)),
-        ((114.3, 88.9), (114.3, 93.98)),
-        ((127.0, 88.9), (127.0, 93.98)),
-        ((63.5, 101.6), (63.5, 105.41)),
-        ((76.2, 101.6), (76.2, 105.41)),
-        ((88.9, 101.6), (88.9, 105.41)),
-        ((101.6, 101.6), (101.6, 105.41)),
-        ((114.3, 101.6), (114.3, 105.41)),
-        ((127.0, 101.6), (127.0, 105.41)),
-        # Support row, each end stubbed to the net it joins
-        ((63.5, 128.27), (63.5, 123.19)),
-        ((63.5, 135.89), (63.5, 140.97)),
-        ((76.2, 128.27), (76.2, 123.19)),
-        ((76.2, 135.89), (76.2, 139.7)),
-        ((88.9, 128.27), (88.9, 123.19)),
-        ((88.9, 135.89), (88.9, 140.97)),
-        ((101.6, 128.27), (101.6, 123.19)),
-        ((101.6, 135.89), (101.6, 140.97)),
-        ((114.3, 128.27), (114.3, 123.19)),
-        ((114.3, 135.89), (114.3, 139.7)),
-        ((127.0, 128.27), (127.0, 123.19)),
-        ((127.0, 135.89), (127.0, 139.7)),
-        # The MCU's supplies leave the top of the symbol
-        ((177.8, 106.68), (177.8, 101.6)),
-        ((180.34, 106.68), (180.34, 101.6)),
-        ((187.96, 106.68), (187.96, 101.6)),
-        ((193.04, 106.68), (193.04, 101.6)),
-        ((198.12, 106.68), (198.12, 101.6)),
-        ((203.2, 106.68), (203.2, 101.6)),
-        ((190.5, 198.12), (190.5, 203.2)),
-        # Interfaces leave the left edge
-        ((165.1, 129.54), (158.75, 129.54)),
-        ((165.1, 137.16), (158.75, 137.16)),
-        ((165.1, 139.7), (158.75, 139.7)),
-        ((165.1, 147.32), (158.75, 147.32)),
-        ((165.1, 149.86), (158.75, 149.86)),
-        ((165.1, 152.4), (158.75, 152.4)),
-        ((165.1, 154.94), (158.75, 154.94)),
-        ((165.1, 157.48), (158.75, 157.48)),
-        ((165.1, 160.02), (158.75, 160.02)),
-        ((165.1, 185.42), (158.75, 185.42)),
-        ((165.1, 187.96), (158.75, 187.96)),
-        # The crystal is wired rather than labelled: it belongs to the two pins
-        # it sits between, and a label there would say nothing useful.
-        ((137.16, 167.64), (165.1, 167.64)),
-        ((146.05, 167.64), (146.05, 168.91)),
-        ((137.16, 177.8), (165.1, 177.8)),
-        ((146.05, 177.8), (146.05, 176.53)),
-        ((129.54, 167.64), (129.54, 185.42)),
-        # GPIO leaves the right edge
-        ((215.9, 114.3), (222.25, 114.3)),
-        ((215.9, 116.84), (222.25, 116.84)),
-        ((215.9, 119.38), (222.25, 119.38)),
-        ((215.9, 121.92), (222.25, 121.92)),
-        ((215.9, 124.46), (222.25, 124.46)),
-        ((215.9, 127.0), (222.25, 127.0)),
-        ((215.9, 129.54), (222.25, 129.54)),
-        ((215.9, 132.08), (222.25, 132.08)),
-        ((215.9, 134.62), (222.25, 134.62)),
-        ((215.9, 182.88), (222.25, 182.88)),
-        ((215.9, 185.42), (222.25, 185.42)),
-        ((215.9, 187.96), (222.25, 187.96)),
-        ((215.9, 190.5), (222.25, 190.5)),
-        # Flash
-        ((85.09, 157.48), (78.74, 157.48)),
-        ((85.09, 160.02), (78.74, 160.02)),
-        ((85.09, 162.56), (78.74, 162.56)),
-        ((85.09, 165.1), (78.74, 165.1)),
-        ((85.09, 167.64), (78.74, 167.64)),
-        ((85.09, 170.18), (78.74, 170.18)),
-        ((95.25, 152.4), (95.25, 147.32)),
-        ((95.25, 177.8), (95.25, 181.61)),
-        # SWD header
-        ((121.92, 198.12), (115.57, 198.12)),
-        ((121.92, 200.66), (115.57, 200.66)),
-        ((121.92, 203.2), (115.57, 203.2)),
-        ((115.57, 203.2), (115.57, 208.28)),
+        # --- 3V3 decoupling: a rail with one capacitor under each supply pin
+        ((58.42, 95.25), (170.18, 95.25)),
+        ((68.58, 95.25), (68.58, 100.33)),
+        ((81.28, 95.25), (81.28, 100.33)),
+        ((93.98, 95.25), (93.98, 100.33)),
+        ((106.68, 95.25), (106.68, 100.33)),
+        ((119.38, 95.25), (119.38, 100.33)),
+        ((132.08, 95.25), (132.08, 100.33)),
+        ((144.78, 95.25), (144.78, 100.33)),
+        ((157.48, 95.25), (157.48, 100.33)),
+        ((68.58, 107.95), (68.58, 111.76)),
+        ((81.28, 107.95), (81.28, 111.76)),
+        ((93.98, 107.95), (93.98, 111.76)),
+        ((106.68, 107.95), (106.68, 111.76)),
+        ((119.38, 107.95), (119.38, 111.76)),
+        ((132.08, 107.95), (132.08, 111.76)),
+        ((144.78, 107.95), (144.78, 111.76)),
+        ((157.48, 107.95), (157.48, 111.76)),
+        # --- Core rail and ADC supply
+        ((240.03, 100.33), (240.03, 95.25)),
+        ((240.03, 107.95), (240.03, 111.76)),
+        ((265.43, 100.33), (265.43, 95.25)),
+        ((265.43, 107.95), (265.43, 116.84)),
+        ((265.43, 116.84), (252.73, 116.84)),
+        ((304.8, 100.33), (304.8, 95.25)),
+        ((304.8, 107.95), (304.8, 111.76)),
+        # --- Reset and boot straps
+        ((58.42, 198.12), (58.42, 193.04)),
+        ((58.42, 205.74), (58.42, 210.82)),
+        ((76.2, 198.12), (76.2, 193.04)),
+        ((76.2, 205.74), (76.2, 210.82)),
+        ((93.98, 198.12), (93.98, 193.04)),
+        ((93.98, 205.74), (93.98, 210.82)),
+        ((127.0, 198.12), (127.0, 193.04)),
+        ((127.0, 205.74), (127.0, 210.82)),
+        ((127.0, 210.82), (151.13, 210.82)),
+        ((151.13, 213.36), (144.78, 213.36)),
+        ((144.78, 213.36), (144.78, 218.44)),
+        # --- USB series termination
+        ((275.59, 195.58), (266.7, 195.58)),
+        ((283.21, 195.58), (304.8, 195.58)),
+        ((275.59, 208.28), (266.7, 208.28)),
+        ((283.21, 208.28), (304.8, 208.28)),
+        # --- QSPI flash
+        ((78.74, 303.53), (72.39, 303.53)),
+        ((78.74, 306.07), (72.39, 306.07)),
+        ((78.74, 308.61), (72.39, 308.61)),
+        ((78.74, 311.15), (72.39, 311.15)),
+        ((78.74, 313.69), (72.39, 313.69)),
+        ((78.74, 316.23), (72.39, 316.23)),
+        ((88.9, 298.45), (88.9, 293.37)),
+        ((88.9, 323.85), (88.9, 327.66)),
+        # --- Crystal
+        ((185.42, 306.07), (212.09, 306.07)),
+        ((212.09, 306.07), (212.09, 312.42)),
+        ((219.71, 306.07), (219.71, 312.42)),
+        ((219.71, 306.07), (237.49, 306.07)),
+        ((245.11, 306.07), (266.7, 306.07)),
+        ((212.09, 320.04), (212.09, 323.85)),
+        ((219.71, 320.04), (219.71, 323.85)),
+        # --- SWD
+        ((388.62, 308.61), (382.27, 308.61)),
+        ((388.62, 311.15), (382.27, 311.15)),
+        ((388.62, 313.69), (374.65, 313.69)),
+        ((374.65, 313.69), (374.65, 317.5)),
+        # --- The MCU's own stubs: supplies up, interfaces left, GPIO right
+        ((469.9, 154.94), (469.9, 149.86)),
+        ((472.44, 154.94), (472.44, 149.86)),
+        ((480.06, 154.94), (480.06, 149.86)),
+        ((485.14, 154.94), (485.14, 149.86)),
+        ((490.22, 154.94), (490.22, 149.86)),
+        ((495.3, 154.94), (495.3, 149.86)),
+        ((482.6, 246.38), (482.6, 250.19)),
+        ((457.2, 177.8), (450.85, 177.8)),
+        ((457.2, 185.42), (450.85, 185.42)),
+        ((457.2, 187.96), (450.85, 187.96)),
+        ((457.2, 195.58), (450.85, 195.58)),
+        ((457.2, 198.12), (450.85, 198.12)),
+        ((457.2, 200.66), (450.85, 200.66)),
+        ((457.2, 203.2), (450.85, 203.2)),
+        ((457.2, 205.74), (450.85, 205.74)),
+        ((457.2, 208.28), (450.85, 208.28)),
+        ((457.2, 215.9), (450.85, 215.9)),
+        ((457.2, 226.06), (450.85, 226.06)),
+        ((457.2, 233.68), (450.85, 233.68)),
+        ((457.2, 236.22), (450.85, 236.22)),
+        ((508.0, 162.56), (514.35, 162.56)),
+        ((508.0, 165.1), (514.35, 165.1)),
+        ((508.0, 167.64), (514.35, 167.64)),
+        ((508.0, 170.18), (514.35, 170.18)),
+        ((508.0, 172.72), (514.35, 172.72)),
+        ((508.0, 175.26), (514.35, 175.26)),
+        ((508.0, 177.8), (514.35, 177.8)),
+        ((508.0, 180.34), (514.35, 180.34)),
+        ((508.0, 182.88), (514.35, 182.88)),
+        ((508.0, 231.14), (514.35, 231.14)),
+        ((508.0, 233.68), (514.35, 233.68)),
+        ((508.0, 236.22), (514.35, 236.22)),
+        ((508.0, 238.76), (514.35, 238.76)),
     ],
-    notes=[N((57.15, 220.98), (177.8, 25.4))],
+    notes=[N((38.1, 25.4), (304.8, 30.48))],
     junctions=[
-        (63.5, 88.9),
-        (76.2, 88.9),
-        (88.9, 88.9),
-        (101.6, 88.9),
-        (114.3, 88.9),
-        (146.05, 167.64),
-        (146.05, 177.8),
-        (129.54, 177.8),
+        (68.58, 95.25),
+        (81.28, 95.25),
+        (93.98, 95.25),
+        (106.68, 95.25),
+        (119.38, 95.25),
+        (132.08, 95.25),
+        (144.78, 95.25),
+        (157.48, 95.25),
+        (212.09, 306.07),
+        (219.71, 306.07),
     ],
     labels=[
-        port("V3V3", (57.15, 88.9), 180, "input"),
-        port("USB_DM", (158.75, 137.16), 180, "input"),
-        port("USB_DP", (158.75, 139.7), 180, "input"),
-        port("AH", (222.25, 114.3), 0, "output"),
-        port("AL", (222.25, 116.84), 0, "output"),
-        port("BH", (222.25, 119.38), 0, "output"),
-        port("BL", (222.25, 121.92), 0, "output"),
-        port("CH", (222.25, 124.46), 0, "output"),
-        port("CL", (222.25, 127.0), 0, "output"),
-        port("ZC_A", (222.25, 129.54), 0, "input"),
-        port("ZC_B", (222.25, 132.08), 0, "input"),
-        port("ZC_C", (222.25, 134.62), 0, "input"),
-        port("ISENSE_A", (222.25, 182.88), 0, "input"),
-        port("ISENSE_B", (222.25, 185.42), 0, "input"),
-        port("ISENSE_C", (222.25, 187.96), 0, "input"),
-        port("VRAIL_SENSE", (222.25, 190.5), 0, "input"),
-        L("V3V3", (177.8, 101.6), 90, "local"),
-        L("ADC_AVDD", (180.34, 101.6), 90, "local"),
-        L("V3V3", (187.96, 101.6), 90, "local"),
-        L("V3V3", (193.04, 101.6), 90, "local"),
-        L("V1V1", (198.12, 101.6), 90, "local"),
-        L("V1V1", (203.2, 101.6), 90, "local"),
-        L("V3V3", (63.5, 123.19), 90, "local"),
-        L("RUN", (63.5, 140.97), 270, "local"),
-        L("RUN", (76.2, 123.19), 90, "local"),
-        L("V3V3", (88.9, 123.19), 90, "local"),
-        L("QSPI_SS", (88.9, 140.97), 270, "local"),
-        L("V3V3", (101.6, 123.19), 90, "local"),
-        L("ADC_AVDD", (101.6, 140.97), 270, "local"),
-        L("ADC_AVDD", (114.3, 123.19), 90, "local"),
-        L("V1V1", (127.0, 123.19), 90, "local"),
-        L("RUN", (158.75, 129.54), 180, "local"),
-        L("QSPI_SS", (158.75, 147.32), 180, "local"),
-        L("QSPI_SCLK", (158.75, 149.86), 180, "local"),
-        L("QSPI_SD0", (158.75, 152.4), 180, "local"),
-        L("QSPI_SD1", (158.75, 154.94), 180, "local"),
-        L("QSPI_SD2", (158.75, 157.48), 180, "local"),
-        L("QSPI_SD3", (158.75, 160.02), 180, "local"),
-        L("SWCLK", (158.75, 185.42), 180, "local"),
-        L("SWDIO", (158.75, 187.96), 180, "local"),
-        L("QSPI_SS", (78.74, 157.48), 180, "local"),
-        L("QSPI_SCLK", (78.74, 160.02), 180, "local"),
-        L("QSPI_SD0", (78.74, 162.56), 180, "local"),
-        L("QSPI_SD1", (78.74, 165.1), 180, "local"),
-        L("QSPI_SD2", (78.74, 167.64), 180, "local"),
-        L("QSPI_SD3", (78.74, 170.18), 180, "local"),
-        L("V3V3", (95.25, 147.32), 90, "local"),
-        L("SWCLK", (115.57, 198.12), 180, "local"),
-        L("SWDIO", (115.57, 200.66), 180, "local"),
+        port("V3V3", (58.42, 95.25), 180, "input"),
+        port("USB_DP", (304.8, 195.58), 0, "input"),
+        port("USB_DM", (304.8, 208.28), 0, "input"),
+        port("AH", (514.35, 162.56), 0, "output"),
+        port("AL", (514.35, 165.1), 0, "output"),
+        port("BH", (514.35, 167.64), 0, "output"),
+        port("BL", (514.35, 170.18), 0, "output"),
+        port("CH", (514.35, 172.72), 0, "output"),
+        port("CL", (514.35, 175.26), 0, "output"),
+        port("ZC_A", (514.35, 177.8), 0, "input"),
+        port("ZC_B", (514.35, 180.34), 0, "input"),
+        port("ZC_C", (514.35, 182.88), 0, "input"),
+        port("ISENSE_A", (514.35, 231.14), 0, "input"),
+        port("ISENSE_B", (514.35, 233.68), 0, "input"),
+        port("ISENSE_C", (514.35, 236.22), 0, "input"),
+        port("VRAIL_SENSE", (514.35, 238.76), 0, "input"),
+        # Supply nets, named where they are made and where they are used
+        L("V1V1", (240.03, 95.25), 90, "local"),
+        L("V3V3", (265.43, 95.25), 90, "local"),
+        L("ADC_AVDD", (252.73, 116.84), 180, "local"),
+        L("ADC_AVDD", (304.8, 95.25), 90, "local"),
+        L("V3V3", (58.42, 193.04), 90, "local"),
+        L("RUN", (58.42, 210.82), 270, "local"),
+        L("RUN", (76.2, 193.04), 90, "local"),
+        L("V3V3", (93.98, 193.04), 90, "local"),
+        L("QSPI_SS", (93.98, 210.82), 270, "local"),
+        L("QSPI_SS", (127.0, 193.04), 90, "local"),
+        L("USB_DP_R", (266.7, 195.58), 180, "local"),
+        L("USB_DM_R", (266.7, 208.28), 180, "local"),
+        L("QSPI_SS", (72.39, 303.53), 180, "local"),
+        L("QSPI_SCLK", (72.39, 306.07), 180, "local"),
+        L("QSPI_SD0", (72.39, 308.61), 180, "local"),
+        L("QSPI_SD1", (72.39, 311.15), 180, "local"),
+        L("QSPI_SD2", (72.39, 313.69), 180, "local"),
+        L("QSPI_SD3", (72.39, 316.23), 180, "local"),
+        L("V3V3", (88.9, 293.37), 90, "local"),
+        L("XIN", (185.42, 306.07), 180, "local"),
+        L("XOUT_DRV", (266.7, 306.07), 0, "local"),
+        L("SWCLK", (382.27, 308.61), 180, "local"),
+        L("SWDIO", (382.27, 311.15), 180, "local"),
+        # The MCU's own pins
+        L("V3V3", (469.9, 149.86), 90, "local"),
+        L("ADC_AVDD", (472.44, 149.86), 90, "local"),
+        L("V3V3", (480.06, 149.86), 90, "local"),
+        L("V3V3", (485.14, 149.86), 90, "local"),
+        L("V1V1", (490.22, 149.86), 90, "local"),
+        L("V1V1", (495.3, 149.86), 90, "local"),
+        L("RUN", (450.85, 177.8), 180, "local"),
+        L("USB_DM_R", (450.85, 185.42), 180, "local"),
+        L("USB_DP_R", (450.85, 187.96), 180, "local"),
+        L("QSPI_SS", (450.85, 195.58), 180, "local"),
+        L("QSPI_SCLK", (450.85, 198.12), 180, "local"),
+        L("QSPI_SD0", (450.85, 200.66), 180, "local"),
+        L("QSPI_SD1", (450.85, 203.2), 180, "local"),
+        L("QSPI_SD2", (450.85, 205.74), 180, "local"),
+        L("QSPI_SD3", (450.85, 208.28), 180, "local"),
+        L("XIN", (450.85, 215.9), 180, "local"),
+        L("XOUT_DRV", (450.85, 226.06), 180, "local"),
+        L("SWCLK", (450.85, 233.68), 180, "local"),
+        L("SWDIO", (450.85, 236.22), 180, "local"),
     ],
     power=[
-        ground((63.5, 105.41)),
-        ground((76.2, 105.41)),
-        ground((88.9, 105.41)),
-        ground((101.6, 105.41)),
-        ground((114.3, 105.41)),
-        ground((127.0, 105.41)),
-        ground((76.2, 139.7)),
-        ground((114.3, 139.7)),
-        ground((127.0, 139.7)),
-        ground((190.5, 203.2)),
-        ground((129.54, 185.42)),
-        ground((95.25, 181.61)),
-        ground((115.57, 208.28)),
+        ground((68.58, 111.76)),
+        ground((81.28, 111.76)),
+        ground((93.98, 111.76)),
+        ground((106.68, 111.76)),
+        ground((119.38, 111.76)),
+        ground((132.08, 111.76)),
+        ground((144.78, 111.76)),
+        ground((157.48, 111.76)),
+        ground((240.03, 111.76)),
+        ground((304.8, 111.76)),
+        ground((76.2, 210.82)),
+        ground((144.78, 218.44)),
+        ground((88.9, 327.66)),
+        ground((212.09, 323.85)),
+        ground((219.71, 323.85)),
+        ground((374.65, 317.5)),
+        ground((482.6, 250.19)),
     ],
 )
 
@@ -755,7 +904,7 @@ def _root() -> PlacementSpec:
 
     return PlacementSpec(
         paper="A2",
-        components=[C("J3", (500.38, 127.0), 0)],
+        components=[C("J4", (500.38, 127.0), 0)],
         sheets=sheets,
         notes=[N((177.8, 190.5), (139.7, 25.4))],
         wires=wires,
@@ -766,18 +915,32 @@ def _root() -> PlacementSpec:
 ROOT_SPEC = _root()
 
 
-SHEETS = {
+# One layout per block. A block instantiated more than once is laid out once
+# and renamed onto its other instances, using the mapping worked out from the
+# generated circuit rather than a table kept up to date by hand.
+BLOCKS = {
     "ThreePhaseDriver": ROOT_SPEC,
     "BackEmf": BACK_EMF,
-    "BackEmf2": BACK_EMF.renamed(BACK_EMF_RENAMES["BackEmf2"]),
-    "BackEmf3": BACK_EMF.renamed(BACK_EMF_RENAMES["BackEmf3"]),
     "HalfBridge": HALF_BRIDGE,
-    "HalfBridge2": HALF_BRIDGE.renamed(HALF_BRIDGE_RENAMES["HalfBridge2"]),
-    "HalfBridge3": HALF_BRIDGE.renamed(HALF_BRIDGE_RENAMES["HalfBridge3"]),
     "Power": POWER,
     "UsbProgramming": USB,
     "Mcu": MCU,
 }
+
+
+def sheets() -> dict:
+    """Work out the layout for every sheet in the generated project.
+
+    Returns:
+        Sheet name to the placement to apply to it.
+    """
+    renames = instance_renames(CIRCUIT_JSON)
+    result = {}
+    for sheet, mapping in renames.items():
+        block = next((name for name in BLOCKS if mapping.get(name) == sheet), None)
+        if block:
+            result[sheet] = BLOCKS[block].renamed(mapping)
+    return result
 
 
 def main() -> int:
@@ -786,7 +949,7 @@ def main() -> int:
     Returns:
         Process exit status: non-zero when the layout changed the circuit.
     """
-    for name, spec in SHEETS.items():
+    for name, spec in sheets().items():
         written = apply_placement(PROJECT / f"{name}.kicad_sch", spec)
         print(f"{name:16s} {written}")
 
