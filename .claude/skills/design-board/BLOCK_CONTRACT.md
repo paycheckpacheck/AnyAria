@@ -1,15 +1,28 @@
 # What a block agent returns
 
 Blocks are built in parallel by agents that cannot see each other's work, so
-what a block returns has to be enough to compose it without asking. This is
-that interface.
+what a block leaves behind has to be enough to rebuild the board without asking
+any of them anything. This is that interface.
 
-Everything goes in `<project>/blocks/<Name>/`.
+Everything goes in `<project>/design/blocks/<Name>/`, and the whole directory is
+read by every build: `board.py` imports each block's `block.py`, and
+`build_board` applies each block's `layout.py`. A build is therefore a pure
+function of these directories, which is exactly what makes it safe for several
+agents to run one at a time against the same project.
 
 ## `block.py`
 
 The `@circuit` function, importable on its own. Ports declared with `Input`,
 `Output`, `Bidirectional`. No side effects at import time.
+
+This file starts life as a **stub** - the same signature with an empty body -
+written at the architecture stage so that the block diagram can be generated
+and approved before any block is built. A block agent replaces the body and
+keeps the signature. Changing a port changes the root sheet the user approved,
+so it is something to raise rather than something to do.
+
+Replace it in one step (write a temporary file, then `os.replace`). Another
+agent's build may be importing it at the moment you save.
 
 Ground and the supply rails are **not** ports - they are drawn as power symbols
 and connect by name across the design. A block that declares `GND` as a port
@@ -125,14 +138,14 @@ or rewire anything except decoupling.
 
 The block's own sheet layout, as a module-level `SPEC = PlacementSpec(...)`.
 
-The block agent writes this, not the integrator, and the reason is that the
+The block agent writes this **and applies it**, and the reason is that the
 information needed to lay a sheet out well is the information the block agent
 has and nobody else does. Which figure the circuit was copied from decides how
 it should be drawn. The rationale text is already written, so the group boxes
 are already written. The parts list says which capacitor decouples which pin,
 which is the same thing as saying where it goes.
 
-By the time an integrator sees the block it has a netlist and no reasons, and a
+By the time anyone else sees the block it has a netlist and no reasons, and a
 netlist alone produces exactly the layout the generator produces.
 
 ```python
@@ -149,17 +162,37 @@ SPEC = PlacementSpec(
 )
 ```
 
-Write it against the reference designators your standalone preview produced -
-they will start at `R1` and that is fine. **Do not maintain a rename table.**
-The integrator derives two mappings and chains them: `block_renames()` carries
-the layout from your preview onto the same block in the finished board, where
-the numbering starts somewhere else entirely, and `instance_renames()` carries
-it onto the block's other instances. A spec written once therefore transfers to
-every instance and survives a part being added anywhere earlier in the design.
+Write it against the reference designators your sheet has *now*, read out of
+`describe_sheet`. **Do not maintain a rename table**, and do not copy references
+from an earlier run: another block's agent adding a part renumbers everything
+after it, at any moment, without telling you.
 
-The layout must pass `verify_project` on the standalone preview before you hand
-it over: sheet opens, drawing matches the circuit, nothing drawn over a part,
-ERC clean.
+What keeps the spec valid is `layout_refs.json` below. Every build derives two
+mappings and chains them: `block_renames()` carries the layout from the circuit
+it was written against onto the same block in the circuit as it now is, and
+`instance_renames()` carries it onto the block's other instances. A spec written
+once therefore transfers to every instance and survives a part being added
+anywhere earlier in the design.
+
+A spec worked out in code rather than written by hand can be written as
+`layout.json` instead, with `PlacementSpec.write_json()`. The build reads
+whichever is there, preferring `layout.py`.
+
+The layout must apply with no problems reported before you hand it over: your
+last `build_board` result must list nothing naming your sheet.
+
+## `layout_refs.json`
+
+The circuit `layout.py` was written against - the reference frame its reference
+designators mean something in. `build_board` writes it for you when you pass
+`capture_refs=["<YourBlock>"]`, which you do on the build immediately before you
+write or rewrite the layout.
+
+Without it, a layout written when your resistors were `R3` and `R4` would be
+applied to whatever is called `R3` and `R4` after another block grew by two
+parts, which is a different circuit drawn in your block's shape. Nothing else in
+the toolchain would notice: the netlist still matches, because the placement
+moved real symbols to real coordinates. It would simply be wrong.
 
 ## `sheet.png`
 
