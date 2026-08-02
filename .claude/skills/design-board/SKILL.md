@@ -14,12 +14,19 @@ Five phases, and you stop for the user exactly once.
 
 ```
 1 REQUIREMENTS   turn the line into a spec
-2 ARCHITECTURE   blocks, anchor parts, availability
+2 ARCHITECTURE   blocks, anchor parts, availability, and the KiCad project
+                 itself - generated from empty blocks, as a block diagram
     ---------- the one approval gate ----------
-3 BLOCKS         one agent per block, each fanning out to two more
-4 INTEGRATE      compose, generate, lay out, verify
+3 BLOCKS         one agent per block, each fanning out to two more; each one
+                 writes its own sheet into that same project
+4 CLOSE          spice hygiene, verify, read the renders
 5 REPORT         what passed, what did not, what is not verified
 ```
+
+The project exists before the agents do. That is the whole shape of this: the
+user approves a real KiCad project rather than a paragraph, and every block
+agent then fills in its own page of it rather than building something somebody
+has to compose afterwards.
 
 ## 1. Requirements
 
@@ -67,11 +74,62 @@ diagram; find the part and read what its maker says.
 `PATTERNS.md` lists the block shapes that recur, as prompts for step 3. It is
 not a lookup table, and a board that matches nothing in it is normal.
 
+### Build the block diagram, as a real KiCad project
+
+Do this before the gate, not after it. A block list written in prose hides the
+mistakes that a drawing makes obvious: a port with nowhere to go, a rail
+nothing produces, a block wired to itself.
+
+Write the design directory:
+
+```
+<project>/design/
+    board.py            the root builder: defines board(), wires the blocks
+    layout.py           ROOT_SPEC, the block diagram's own layout
+    blocks/<Name>/block.py    a stub - ports declared, body empty
+```
+
+A stub is the block's real signature with nothing in it:
+
+```python
+from circuit_synth import Input, Output, circuit
+
+@circuit(name="Supply")
+def supply(RAW_IN: Input, VMON: Output):
+    """The 3.3V rail, made from the raw input, with a tap that measures it."""
+```
+
+The annotations are what make it a block rather than a blank page: a parameter
+annotated `Input`, `Output` or `Bidirectional` becomes a hierarchical port, and
+a block that declares at least one gets a sheet symbol with sheet pins and a
+matching hierarchical label on its own page - **even with no parts in it.** A
+parameter left unannotated is not a port and will vanish without saying so, and
+so will a net whose name matches a power symbol, because rails are drawn as
+power symbols rather than pins. Check the generated JSON's `ports` for each
+block before showing anyone.
+
+Then generate and lay out the root:
+
+```python
+from circuit_synth.board import Board, build_board
+
+board = Board(project / "design", project / "MyBoard")
+result = build_board(board, note="block diagram")
+print(result.summary())          # every block listed as having no layout yet
+```
+
+`ROOT_SPEC` is the only layout you write. It is a block diagram, so wire it
+like one: one sheet symbol per block arranged left to right, every sheet pin on
+a short stub with a **label** on it rather than a wire run across to the block
+it talks to. Six blocks wired point to point is a rat's nest; the same page in
+labels reads at a glance.
+
 ### The approval gate
 
 Show the user, and then stop:
 
-- the block diagram, one line per block with its ports and instance count;
+- **the rendered root sheet**, which is the block diagram - not a description
+  of one;
 - the anchor part for each block, with LCSC number, Basic or Extended, stock
   and unit price;
 - anything that had to be sourced outside JLCPCB, flagged as unassemblable;
@@ -105,48 +163,94 @@ designer re-runs the reviewer. Three rounds, then it comes to the user.
 Every block returns the same directory, and that contract is what lets the
 blocks be built independently - see `BLOCK_CONTRACT.md`.
 
-## 4. Integrate
+**Each agent writes its own sheet into the project you already generated.** It
+replaces its stub `block.py` with the real circuit, calls `build_board`, looks
+at the sheet it got, decides the placement, writes it, and calls `build_board`
+again. It runs the KiCad generation and the layout pass itself. There is no
+preview project, and there is nothing left over for an integrator to apply.
 
-Compose the blocks into one root circuit from their `interface.json` files,
-generate it, then **reuse the layout each block already worked out** rather
-than laying the board out from scratch.
+### Why regenerating the whole project is the right answer
+
+`Circuit.generate_kicad_project` walks the entire hierarchy and writes every
+sheet. There is no call that adds one sheet to an existing project, and the
+incremental path that looks like one is broken (see below). That sounds like it
+should make this impossible, and it does not, because **the root builder reads
+every block from a separate `block.py` on disk.** Regenerating is not throwing
+away the other agents' work; it is picking up whatever every agent has written
+so far. A block nobody has filled in yet regenerates as the stub it still is.
+
+`build_board` therefore treats a build as a pure function of the design
+directory:
+
+```
+build = generate(every block.py) + apply(every layout.py) + apply(ROOT_SPEC)
+```
+
+which is what makes it safe from several agents at once. They serialise on a
+lock file, and because each build reproduces the whole design from disk, the
+agent that writes last does not overwrite the others - it includes them.
+
+**When two agents finish at the same moment**, the second waits out the first's
+build and then runs its own, which redoes the first agent's sheet as well. That
+costs the wall time of one generation and nothing else. If the wait passes the
+timeout, the build raises `BuildBusy` and writes nothing, which is deliberate:
+a project written without the lock is a torn file, and KiCad reports a torn
+sheet as an empty page rather than as an error.
+
+**Reference designators move**, because a part added to one block renumbers
+every block after it. Nothing is applied by reference directly. Each block
+records the circuit its placement was written against - `build_board` writes
+`layout_refs.json` when the agent asks for it with `capture_refs` - and
+`block_renames` maps that frame onto the current one positionally.
+`instance_renames` then carries it onto the block's other instances, so a block
+instantiated three times still costs one layout. Both mappings are derived from
+the generated circuits; neither is ever written down.
+
+## 4. Close the board
+
+By the time the last agent returns, the project is already generated, already
+laid out and already checked sheet by sheet. What is left is the whole-board
+view:
 
 ```python
-from circuit_synth.kicad.layout import apply_placement
-from circuit_synth.kicad.layout.extract import block_renames, instance_renames
+from circuit_synth.kicad.session import finish_editing
 from circuit_synth.kicad.spice_hygiene import make_spice_clean
 from circuit_synth.verify import verify_project
 
-instances = instance_renames(circuit_json)        # both derived, never
-for sheet, block in sheets_to_blocks.items():     # hand-written
-    # The block laid itself out in a preview where its parts start at R1, so
-    # the mapping is preview -> this sheet, chained through the instance the
-    # preview corresponds to.
-    to_first = block_renames(block.preview_json, block.name, circuit_json, block.name)
-    mapping = {src: instances[sheet].get(dst, dst) for src, dst in to_first.items()}
-    apply_placement(project / f"{sheet}.kicad_sch", block.SPEC.renamed(mapping))
-
-apply_placement(root, ROOT_SPEC)                  # the only layout you write
-make_spice_clean(project)
-report = verify_project(root, circuit_json)
+make_spice_clean(board.project_dir)
+report = verify_project(board.root_schematic, board.circuit_json)
+finish_editing(board.project_dir)
 ```
 
-Two mappings, both derived from the generated circuits rather than written
-down. `block_renames` carries a layout from the preview a block laid itself out
-in - where its parts start at `R1` - onto the same block in the finished board,
-where they might be `R12`. `instance_renames` then carries it onto the block's
-other instances. Together they mean a block instantiated three times costs one
-layout, and a part added anywhere earlier in the design does not silently break
-every layout after it by shifting the numbering.
-
-**The only sheet you lay out is the root**, and it is a block diagram: one
-sheet symbol per block, arranged so the board reads left to right, with short
-stubs and labels rather than wires between them. A page of sheet symbols wired
-point to point is a rat's nest.
-
-Then read the renders. Actually look at them - a block's sheet was judged in
-isolation, and a block that looks right on its own can still be wrong for the
+Then read the renders. Actually look at them - a block's sheet was judged on
+its own, and a block that looks right on its own can still be wrong for the
 board it landed in.
+
+`examples/block_first_board/` is this whole sequence, small enough to run:
+three blocks, one of them instantiated twice, agents in parallel, verified at
+the end.
+
+### The incremental update path does not work - do not reach for it
+
+`generate_kicad_project` looks as though it can update a project in place, and
+it cannot. Left at its default, `force_regenerate=False` sends an **existing**
+project to the synchroniser rather than regenerating it
+(`sch_gen/main_generator.py`, `generate_project`), and the synchroniser raises
+`TypeError: 'SheetManager' object is not iterable` the moment it has to place a
+component it did not already have. Any exception there aborts the whole call
+rather than falling back, so the second generation of a project fails outright.
+
+The cause is upstream and shallow: `kicad_sch_api`'s `Schematic.sheets` returns
+a `SheetManager`, which defines no `__iter__`, while the dataclass of the same
+name has a plain list. `schematic/placement.py` iterates it, and so do
+`schematic/synchronizer.py` and `kicad/sch_gen/instance_utils.py` - the latter
+two inside `except` blocks, which is worse: child sheets are silently never
+loaded, and hierarchical instance paths silently come out wrong.
+
+So `circuit_synth.board` passes `force_regenerate=True` on every build. That is
+not a preference; it is the only path that runs. It also means the generator
+overwrites but never deletes, so a block removed from the design leaves its old
+`.kicad_sch` behind - harmless, and worth knowing when a stale sheet appears.
 
 ## 5. Report
 

@@ -97,58 +97,53 @@ Applying a spec moves the symbols and redraws all of the wiring. Component
 UUIDs, properties and hierarchical instance paths are left alone, so the sheet
 stays the same design.
 
-## Laying out one block on its own
+## Laying out one block, in the board's own project
 
-A block agent lays out its own sheet, before the block is ever composed into a
-board. That is the right moment: you have just chosen the parts, copied the
-reference circuit and written down why each value is what it is, and all of
-that is what decides where things go. An integrator arriving later has the
-netlist and none of the reasons.
+A block agent lays out its own sheet, and it does so **in the board's real
+project** rather than in a preview of its own. That is the right moment: you
+have just chosen the parts, copied the reference circuit and written down why
+each value is what it is, and all of that is what decides where things go.
+Anyone arriving later has the netlist and none of the reasons.
 
-Generate the block by itself, lay out the one sheet, and hand back the spec.
-
-A block cannot be generated entirely alone: `Net(...)` needs an active circuit,
-so the block's ports have nothing to bind to. Wrap it in a one-line circuit
-that exists only to hand it its nets.
+The project already exists, generated before the agents were dispatched from
+blocks that declare their ports and contain nothing else. Your block already
+has a page in it. Filling it in means rewriting your `block.py` and building:
 
 ```python
-from pathlib import Path
-from circuit_synth import Net, circuit
-from circuit_synth.kicad.layout import apply_placement, describe_sheet
+from circuit_synth.board import Board, build_board
+from circuit_synth.kicad.layout import describe_sheet
 from circuit_synth.kicad.layout.extract import sheet_nets, sheet_ports
-from circuit_synth.verify import verify_project
-from block import half_bridge
 
-@circuit(name="Preview")
-def preview():
-    """Exists only to give the block its nets."""
-    half_bridge(Net("HI"), Net("LI"), Net("PHASE"), Net("VM"),
-                Net("VDRV"), Net("ISENSE"), Net("NEUTRAL"), Net("ZC"))
+board = Board(project / "design", project / "ThreePhaseDriver")
 
-project = Path("preview")
-preview().generate_kicad_project(str(project), generate_pcb=False)
+# 1. Generate, having written blocks/HalfBridge/block.py. capture_refs records
+#    the references your block came out with, which is the frame the placement
+#    you are about to write will mean something in.
+build_board(board, note="HalfBridge", capture_refs=["HalfBridge"], render=False)
 
-# The block gets its own sheet beside the wrapper's. That sheet is yours.
-sheet_path = project / "HalfBridge.kicad_sch"
-circuit_json = project / "Preview.json"
-
-# 1. Describe what landed, then decide the placement.
-sheet = describe_sheet(sheet_path, sheet_nets(circuit_json)["HalfBridge"],
-                       sheet_ports(circuit_json)["HalfBridge"])
+# 2. Describe what landed, then decide the placement.
+sheet = describe_sheet(board.sheet("HalfBridge"),
+                       sheet_nets(board.circuit_json)["HalfBridge"],
+                       sheet_ports(board.circuit_json)["HalfBridge"])
 print(sheet.to_json())
 
-# 2. Apply, verify, render, look at it, refine.
-apply_placement(sheet_path, SPEC)
-report = verify_project(project / "Preview.kicad_sch", circuit_json)
-assert report.passed, report.summary()
+# 3. Write blocks/HalfBridge/layout.py as SPEC = PlacementSpec(...), then apply
+#    it, validate and render - all of which build_board does.
+result = build_board(board, note="HalfBridge")
+assert not result.problems, result.summary()
 ```
 
-Lay out the **block's** sheet, not the wrapper's. The wrapper is scaffolding
-and is thrown away; only `SPEC` and the render are kept.
+`build_board` regenerates the whole project and re-applies every block's layout,
+not just yours. That is not waste: it is what makes several agents writing the
+same project safe, since every build reproduces the whole design from disk
+rather than patching what is there. It takes an exclusive lock while it does it,
+so a build may wait for another agent's and may raise `BuildBusy` if the wait is
+too long. Retry; do not write some other way.
 
 Write the spec to `layout.py` in the block's directory, as a module-level
-`SPEC = PlacementSpec(...)`. That file is the block's layout, and the
-integrator imports it rather than re-deriving it.
+`SPEC = PlacementSpec(...)`, or to `layout.json` with
+`PlacementSpec.write_json()` when it was worked out in code. Every later build
+applies it, including builds run by other agents.
 
 **Use what you know that a netlist does not.** The `reference-circuit`
 checklist says which parts came from the vendor's figure - draw them the way
@@ -156,12 +151,20 @@ the figure draws them. The rationale says what each group is for - that is
 your group boxes, already written. The parts list says which capacitor
 decouples which pin - that is which capacitor sits next to which pin.
 
-**Reference designators will change.** A block instantiated three times gets
-three sets, and adding a part anywhere earlier in the design shifts all of
-them. Do not hand-maintain a rename table: the integrator calls
-`instance_renames(circuit_json)` and `SPEC.renamed(mapping)`, which works out
-the mapping from the generated circuit. Write the spec against the references
-your standalone preview produced and leave it at that.
+**Reference designators will change under you.** A block instantiated three
+times gets three sets, and a part added to any block ahead of yours - by an
+agent working at this moment - shifts all of them. So: read your references out
+of `describe_sheet` every time rather than copying them from a previous run, and
+pass `capture_refs=["<YourBlock>"]` on the build immediately before you write
+the layout. That records the circuit your references mean something in, and
+every later build chains `block_renames()` from it onto the current circuit and
+`instance_renames()` onto your block's other instances. Do not hand-maintain a
+rename table.
+
+**Some symbols draw outside their own pins.** `Device:LED` puts its emission
+arrows past the end of the cathode lead, so any wire to that pin is reported as
+drawn across the part, however it is routed. Where that happens, put the label
+on the pin instead of on a stub, and say in the group box why.
 
 **Ports, not power.** Your block's interface is hierarchical labels, one per
 declared port, with the direction the block declared. Ground and the supply

@@ -17,7 +17,7 @@ import uuid as uuid_module
 import zlib
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Dict, List, Optional, Sequence, Tuple
+from typing import Any, Dict, List, Optional, Sequence, Tuple
 
 from . import sexp
 
@@ -385,6 +385,101 @@ class PlacementSpec:
             The parsed spec.
         """
         return PlacementSpec.from_dict(json.loads(path.read_text(encoding="utf-8")))
+
+    def to_dict(self) -> dict:
+        """Turn the spec back into the plain data :meth:`from_dict` reads.
+
+        A placement decided by hand is written as Python. A placement worked
+        out in code - which is what a block agent does when it places parts
+        against the sheet description it was just handed - has to be written
+        back out somehow, and round-tripping through this is less error-prone
+        than emitting Python source.
+
+        Empty collections are left out, so a small placement stays readable.
+
+        Returns:
+            The spec as nested dictionaries and lists.
+        """
+        data: Dict[str, Any] = {}
+        if self.components:
+            data["components"] = [
+                {"ref": item.reference, "at": list(item.at), "rotation": item.rotation}
+                for item in self.components
+            ]
+        if self.sheets:
+            data["sheets"] = [
+                {
+                    "name": item.name,
+                    "at": list(item.at),
+                    "size": list(item.size),
+                    "pins": [
+                        {"name": pin.name, "side": pin.side, "offset": pin.offset}
+                        for pin in item.pins
+                    ],
+                }
+                for item in self.sheets
+            ]
+        if self.groups:
+            data["groups"] = [
+                {
+                    "title": item.title,
+                    "at": list(item.at),
+                    "size": list(item.size),
+                    "rationale": item.rationale,
+                    "radius": item.radius,
+                }
+                for item in self.groups
+            ]
+        if self.notes:
+            data["notes"] = [
+                {"at": list(item.at), "size": list(item.size)} for item in self.notes
+            ]
+        if self.wires:
+            data["wires"] = [
+                [list(start), list(end)] for start, end in self.wires
+            ]
+        if self.junctions:
+            data["junctions"] = [list(point) for point in self.junctions]
+        if self.labels:
+            data["labels"] = [
+                {
+                    "text": item.text,
+                    "at": list(item.at),
+                    "rotation": item.rotation,
+                    "kind": item.kind,
+                    "shape": item.shape,
+                }
+                for item in self.labels
+            ]
+        if self.power:
+            data["power"] = [
+                {
+                    "lib_id": item.lib_id,
+                    "at": list(item.at),
+                    "rotation": item.rotation,
+                    "reference": item.reference,
+                }
+                for item in self.power
+            ]
+        if self.no_connects:
+            data["no_connects"] = [list(point) for point in self.no_connects]
+        if self.paper:
+            data["paper"] = self.paper
+        return data
+
+    def write_json(self, path: Path) -> Path:
+        """Write the spec to a JSON file.
+
+        Args:
+            path: Where to write it.
+
+        Returns:
+            The path written.
+        """
+        path = Path(path)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps(self.to_dict(), indent=1), encoding="utf-8")
+        return path
 
 
 def _off_grid(points: Sequence[Point]) -> List[Point]:
