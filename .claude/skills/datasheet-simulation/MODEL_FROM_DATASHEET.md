@@ -156,6 +156,47 @@ The general rule: when a prediction is out by much more than its neighbours,
 work out which mechanism would have to be wrong to explain it. If no mechanism
 would, suspect the number.
 
+## 6b. When a parameter is not published, fit exactly one — and prove it
+
+Sometimes the datasheet does not contain what the physics needs. A discrete
+switching design gives gate charge and switching times; an integrated converter
+has the FETs inside and publishes neither, so the switching loss cannot be
+derived at all.
+
+That is not a reason to abandon the model, and it is not permission to fit
+freely. The rule:
+
+**Fit one coefficient, tie it to a named mechanism, then validate it against a
+condition it was not fitted to — one that mechanism must respond to.**
+
+The TPS62130 example. Efficiency is conduction (grows as I²), switching
+(roughly constant), and quiescent. Conduction comes from the published
+on-resistances; quiescent from the published Iq; the switching term is fitted
+at 2.5 MHz. So far that could be a curve fit dressed up as physics.
+
+The test: predict the **1.25 MHz** curve. Same silicon, half the switching
+frequency. If the coefficient stands for energy lost per cycle it must halve
+and the whole curve must move with it; if it stands for the shape of one graph
+it will not.
+
+```
+IN SAMPLE     2.5 MHz      within 0.9 points across 0.5-3A
+OUT OF SAMPLE 1.25 MHz     within 1.8 points across 0.5-3A
+```
+
+The curve reads to about ±1.5 points, so the out-of-sample error is at the
+accuracy of the source. The mechanism is right.
+
+Pick the validating condition so that a *wrong* model fails it. Predicting the
+same frequency at a different current would not have worked — conduction
+already explains that, and the switching term barely moves. Frequency is the
+axis the fitted term owns.
+
+If there is no such condition available, say the coefficient is unvalidated.
+One fitted parameter with an out-of-sample check is a model; one fitted
+parameter without one is a curve fit, and the difference matters when somebody
+uses it at a condition you never tried.
+
 ## 7. Write down what it does not represent
 
 Every model carries a `gaps` list, and it is not an apology. A gate driver

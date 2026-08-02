@@ -185,3 +185,53 @@ def test_the_datasheet_contradiction_is_recorded():
 
     assert tighter < looser  # the contradiction, as published
     assert "cannot enter the tighter band" in tl072.inconsistency()
+
+
+def test_the_buck_converter_matches_both_published_curves():
+    """Efficiency across the load range, at two switching frequencies."""
+    from circuit_synth.simulation.parts import tps62130
+
+    report = tps62130.check()
+
+    assert report.passed, report.summary()
+
+
+def test_the_fitted_switching_term_predicts_a_frequency_it_was_not_fitted_to():
+    """The test that separates a model from a curve fit.
+
+    Gate charge and switching times are not published for an integrated
+    converter, so one coefficient has to be fitted. Fitted at 2.5MHz, it is
+    then asked for the 1.25MHz curve: if it stands for energy lost per cycle it
+    must halve and the curve must follow, and if it stands for the shape of one
+    graph it will not.
+    """
+    from circuit_synth.simulation.parts import tps62130
+
+    out_of_sample = [c for c in tps62130.check().comparisons if not c.point.in_sample]
+
+    assert len(out_of_sample) == 4
+    assert all("1.25MHz" in c.point.quantity for c in out_of_sample)
+    # The curve reads to about 1.5 points, so this is the source's accuracy.
+    assert max(c.error for c in out_of_sample) < 0.02
+
+
+def test_the_model_says_where_it_stops_applying():
+    """Below continuous conduction the switching frequency is not the nominal one.
+
+    Modelling power-save mode as if it ran at the labelled frequency would give
+    confident numbers for a circuit that is not the one being described.
+    """
+    from circuit_synth.simulation.parts import tps62130
+
+    floor = tps62130.continuous_conduction_floor()
+
+    assert 0.2 < floor < 0.4
+    assert all(current >= floor for current in tps62130.EFFICIENCY_2M5)
+
+
+def test_the_unsourceable_parameter_is_declared():
+    """A fitted coefficient must say it was fitted, and why it had to be."""
+    from circuit_synth.simulation.parts import tps62130
+
+    assert any("fitted" in gap for gap in tps62130.gaps())
+    assert any("not published" in gap for gap in tps62130.gaps())
