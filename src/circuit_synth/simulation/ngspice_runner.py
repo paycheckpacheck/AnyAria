@@ -300,6 +300,23 @@ def background(noruns, ident, user):
 
 lib.ngSpice_Init(send_char, send_stat, controlled_exit, send_data, send_init, background, None)
 lib.ngGet_Vec_Info.restype = ctypes.POINTER(VectorInfo)
+lib.ngSpice_CurPlot.restype = ctypes.c_char_p
+lib.ngSpice_AllVecs.restype = ctypes.POINTER(ctypes.c_char_p)
+
+
+def every_vector():
+    """Names of every vector in the plot the run left behind."""
+    plot = lib.ngSpice_CurPlot()
+    if not plot:
+        return []
+    names, index = [], 0
+    array = lib.ngSpice_AllVecs(plot)
+    if not array:
+        return []
+    while array[index]:
+        names.append(array[index].decode("utf-8", "replace"))
+        index += 1
+    return names
 
 with open(deck_path, "rb") as handle:
     lines = [line.rstrip(b"\r\n") for line in handle if line.strip()]
@@ -311,6 +328,8 @@ vectors = {}
 if loaded == 0:
     for command in commands:
         lib.ngSpice_Command(command.encode())
+    if wanted == ["*"]:
+        wanted = every_vector()
     for name in wanted:
         pointer = lib.ngGet_Vec_Info(name.encode())
         if not pointer:
@@ -348,7 +367,10 @@ def run_deck(
             the first line as a title and will silently discard a component
             written there.
         commands: ngspice commands to issue after loading, in order.
-        vectors: Vector names to read back, such as ``out`` or ``v(out)``.
+        vectors: Vector names to read back, such as ``out`` or ``v(out)``. The
+            single name ``"*"`` means every vector the run left behind, which
+            is what a caller wants when it does not know the node names in
+            advance - an exported KiCad deck, for instance.
         timeout: Seconds before the run is abandoned.
         install: Which ngspice to use. Found automatically when omitted.
 

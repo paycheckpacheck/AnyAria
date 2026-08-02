@@ -320,6 +320,32 @@ difference means nothing. `cross_check_settling` raises rather than returning
 that number, because a meaningless number that looks like a result is worse
 than no result.
 
+### Use a second model to bound an approximation, not to replace one
+
+Every model simplifies something, and a gap that says "this is ignored" leaves
+the reader to guess whether it matters. A second, independent model built from
+the same datasheet by a different route can turn that into a number.
+
+The IRF3205's Python model takes on-resistance as independent of drain current,
+which is false. `vdmos.fit()` builds an ngspice card from the specification
+table - threshold, transconductance, and a drain resistance solved for at the
+datasheet's own test point - and that model *does* represent the dependence:
+
+```
+  ID      vdmos Rds(on)   vs the 62A fit point
+    5A       7.884 mohm        -1.4%
+   20A       7.914 mohm        -1.1%
+   80A       8.039 mohm        +0.5%
+```
+
+Under 1.5% across the whole range, which is less than the curve can be read to.
+So the gap now says that, with the bound, instead of leaving a worry.
+
+Note what makes this fair: the two routes share only the datasheet. One comes
+from the normalised resistance curve, the other from the table plus a fit, and
+they are compared at currents neither was anchored to. Two models sharing a
+derivation would agree for no reason at all.
+
 ### ngspice is probably available even when it looks absent
 
 `shutil.which("ngspice")` finds nothing on a normal KiCad install, because

@@ -420,8 +420,14 @@ def run_transient(
 
     try:
         from PySpice.Spice.NgSpice.Shared import NgSpiceShared
-    except ImportError as error:
-        raise SimulationUnavailable(f"PySpice is not importable: {error}") from error
+    except Exception as error:  # noqa: BLE001 - it fails in several ways
+        # Not only ImportError. PySpice declares ngspice's C interface through
+        # cffi at import time, and against a newer cffi that raises
+        # CDefError("duplicate declaration of struct ngcomplex") - a broken
+        # dependency rather than an absent one, and just as fatal to this
+        # route. Any failure to import means the in-process path is closed.
+        logger.debug("PySpice unusable (%s); running out of process", error)
+        return _run_transient_out_of_process(deck)
 
     # ngspice looks for its init file under SPICE_LIB_DIR and warns if it is
     # missing. Nothing here needs it, but leaving the variable unset makes
@@ -431,12 +437,25 @@ def run_transient(
     NgSpiceShared.LIBRARY_PATH = str(library)
     try:
         shared = NgSpiceShared.new_instance()
-    except OSError as error:
-        raise SimulationUnavailable(
-            f"could not load ngspice from {library}: {error}. On Windows this "
-            f"is usually an architecture mismatch - check that the Python "
-            f"interpreter and the KiCad install are both x86-64 or both ARM64."
-        ) from error
+    except Exception as error:  # noqa: BLE001 - it fails in several ways
+        # No usable in-process ngspice. Three different causes seen on one
+        # machine, all reaching here, none of them OSError-only:
+        #
+        #   OSError            the library will not load into this process. On
+        #                      Windows on ARM the interpreter is often an
+        #                      emulated x86-64 one behind an ARM64 trampoline,
+        #                      so it cannot load KiCad's ARM64 DLL however
+        #                      native it looks.
+        #   cffi.CDefError     PySpice declares ngspice's C interface here, and
+        #                      against a newer cffi that fails with "duplicate
+        #                      declaration of struct ngcomplex".
+        #   anything else      PySpice reports several ways.
+        #
+        # All of them mean the same thing, and none of them means the simulator
+        # is absent. Raising here is what made this path look unusable for as
+        # long as it did.
+        logger.debug("in-process ngspice unusable (%s); out of process", error)
+        return _run_transient_out_of_process(deck)
 
     previous = Path.cwd()
     try:
@@ -467,6 +486,50 @@ def run_transient(
     time = signals.pop("time")
     logger.info(
         "Transient run complete: %d points, %d signals", len(time), len(signals)
+    )
+    return Waveforms(time=time, signals=signals, deck=deck)
+
+
+def _run_transient_out_of_process(deck: str) -> Waveforms:
+    """Run a transient through an interpreter that can load ngspice.
+
+    The in-process route needs PySpice and needs the library to load into this
+    interpreter. When either is missing the simulator is still there - KiCad
+    ships it, and KiCad bundles a Python built to match it. This runs the same
+    deck through that.
+
+    Args:
+        deck: The SPICE netlist, carrying its own ``.tran`` directive.
+
+    Returns:
+        The waveforms.
+
+    Raises:
+        SimulationUnavailable: If no reachable ngspice exists at all.
+        SimulationFailed: If it ran but produced no time vector.
+    """
+    import numpy as np
+
+    from .ngspice_runner import run_deck
+
+    result = run_deck(deck, commands=("run",), vectors=("*",))
+    if not result.ok and not result.vectors:
+        if "no ngspice this process can load" in result.error:
+            raise SimulationUnavailable(result.error)
+        raise SimulationFailed(f"ngspice did not complete: {result.error}")
+
+    signals = {name: np.asarray(values) for name, values in result.vectors.items()}
+    if "time" not in signals:
+        raise SimulationFailed(
+            f"the run produced no time vector; it may not have been a "
+            f"transient analysis. Vectors returned: {', '.join(sorted(signals))}"
+        )
+
+    time = signals.pop("time")
+    logger.info(
+        "Transient run complete out of process: %d points, %d signals",
+        len(time),
+        len(signals),
     )
     return Waveforms(time=time, signals=signals, deck=deck)
 

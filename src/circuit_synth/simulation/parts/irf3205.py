@@ -349,6 +349,10 @@ def gaps() -> List[str]:
         f"temperature coefficient in the document, and on_resistance() raises "
         f"rather than extrapolating",
         "body-diode conduction during dead time is not included",
+        "on-resistance is taken as independent of drain current, which it is "
+        "not - but an ngspice vdmos model of the same part, fitted to the same "
+        "test point, puts the variation between -1.4% and +0.5% over 5A to "
+        "80A, so the approximation costs less than the curve is read to",
     ]
 
 
