@@ -467,3 +467,177 @@ class LinearRegulator(DeviceModel):
         # It cannot regulate above what it is given, less the dropout.
         out = np.minimum(out, supply - self.dropout)
         return {self.output_net: Waveform(window.t, out, "V", self.output_net)}
+
+
+class OpAmp(DeviceModel):
+    """A compensated operational amplifier.
+
+    Three datasheet numbers describe how one behaves in the time domain, and
+    between them they decide almost everything a circuit around it can do:
+
+    * **gain-bandwidth product** - how fast it can respond to a small signal;
+    * **slew rate** - the fastest its output can move at all, whatever the
+      input asks for;
+    * **phase margin** - how much it overshoots and rings on the way.
+
+    Modelling only the first gives a first-order response that settles far too
+    quickly, because it neither slews nor rings. All three together give a
+    second-order response with its rate clipped, which is what an oscilloscope
+    shows.
+    """
+
+    def __init__(
+        self,
+        name: str,
+        positive: str,
+        negative: str,
+        output: str,
+        datasheet: Datasheet,
+        gain_bandwidth: float,
+        slew_rate: float,
+        phase_margin: float,
+        open_loop_gain_db: float,
+        supply: float,
+        closed_loop_gain: float = 1.0,
+    ):
+        """Build an op-amp model.
+
+        Args:
+            name: Block name.
+            positive: Net on the non-inverting input.
+            negative: Net on the inverting input.
+            output: Net for the output.
+            datasheet: Where these numbers came from.
+            gain_bandwidth: Gain-bandwidth product, in hertz.
+            slew_rate: Slew rate, in volts per second.
+            phase_margin: Phase margin in degrees, at the closed-loop gain the
+                datasheet quotes it for.
+            open_loop_gain_db: Open-loop voltage gain, in dB.
+            supply: Supply voltage, which the output cannot leave.
+            closed_loop_gain: The gain it is being used at.
+        """
+        super().__init__(
+            name,
+            inputs=[positive, negative],
+            outputs=[output],
+            datasheet=datasheet,
+            gaps=[
+                "input offset and bias current",
+                "load capacitance beyond what the quoted phase margin assumed",
+                "output impedance, so the response into a heavy load is optimistic",
+                "noise",
+            ],
+        )
+        self.positive, self.negative, self.output = positive, negative, output
+        self.gain_bandwidth = gain_bandwidth
+        self.slew_rate = slew_rate
+        self.phase_margin = phase_margin
+        self.open_loop_gain_db = open_loop_gain_db
+        self.supply = supply
+        self.closed_loop_gain = closed_loop_gain
+        self._level = 0.0
+        self._rate = 0.0
+
+    @property
+    def damping(self) -> float:
+        """Closed-loop damping implied by the phase margin.
+
+        Solved from the exact relation rather than the usual rule of thumb,
+        because the approximation drifts badly below 60 degrees and this part
+        is specified at 56.
+
+        Returns:
+            The damping ratio.
+        """
+        target = np.radians(self.phase_margin)
+        low, high = 0.01, 2.0
+        for _ in range(200):
+            zeta = (low + high) / 2
+            value = np.arctan2(
+                2 * zeta, np.sqrt(np.sqrt(1 + 4 * zeta**4) - 2 * zeta**2)
+            )
+            if value < target:
+                low = zeta
+            else:
+                high = zeta
+        return (low + high) / 2
+
+    @property
+    def natural_frequency(self) -> float:
+        """Closed-loop natural frequency, in radians per second.
+
+        Returns:
+            The natural frequency at the configured closed-loop gain.
+        """
+        return 2 * np.pi * self.gain_bandwidth / self.closed_loop_gain
+
+    def reset(self) -> None:
+        """Return the output to rest."""
+        self._level = 0.0
+        self._rate = 0.0
+
+    def step(
+        self, window: TimeWindow, inputs: Dict[str, Waveform]
+    ) -> Dict[str, Waveform]:
+        """Follow the input, as fast as the part is able to.
+
+        Args:
+            window: The slice.
+            inputs: The two inputs.
+
+        Returns:
+            The output waveform.
+        """
+        target = (
+            inputs[self.positive].v - inputs[self.negative].v
+        ) * self.closed_loop_gain
+
+        zeta, omega = self.damping, self.natural_frequency
+        out = np.empty_like(target)
+        level, rate = self._level, self._rate
+
+        for index, wanted in enumerate(target):
+            acceleration = omega * omega * (wanted - level) - 2 * zeta * omega * rate
+            rate = float(np.clip(rate + acceleration * window.dt,
+                                 -self.slew_rate, self.slew_rate))
+            level = float(np.clip(level + rate * window.dt,
+                                  -self.supply / 2, self.supply / 2))
+            out[index] = level
+
+        self._level, self._rate = level, rate
+        return {self.output: Waveform(window.t, out, "V", self.output)}
+
+    def settling_time(
+        self, step: float, tolerance: float, horizon: float = 5e-6
+    ) -> float:
+        """How long the output takes to reach and stay within a band.
+
+        Args:
+            step: Step size, in volts.
+            tolerance: Fractional band, so 1e-3 is 0.1%.
+            horizon: How long to simulate before giving up, in seconds.
+
+        Returns:
+            Settling time in seconds, or NaN when it does not settle.
+        """
+        dt = 1e-10
+        zeta, omega = self.damping, self.natural_frequency
+        band = tolerance * step
+        level = rate = 0.0
+        settled_at = None
+
+        for index in range(int(horizon / dt)):
+            acceleration = omega * omega * (step - level) - 2 * zeta * omega * rate
+            rate = float(np.clip(rate + acceleration * dt, -self.slew_rate, self.slew_rate))
+            level += rate * dt
+
+            if abs(level - step) <= band:
+                if settled_at is None:
+                    settled_at = index * dt
+            else:
+                settled_at = None  # left the band again, so it had not settled
+
+            if settled_at is not None and index * dt - settled_at > 1e-6:
+                return settled_at
+
+        return settled_at if settled_at is not None else float("nan")

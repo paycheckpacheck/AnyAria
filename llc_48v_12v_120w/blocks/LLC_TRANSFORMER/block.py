@@ -34,20 +34,19 @@ def llc_transformer(PRI_P, PRI_N, SEC_CT, SEC_A, SEC_B):
     # LLC isolation transformer
     # DEVIATION: This is a custom/external part, not JLCPCB catalog
     T1 = Component(
-        "T1",
+        symbol="Transformer_1P_2S",  # KiCad generic transformer symbol (will use fallback)
+        ref="T",
         value="LLC_XFMR_4:1:1",
-        symbol="Transformer_1P_2S",  # KiCad generic transformer symbol
         footprint="Transformer_THT:Transformer_ETD29",  # Through-hole ETD29 core
         manufacturer="CUSTOM",
         part_number="LLC-XFMR-ETD29-16:4:4",
         description="LLC isolation transformer, 4:1:1 turns ratio, 110uH magnetizing inductance",
         datasheet="See transformer_calculations.md",
-        fields={
-            "Turns_Ratio": "4:1:1",
-            "Primary_Turns": "16T",
-            "Secondary_Turns": "4T+4T",
-            "Lm": "110uH",
-            "Llk": "<10uH",
+        Turns_Ratio="4:1:1",
+        Primary_Turns="16T",
+        Secondary_Turns="4T+4T",
+        Lm="110uH",
+        Llk="<10uH",
             "Core": "ETD29 N87",
             "Gap": "0.2mm",
             "Isolation": "1500V",

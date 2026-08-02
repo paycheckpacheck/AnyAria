@@ -118,6 +118,44 @@ altogether. It predicts 19.96 µV against a published 21.15 µV, 5.6% out.
 
 If a model can only reproduce what it was given, it is a lookup table.
 
+## 6a. When the model and the datasheet disagree, check the datasheet
+
+A disagreement is not automatically the model's fault, and assuming it is leads
+somewhere bad: you tune until the number matches, and every other prediction
+gets worse to pay for it.
+
+Before touching the model, check the published value against the rest of the
+document. The TL072H worked example is the case in point. Its model is built
+from gain-bandwidth, slew rate, phase margin and open-loop gain, with **no
+fitted parameters**, and predicts four published settling times:
+
+```
+  10V to 0.01%   0.817us vs 0.91us published    10.2%
+  10V to  0.1%   0.697us vs 0.63us published    10.6%
+   2V to 0.01%   0.519us vs 0.48us published     8.1%
+   2V to  0.1%   0.392us vs 0.56us published    30.0%   <- the outlier
+```
+
+Three within 11%, one at 30%. The tempting move is to adjust something until
+the fourth comes into line. Look at the table first:
+
+| step | tolerance | published |
+|---|---|---|
+| 2 V | 0.1% | 0.56 µs |
+| 2 V | **0.01%** | **0.48 µs** |
+
+The output has to cross the 0.1% band on its way into the 0.01% band, so it
+cannot reach the tighter one sooner. **One of those two numbers is wrong**, no
+model can match both, and the model's largest error falls on exactly that pair.
+
+So: record the contradiction, widen the tolerance on that point and say why in
+the same breath, and leave the model alone. Fitting to an impossibility buys a
+matching number and costs accuracy everywhere else.
+
+The general rule: when a prediction is out by much more than its neighbours,
+work out which mechanism would have to be wrong to explain it. If no mechanism
+would, suspect the number.
+
 ## 7. Write down what it does not represent
 
 Every model carries a `gaps` list, and it is not an apology. A gate driver

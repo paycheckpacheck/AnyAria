@@ -121,3 +121,67 @@ def test_the_model_carries_its_document_and_revision():
 
     assert "SBVS121E" in provenance
     assert "not modelled" in provenance
+
+
+def test_the_opamp_matches_its_datasheet():
+    """Four published settling times, none of which the model was given.
+
+    The model is built from gain-bandwidth, slew rate, phase margin and
+    open-loop gain. Settling time follows from all four at once, so matching it
+    cannot be arithmetic.
+    """
+    from circuit_synth.simulation.parts import tl072
+
+    report = tl072.check()
+
+    assert report.passed, report.summary()
+    assert len(report.out_of_sample) == 4
+
+
+def test_the_opamp_model_has_no_fitted_parameters():
+    """Every number comes from the table; nothing was tuned to make it match."""
+    from circuit_synth.simulation.parts import tl072
+
+    amplifier = tl072.model()
+
+    assert amplifier.gain_bandwidth == tl072.GAIN_BANDWIDTH
+    assert amplifier.slew_rate == tl072.SLEW_RATE
+    assert amplifier.phase_margin == tl072.PHASE_MARGIN
+
+
+def test_damping_is_solved_rather_than_approximated():
+    """The rule of thumb zeta = PM/100 drifts badly below 60 degrees.
+
+    At 56 degrees it would give 0.56; the exact relation gives 0.554, and the
+    settling time is sensitive enough to the difference to be worth solving.
+    """
+    from circuit_synth.simulation.parts import tl072
+
+    assert tl072.model().damping == pytest.approx(0.554, abs=0.005)
+
+
+def test_a_slower_amplifier_settles_more_slowly():
+    """A sanity check that the model responds to its inputs at all."""
+    from circuit_synth.simulation.parts import tl072
+
+    fast = tl072.model().settling_time(2.0, 1e-3)
+    slow = tl072.model(closed_loop_gain=10.0).settling_time(2.0, 1e-3)
+
+    assert slow > fast
+
+
+def test_the_datasheet_contradiction_is_recorded():
+    """A tighter tolerance cannot be reached sooner than a looser one.
+
+    The published 2V settling times say otherwise, so one of them is wrong. The
+    model is not fitted to either, and the contradiction is written down rather
+    than smoothed over - fitting a model to an impossibility makes it worse
+    everywhere else.
+    """
+    from circuit_synth.simulation.parts import tl072
+
+    tighter = tl072.SETTLING[(2.0, 1e-4)]
+    looser = tl072.SETTLING[(2.0, 1e-3)]
+
+    assert tighter < looser  # the contradiction, as published
+    assert "cannot enter the tighter band" in tl072.inconsistency()

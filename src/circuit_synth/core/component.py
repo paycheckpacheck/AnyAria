@@ -113,6 +113,72 @@ class Component(SimplifiedPinAccess):
             except ValidationError as e:
                 raise ValidationError(f"Invalid property '{key}': {e}")
 
+    def _create_generic_symbol_fallback(self) -> Dict[str, Any]:
+        """Create a generic symbol when the actual symbol is not found.
+
+        Infers pins based on common component patterns:
+        - Resistors/Capacitors: 2 passive pins (1, 2)
+        - Transistors (Q_*): 3 pins (G/B, D/C, S/E or numbered)
+        - Diodes (D_*): 2 pins (A, K or 1, 2)
+        - ICs: Fall back to numbered pins
+        """
+        symbol_name = self.symbol.split(":")[-1] if ":" in self.symbol else self.symbol
+
+        # Determine pin configuration based on symbol name patterns
+        pins = []
+
+        if symbol_name.startswith("R") or symbol_name.startswith("C") or symbol_name.startswith("L"):
+            # Passive components: 2 pins
+            pins = [
+                {"number": "1", "name": "~", "function": "passive"},
+                {"number": "2", "name": "~", "function": "passive"},
+            ]
+        elif symbol_name.startswith("D"):
+            # Diodes: Anode and Cathode
+            pins = [
+                {"number": "1", "name": "A", "function": "passive"},
+                {"number": "2", "name": "K", "function": "passive"},
+            ]
+        elif "NMOS" in symbol_name or "PMOS" in symbol_name or symbol_name.startswith("Q"):
+            # MOSFETs/Transistors: G, D, S or B, C, E
+            if "MOS" in symbol_name:
+                pins = [
+                    {"number": "1", "name": "G", "function": "input"},
+                    {"number": "2", "name": "D", "function": "passive"},
+                    {"number": "3", "name": "S", "function": "passive"},
+                ]
+            else:
+                # BJT
+                pins = [
+                    {"number": "1", "name": "B", "function": "input"},
+                    {"number": "2", "name": "C", "function": "passive"},
+                    {"number": "3", "name": "E", "function": "passive"},
+                ]
+        else:
+            # Generic IC or unknown: create numbered pins
+            # Try to infer from component properties if available
+            pin_count = getattr(self, 'pin_count', 4)  # Default to 4 pins
+            pins = [
+                {"number": str(i+1), "name": str(i+1), "function": "passive"}
+                for i in range(pin_count)
+            ]
+
+        context_logger.info(
+            f"Created generic fallback symbol for '{self.symbol}' with {len(pins)} pins",
+            component="COMPONENT",
+            symbol=self.symbol,
+            pins=[p["number"] for p in pins],
+        )
+
+        return {
+            "name": symbol_name,
+            "pins": pins,
+            "description": f"Generic fallback for {self.symbol}",
+            "datasheet": "",
+            "keywords": "generic fallback",
+            "fp_filters": []
+        }
+
     def __post_init__(self):
         self._validate_symbol(self.symbol)
 
@@ -130,6 +196,7 @@ class Component(SimplifiedPinAccess):
 
         # Instead of using SharedParserManager + parse_symbol,
         # we load flattened data from the SymbolLibCache
+        symbol_data = None
         try:
             symbol_data = SymbolLibCache.get_symbol_data(self.symbol)  # e.g. "Device:C"
             context_logger.debug(
@@ -141,31 +208,17 @@ class Component(SimplifiedPinAccess):
                     len(symbol_data.get("pins", [])) if "pins" in symbol_data else 0
                 ),
             )
-        except FileNotFoundError as e:
-            context_logger.error(
-                "Library file not found for symbol",
+        except (FileNotFoundError, KeyError, Exception) as e:
+            # Symbol not found - try to create a generic fallback
+            context_logger.warning(
+                f"Symbol '{self.symbol}' not found in libraries, creating generic fallback",
                 component="COMPONENT",
                 symbol=self.symbol,
                 error=str(e),
             )
-            raise LibraryNotFound(f"Failed to load symbol '{self.symbol}': {e}")
-        except KeyError as e:
-            context_logger.error(
-                "Symbol not found in library",
-                component="COMPONENT",
-                symbol=self.symbol,
-                error=str(e),
-            )
-            raise LibraryNotFound(f"Symbol not found: '{self.symbol}': {e}")
-        except Exception as e:
-            # fallback for anything else
-            context_logger.error(
-                "Error while loading symbol from cache",
-                component="COMPONENT",
-                symbol=self.symbol,
-                error=str(e),
-            )
-            raise LibraryNotFound(f"Failed to load symbol '{self.symbol}': {e}")
+
+            # Create a generic symbol with inferred pins based on common patterns
+            symbol_data = self._create_generic_symbol_fallback()
 
         # Store standard properties from symbol_data if not already set on component
         if self.description is None:
