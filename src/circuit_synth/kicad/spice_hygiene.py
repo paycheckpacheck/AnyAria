@@ -400,18 +400,30 @@ def deck_loads(root_schematic: Path, work_dir: Optional[Path] = None) -> Tuple[b
         return False, static[0]
 
     ngspice = shutil.which("ngspice")
-    if ngspice is None:
+    if ngspice is not None:
+        run = subprocess.run(
+            [ngspice, "-b", "-n", str(deck)],
+            capture_output=True, text=True, timeout=900, check=False,
+        )
+        output = (run.stdout or "") + (run.stderr or "")
+        for marker in ("No circuit loaded", "bad syntax", "Error:"):
+            if marker in output:
+                line = next(
+                    (item for item in output.splitlines() if marker in item), marker
+                )
+                return False, line.strip()
         return True, ""
 
-    run = subprocess.run(
-        [ngspice, "-b", "-n", str(deck)],
-        capture_output=True, text=True, timeout=900, check=False,
-    )
-    output = (run.stdout or "") + (run.stderr or "")
-    for marker in ("No circuit loaded", "bad syntax", "Error:"):
-        if marker in output:
-            line = next(
-                (item for item in output.splitlines() if marker in item), marker
-            )
-            return False, line.strip()
+    # No ngspice program. That is the normal case on a KiCad install, which
+    # ships the simulator as a library only - and taking it as "nothing to
+    # check" is how this check came to never run on the machine it was written
+    # on. The library is usable; it just needs an interpreter matching its
+    # architecture, which is what the runner finds.
+    from ..simulation.ngspice_runner import run_deck
+
+    result = run_deck(deck.read_text(encoding="utf-8"), commands=(), vectors=())
+    if result.error and "no ngspice this process can load" in result.error:
+        return True, ""
+    if not result.ok:
+        return False, result.error or "the deck would not load"
     return True, ""

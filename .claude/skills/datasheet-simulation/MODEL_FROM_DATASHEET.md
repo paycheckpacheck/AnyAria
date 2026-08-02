@@ -282,6 +282,62 @@ against its own heating, an LED's forward voltage against junction temperature
 on a fixed-current driver. Once one part in a design has it, everything sharing
 its heatsink has it too.
 
+## 6d. Check the arithmetic against a simulator, not against the datasheet
+
+There are two questions about a model and only one of them the datasheet can
+answer:
+
+| Question | What answers it |
+|---|---|
+| Is this the right part? | the datasheet, via `check()` |
+| Is the maths right? | a simulator, via `crosscheck` |
+
+They fail identically. A model built from exactly the right numbers that
+integrates them badly looks precisely like a part that misses its own
+specification, and if you only ever compare against the datasheet you cannot
+tell which you have - so you tune the physics to fix a numerical error.
+
+Wherever a model's behaviour reduces to a network SPICE represents exactly,
+that network is the reference:
+
+```python
+from circuit_synth.simulation.crosscheck import cross_check_settling
+print(cross_check_settling(tl072.model(), step=0.1, tolerance=1e-3).summary())
+# [agrees] settling to 0.1% after a 0.1V step: model 3.811e-07 s,
+#          ngspice transient on the equivalent RLC 3.827e-07 s, apart by 0.43%
+```
+
+The op-amp's settling time is a hand-rolled forward-Euler integration of a
+lightly damped second-order system - exactly where numerical damping creeps in
+without anyone noticing. Below the slew limit that system *is* a series RLC, so
+ngspice integrates the same problem with an implicit method and adaptive steps.
+0.43% apart. That is what makes the TL072's disagreement with its own datasheet
+readable as a statement about the part rather than about the integrator.
+
+**Stay inside what the reference represents.** The RLC is the model's linear
+behaviour, so a step big enough to slew compares two different problems and the
+difference means nothing. `cross_check_settling` raises rather than returning
+that number, because a meaningless number that looks like a result is worse
+than no result.
+
+### ngspice is probably available even when it looks absent
+
+`shutil.which("ngspice")` finds nothing on a normal KiCad install, because
+KiCad ships the simulator as a library and no program. Taking that as "nothing
+to check" is how this repository spent several sessions believing SPICE could
+not run here.
+
+`simulation.ngspice_runner` finds the library and an interpreter that can load
+it. The wrinkle worth knowing, because the wrong diagnosis was convincing: on
+Windows on ARM the venv's `python.exe` has an ARM64 PE header and
+`platform.machine()` says ARM64, yet the entry is a trampoline that launches an
+x86-64 CPython - and inside that emulated process an ARM64 DLL fails to load
+with `WinError 193`, the same error a genuine architecture mismatch gives. The
+honest signal is `PROCESSOR_ARCHITECTURE`, which reports what the process
+actually is. KiCad bundles an interpreter matching its own DLL, so the runner
+drives ngspice through that in a subprocess and the caller keeps whatever
+Python it has.
+
 ## 7. Write down what it does not represent
 
 Every model carries a `gaps` list, and it is not an apology. A gate driver
