@@ -1,0 +1,182 @@
+{
+  "TVS": {
+    "role": "Input overvoltage protection",
+    "lcsc": "C19195335",
+    "type": "Extended",
+    "mpn": "SMBJ58A",
+    "brand": "AnBon",
+    "package": "SMB(DO-214AA)",
+    "price": 0.0267,
+    "currency": "$",
+    "stock": 145,
+    "datasheet": "",
+    "symbol": "JLCImport:SMBJ58A_C19195335",
+    "footprint": "JLCImport:SMBJ58A_C19195335",
+    "query": "SMBJ58",
+    "rejected": [
+      "C5119189: Extended, $0.0305, not the best on the policy",
+      "C5261725: Extended, $0.0317, not the best on the policy",
+      "C55127354: Extended, $0.0359, not the best on the policy"
+    ],
+    "deviation": ""
+  },
+  "BULK_CAP": {
+    "role": "Input bulk energy storage",
+    "lcsc": "C116430",
+    "type": "Extended",
+    "mpn": "CS1J101M-CRG10",
+    "brand": "ST(Semtech)",
+    "package": "SMD,D10xL10.5mm",
+    "price": 0.0964,
+    "currency": "$",
+    "stock": 11615,
+    "datasheet": "https://www.lcsc.com/datasheet/lcsc_datasheet_2304140030_ST-Semtech-CS1J101M-CRG10_C116430.pdf",
+    "symbol": "JLCImport:CS1J101M-CRG10",
+    "footprint": "JLCImport:CS1J101M-CRG10",
+    "query": "100uF 63V SMD electrolytic capacitor",
+    "rejected": [
+      "C178628: $0.6229 is over the 0.5 ceiling",
+      "C5355878: $0.5406 is over the 0.5 ceiling",
+      "C497617: $0.8924 is over the 0.5 ceiling",
+      "C7471890: Extended, $0.1027, not the best on the policy",
+      "C2983410: Extended, $0.1119, not the best on the policy",
+      "C7471891: Extended, $0.1138, not the best on the policy"
+    ],
+    "deviation": "",
+    "quantity": 2
+  },
+  "CERAMIC_10U": {
+    "role": "Input high-frequency filtering",
+    "lcsc": "C107206",
+    "type": "Extended",
+    "mpn": "CC1206KRX7R0BB473",
+    "brand": "YAGEO",
+    "package": "1206",
+    "price": 0.0393,
+    "currency": "$",
+    "stock": 42226,
+    "datasheet": "https://www.lcsc.com/datasheet/lcsc_datasheet_2304140030_YAGEO-CC1206KRX7R0BB473_C107206.pdf",
+    "symbol": "JLCImport:CC1206KRX7R0BB473",
+    "footprint": "JLCImport:CC1206KRX7R0BB473",
+    "query": "10uF 100V 1206 X7R",
+    "rejected": [
+      "C577211: $0.2913 is over the 0.1 ceiling",
+      "C70463: $0.1524 is over the 0.1 ceiling",
+      "C107182: $0.1721 is over the 0.1 ceiling",
+      "C513671: Extended, $0.0447, not the best on the policy",
+      "C113892: Extended, $0.0507, not the best on the policy",
+      "C282823: Extended, $0.051, not the best on the policy"
+    ],
+    "deviation": "",
+    "quantity": 2
+  },
+  "CERAMIC_1U": {
+    "role": "Input high-frequency filtering",
+    "lcsc": "C107136",
+    "type": "Extended",
+    "mpn": "CC0805KRX7R0BB222",
+    "brand": "YAGEO",
+    "package": "0805",
+    "price": 0.0202,
+    "currency": "$",
+    "stock": 107705,
+    "datasheet": "https://www.lcsc.com/datasheet/lcsc_datasheet_2304140030_YAGEO-CC0805KRX7R0BB222_C107136.pdf",
+    "symbol": "JLCImport:CC0805KRX7R0BB222",
+    "footprint": "JLCImport:CC0805KRX7R0BB222",
+    "query": "1uF 100V 0805 X7R",
+    "rejected": [
+      "C5370002: $0.1296 is over the 0.1 ceiling",
+      "C22392392: $0.1254 is over the 0.1 ceiling",
+      "C6119928: $0.1219 is over the 0.1 ceiling",
+      "C107137: Extended, $0.0209, not the best on the policy",
+      "C113850: Extended, $0.0217, not the best on the policy",
+      "C282077: Extended, $0.0226, not the best on the policy"
+    ],
+    "deviation": "",
+    "quantity": 2
+  },
+  "R_SENSE_HIGH": {
+    "role": "Input voltage sensing - high side",
+    "lcsc": "C25819",
+    "type": "Basic",
+    "mpn": "0603WAF4702T5E",
+    "brand": "UNI-ROYAL(Uniroyal Elec)",
+    "package": "0603",
+    "price": 0.007,
+    "currency": "$",
+    "stock": 2262783,
+    "datasheet": "https://www.lcsc.com/datasheet/lcsc_datasheet_2206010045_UNI-ROYAL-Uniroyal-Elec-0603WAF4702T5E_C25819.pdf",
+    "symbol": "JLCImport:0603WAF4702T5E",
+    "footprint": "JLCImport:0603WAF4702T5E",
+    "query": "47k 0603 1%",
+    "rejected": [
+      "C136590: Extended, $0.0021, not the best on the policy",
+      "C2907042: Extended, $0.0024, not the best on the policy",
+      "C5713441: Extended, $0.0026, not the best on the policy"
+    ],
+    "deviation": ""
+  },
+  "R_SENSE_LOW": {
+    "role": "Input voltage sensing - low side",
+    "lcsc": "C22978",
+    "type": "Basic",
+    "mpn": "0603WAF3301T5E",
+    "brand": "UNI-ROYAL(Uniroyal Elec)",
+    "package": "0603",
+    "price": 0.0086,
+    "currency": "$",
+    "stock": 4115070,
+    "datasheet": "https://www.lcsc.com/datasheet/lcsc_datasheet_2206010116_UNI-ROYAL-Uniroyal-Elec-0603WAF3301T5E_C22978.pdf",
+    "symbol": "JLCImport:0603WAF3301T5E",
+    "footprint": "JLCImport:0603WAF3301T5E",
+    "query": "3.3k 0603 1%",
+    "rejected": [
+      "C22369791: Extended, $0.0014, not the best on the policy",
+      "C2907023: Extended, $0.0025, not the best on the policy",
+      "C7468553: Extended, $0.0034, not the best on the policy"
+    ],
+    "deviation": ""
+  },
+  "C_ADC_FILTER": {
+    "role": "ADC input filtering",
+    "lcsc": "C14663",
+    "type": "Basic",
+    "mpn": "CC0603KRX7R9BB104",
+    "brand": "YAGEO",
+    "package": "0603",
+    "price": 0.0241,
+    "currency": "$",
+    "stock": 33241530,
+    "datasheet": "https://www.lcsc.com/datasheet/lcsc_datasheet_2211101700_YAGEO-CC0603KRX7R9BB104_C14663.pdf",
+    "symbol": "JLCImport:CC0603KRX7R9BB104",
+    "footprint": "JLCImport:CC0603KRX7R9BB104",
+    "query": "100nF 0603 X7R 50V",
+    "rejected": [
+      "C6119867: Extended, $0.0105, not the best on the policy",
+      "C282518: Extended, $0.0121, not the best on the policy",
+      "C282519: Extended, $0.0144, not the best on the policy"
+    ],
+    "deviation": ""
+  },
+  "INPUT_TERMINAL": {
+    "role": "48V power input connector",
+    "lcsc": "C3703",
+    "type": "Extended",
+    "mpn": "WJ127-5.0-02P-14-00A",
+    "brand": "Ningbo Kangnex Elec",
+    "package": "Plugin,P=5mm",
+    "price": 0.152,
+    "currency": "$",
+    "stock": 2540,
+    "datasheet": "https://www.lcsc.com/datasheet/lcsc_datasheet_1912251631_Ningbo-Kangnex-Elec-WJ127-5-0-2P_C3703.pdf",
+    "symbol": "JLCImport:WJ127-5_0-2P",
+    "footprint": "JLCImport:WJ127-5_0-2P",
+    "query": "WJ127",
+    "rejected": [
+      "C8393: Extended, $0.2088, not the best on the policy",
+      "C192779: Extended, $0.2781, not the best on the policy",
+      "C192780: Extended, $0.3413, not the best on the policy"
+    ],
+    "deviation": ""
+  }
+}

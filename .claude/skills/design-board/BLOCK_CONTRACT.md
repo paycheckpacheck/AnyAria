@@ -121,6 +121,52 @@ until `connections_frozen` is true.
 new. `block-simulator` may then change **values only** - it may not add, remove
 or rewire anything except decoupling.
 
+## `layout.py`
+
+The block's own sheet layout, as a module-level `SPEC = PlacementSpec(...)`.
+
+The block agent writes this, not the integrator, and the reason is that the
+information needed to lay a sheet out well is the information the block agent
+has and nobody else does. Which figure the circuit was copied from decides how
+it should be drawn. The rationale text is already written, so the group boxes
+are already written. The parts list says which capacitor decouples which pin,
+which is the same thing as saying where it goes.
+
+By the time an integrator sees the block it has a netlist and no reasons, and a
+netlist alone produces exactly the layout the generator produces.
+
+```python
+from circuit_synth.kicad.layout import PlacementSpec
+from circuit_synth.kicad.layout.spec import ComponentPlacement as C
+from circuit_synth.kicad.layout.spec import GroupPlacement as G
+
+SPEC = PlacementSpec(
+    paper="A3",
+    components=[C("U1", (88.9, 101.6), 0), ...],
+    groups=[G("GATE DRIVE", (45.72, 60.96), (190.5, 76.2),
+              "IR2101 from PD60147 figure 3, bootstrap sized for ...")],
+    wires=[...], labels=[...], power=[...],
+)
+```
+
+Write it against the reference designators your standalone preview produced -
+they will start at `R1` and that is fine. **Do not maintain a rename table.**
+The integrator derives two mappings and chains them: `block_renames()` carries
+the layout from your preview onto the same block in the finished board, where
+the numbering starts somewhere else entirely, and `instance_renames()` carries
+it onto the block's other instances. A spec written once therefore transfers to
+every instance and survives a part being added anywhere earlier in the design.
+
+The layout must pass `verify_project` on the standalone preview before you hand
+it over: sheet opens, drawing matches the circuit, nothing drawn over a part,
+ERC clean.
+
+## `sheet.png`
+
+A render of the laid-out sheet. Not decoration - it is the evidence the layout
+was looked at rather than merely applied, and it is what the person reviewing
+the board sees without opening KiCad.
+
 ## `notebook.ipynb`
 
 This block's section, pre-executed, structured as the `simulate-block` skill

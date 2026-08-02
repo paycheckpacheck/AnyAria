@@ -1,0 +1,52 @@
+{
+  "C_BULK": {
+    "value": "1000uF",
+    "quantity": 2,
+    "provenance": "first_principles",
+    "derivation": "Output capacitance sized for ripple voltage: ΔV = I_load / (f_sw × C). For 10A load, 250kHz resonant frequency, targeting < 100mV ripple: C = 10A / (250kHz × 0.1V) = 400µF minimum. Using 2× 1000µF = 2000µF for margin and lower ESR.",
+    "inputs": {
+      "I_load": "10A",
+      "f_sw": "250kHz",
+      "ripple_target": "100mV",
+      "margin_factor": "5x"
+    },
+    "margin": "2000µF provides ripple ΔV ≈ 20mV (5× margin), ESR-limited ripple with 50mΩ ESR × 3A ripple current = 150mV additional. Total ripple < 200mV.",
+    "reference": "TI SLUA559A eq. 4-3, output capacitor selection for LLC converters"
+  },
+  "C_HF": {
+    "value": "47uF",
+    "quantity": 6,
+    "provenance": "research",
+    "derivation": "High-frequency ceramic capacitors parallel with electrolytics to reduce ESR and ESL at switching frequency. Total 6× 47µF = 282µF. X5R/X7R dielectric for stable capacitance over temperature and voltage.",
+    "inputs": {
+      "f_sw": "250kHz",
+      "esr_target": "< 5mΩ total",
+      "derating": "Ceramic caps at 12V on 25V rating retain ~85% capacitance"
+    },
+    "margin": "Effective HF capacitance ~240µF at 12V operating voltage. ESR of parallel ceramics << electrolytic ESR.",
+    "reference": "Standard LLC design practice, multiple parallel ceramics for low ESL"
+  },
+  "R_VSENSE": {
+    "value": "1k",
+    "provenance": "first_principles",
+    "derivation": "Isolation resistor for voltage sense tap. Creates high-impedance connection (>> capacitor ESR) to prevent feedback circuit from loading the output filter. Current through R_VSENSE: I = 12V / 1kΩ = 12mA negligible load.",
+    "inputs": {
+      "V_out": "12V",
+      "sense_current": "< 1mA typical for ADC/op-amp input",
+      "error_from_loading": "12mA × 50mΩ_ESR = 0.6mV negligible"
+    },
+    "margin": "1kΩ is standard value for voltage sense isolation, minimal impact on regulation accuracy",
+    "reference": "General practice for isolated voltage sensing in power supplies"
+  },
+  "J_OUT_current_rating": {
+    "value": "10A",
+    "provenance": "datasheet",
+    "derivation": "Screw terminal KF128-5.08-2P rated for 10A continuous per LCSC C8465 specifications. Matched to maximum output current requirement.",
+    "inputs": {
+      "I_max": "10A",
+      "wire_gauge": "16-18 AWG for 10A"
+    },
+    "margin": "Connector at rated current, no derating. Wire size (16 AWG) supports 13A continuous per NEC tables.",
+    "reference": "LCSC part C8465 datasheet, NEC wire ampacity tables"
+  }
+}

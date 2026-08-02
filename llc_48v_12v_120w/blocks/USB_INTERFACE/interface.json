@@ -1,0 +1,43 @@
+{
+  "block_name": "USB_INTERFACE",
+  "description": "USB Type-C interface for RP2040 telemetry with ESD protection and series termination",
+  "ports": {
+    "USB_DP": {
+      "direction": "bidirectional",
+      "type": "signal",
+      "description": "USB D+ to RP2040 pin 47 (before 33Ω series resistor)",
+      "connection": "RP2040 GPIO USB_DP (pin 47)"
+    },
+    "USB_DM": {
+      "direction": "bidirectional",
+      "type": "signal",
+      "description": "USB D- to RP2040 pin 46 (before 33Ω series resistor)",
+      "connection": "RP2040 GPIO USB_DM (pin 46)"
+    }
+  },
+  "power_nets": {
+    "+3V3": {
+      "type": "power_input",
+      "voltage": "3.3V",
+      "description": "3.3V I/O supply for USB_VDD (RP2040 pin 48), decoupled with 100nF",
+      "current": "50mA typical (USB PHY)"
+    },
+    "GND": {
+      "type": "ground",
+      "description": "Ground reference, includes USB shield connection via ferrite bead + 1MΩ"
+    }
+  },
+  "part_count": 8,
+  "cost_estimate": {
+    "total": 0.31,
+    "currency": "USD",
+    "breakdown": {
+      "USB_connector": 0.1843,
+      "ESD_protection": 0.0251,
+      "ferrite_bead": 0.0270,
+      "series_resistors_2x": 0.0682,
+      "shield_resistor": 0.0028,
+      "usb_vdd_cap": 0.0241
+    }
+  }
+}

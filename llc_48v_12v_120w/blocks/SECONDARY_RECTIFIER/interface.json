@@ -1,0 +1,50 @@
+{
+  "name": "SecondaryRectifier",
+  "instances": 1,
+  "ports": [
+    {
+      "name": "SEC_A",
+      "direction": "input",
+      "meaning": "Transformer secondary winding A (top winding), positive during first half-cycle"
+    },
+    {
+      "name": "SEC_B",
+      "direction": "input",
+      "meaning": "Transformer secondary winding B (bottom winding), positive during second half-cycle"
+    },
+    {
+      "name": "CT",
+      "direction": "output",
+      "meaning": "Center-tap combined output to output filter, rectified 12V nominal"
+    },
+    {
+      "name": "SR1_GATE",
+      "direction": "input",
+      "meaning": "Gate drive signal for SR1 FET from SR controller, controls SEC_A rectification"
+    },
+    {
+      "name": "SR2_GATE",
+      "direction": "input",
+      "meaning": "Gate drive signal for SR2 FET from SR controller, controls SEC_B rectification"
+    }
+  ],
+  "rails_consumed": [
+    {
+      "name": "GND",
+      "meaning": "Common ground reference, SR FET sources return here"
+    },
+    {
+      "name": "+12V",
+      "meaning": "Gate drive supply voltage, derived from output rail for SR controller/driver VCC"
+    }
+  ],
+  "rails_produced": [],
+  "notes": [
+    "Center-tapped synchronous rectifier topology",
+    "Two N-channel MOSFETs (BSC010N04LS, 40V, 1mΩ RDS(on))",
+    "Body diodes conduct during dead time (normal operation)",
+    "Gate drive signals must have dead time - SR1 and SR2 never on simultaneously",
+    "Optional current sense resistors (10mΩ each) for telemetry - can be DNF",
+    "Gate drive implementation in separate SR_CONTROLLER block (discrete comparator + driver)"
+  ]
+}

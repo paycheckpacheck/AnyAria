@@ -1,0 +1,35 @@
+{
+  "name": "OUTPUT_FILTER",
+  "instances": 1,
+  "ports": [
+    {
+      "name": "RECT_P",
+      "direction": "input",
+      "meaning": "Rectified positive rail from secondary synchronous rectifier FETs, typically 12-14V before filtering"
+    },
+    {
+      "name": "VOUT_SENSE",
+      "direction": "output",
+      "meaning": "High-impedance voltage sense point (through 1kΩ) for feedback and ADC monitoring"
+    },
+    {
+      "name": "ISENSE_P",
+      "direction": "output",
+      "meaning": "Positive current sense connection point, connects to shunt resistor in OUTPUT_SENSE_PROTECT block"
+    }
+  ],
+  "rails_consumed": [],
+  "rails_produced": [
+    "+12V"
+  ],
+  "description": "Passive output filter for LLC converter. Provides bulk energy storage (2× 1000µF electrolytic) and high-frequency filtering (6× 47µF ceramic) for low output ripple. Includes output connector and sense taps.",
+  "power_rating": "120W (12V @ 10A)",
+  "key_specs": {
+    "output_voltage": "12V",
+    "max_current": "10A",
+    "ripple_target": "< 100mV",
+    "total_capacitance_bulk": "2000µF",
+    "total_capacitance_hf": "~280µF",
+    "esr_target": "< 50mΩ"
+  }
+}

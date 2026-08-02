@@ -1,0 +1,34 @@
+{
+  "name": "LLC_TRANSFORMER",
+  "instances": 1,
+  "ports": [
+    {
+      "name": "PRI_P",
+      "direction": "input",
+      "meaning": "Primary winding positive terminal, connects to half-bridge switch node (48V square wave)"
+    },
+    {
+      "name": "PRI_N",
+      "direction": "input",
+      "meaning": "Primary winding negative terminal, connects to input ground reference"
+    },
+    {
+      "name": "SEC_CT",
+      "direction": "output",
+      "meaning": "Secondary center-tap, connects to +12V output rail"
+    },
+    {
+      "name": "SEC_A",
+      "direction": "output",
+      "meaning": "Secondary winding A terminal, connects to synchronous rectifier FET A drain"
+    },
+    {
+      "name": "SEC_B",
+      "direction": "output",
+      "meaning": "Secondary winding B terminal, connects to synchronous rectifier FET B drain"
+    }
+  ],
+  "rails_consumed": [],
+  "rails_produced": [],
+  "notes": "Provides galvanic isolation and voltage transformation. Ground and power rails are NOT ports - isolation boundary is the transformer itself."
+}

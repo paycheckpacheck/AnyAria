@@ -1,0 +1,107 @@
+{
+  "block_name": "USB_INTERFACE",
+  "values_frozen": true,
+  "all_values_sourced": true,
+  "component_values": {
+    "R1": {
+      "designation": "USB_DP series resistor",
+      "value": "33Ω",
+      "tolerance": "1%",
+      "power_rating": "0.1W",
+      "package": "0603",
+      "source": "datasheet",
+      "reference": "RP-008279-DS-1, USB interface section - specifies 27Ω, using 33Ω (acceptable 22-33Ω range)",
+      "provenance": "RP2040 Hardware Design Guide, Series termination for USB D+",
+      "deviation": "Using 33Ω instead of 27Ω due to JLCPCB part availability",
+      "lcsc": "C911079"
+    },
+    "R2": {
+      "designation": "USB_DM series resistor",
+      "value": "33Ω",
+      "tolerance": "1%",
+      "power_rating": "0.1W",
+      "package": "0603",
+      "source": "datasheet",
+      "reference": "RP-008279-DS-1, USB interface section - specifies 27Ω, using 33Ω (acceptable 22-33Ω range)",
+      "provenance": "RP2040 Hardware Design Guide, Series termination for USB D-",
+      "deviation": "Using 33Ω instead of 27Ω due to JLCPCB part availability",
+      "lcsc": "C911079"
+    },
+    "R3": {
+      "designation": "USB shield discharge resistor",
+      "value": "1MΩ",
+      "tolerance": "1%",
+      "power_rating": "0.1W",
+      "package": "0603",
+      "source": "best_practice",
+      "reference": "Industry standard USB shield grounding - provides DC discharge path",
+      "provenance": "High impedance to prevent ground loops while allowing ESD discharge",
+      "deviation": "Addition to minimal reference (Raspberry Pi Pico has direct shield-to-GND)",
+      "lcsc": "C22935"
+    },
+    "C1": {
+      "designation": "USB_VDD decoupling capacitor",
+      "value": "100nF",
+      "tolerance": "10%",
+      "voltage_rating": "50V",
+      "dielectric": "X7R",
+      "package": "0603",
+      "source": "datasheet",
+      "reference": "RP-008279-DS-1, Section 2.1.3 - USB_VDD power supply requirements",
+      "provenance": "RP2040 Hardware Design Guide, USB PHY power decoupling",
+      "deviation": "None",
+      "lcsc": "C14663"
+    },
+    "FB1": {
+      "designation": "USB shield ground ferrite bead",
+      "value": "600Ω @ 100MHz",
+      "current_rating": "2A",
+      "package": "0805",
+      "source": "best_practice",
+      "reference": "Industry standard USB EMI filtering - provides high-frequency isolation",
+      "provenance": "Ferrite bead for common-mode noise suppression on USB shield",
+      "deviation": "Addition to minimal reference (Raspberry Pi Pico has direct shield-to-GND)",
+      "lcsc": "C85840"
+    },
+    "U1": {
+      "designation": "USB ESD protection",
+      "part_number": "USBLC6-4SC6-ES",
+      "function": "Bi-directional ESD protection diode array",
+      "esd_rating": "±8kV contact, ±15kV air (IEC 61000-4-2)",
+      "channels": 4,
+      "package": "SOT-23-6",
+      "source": "best_practice",
+      "reference": "Industry best practice for USB ESD protection",
+      "provenance": "Enhanced ESD protection beyond RP2040 internal diodes",
+      "deviation": "Addition to minimal reference (Raspberry Pi Pico relies on internal RP2040 ESD protection)",
+      "lcsc": "C5180279"
+    },
+    "J1": {
+      "designation": "USB Type-C receptacle",
+      "part_number": "TYPE-C-31-M-12",
+      "connector_type": "USB Type-C 16-pin receptacle",
+      "function": "USB 2.0 data connector (device mode, no USB PD)",
+      "package": "SMT",
+      "source": "design_choice",
+      "reference": "USB Type-C chosen over Micro USB for modern standard",
+      "provenance": "Reversible connector, better durability than Micro USB",
+      "deviation": "USB Type-C instead of Micro USB (Raspberry Pi Pico uses Micro USB)",
+      "lcsc": "C165948"
+    }
+  },
+  "electrical_characteristics": {
+    "usb_data_rate": "Full-Speed USB 2.0 (12 Mbps)",
+    "differential_impedance": "90Ω nominal (with 33Ω series termination)",
+    "signal_swing": "3.3V logic levels (compatible with RP2040 USB PHY)",
+    "esd_protection_level": "±8kV contact discharge (IEC 61000-4-2 Level 4)",
+    "usb_vdd_decoupling": "100nF ceramic, < 5mm from RP2040 pin 48",
+    "shield_ground_impedance": "600Ω @ 100MHz || 1MΩ DC"
+  },
+  "design_rationale": {
+    "series_resistors": "33Ω series termination on both D+ and D- for USB impedance matching and signal integrity. RP2040 datasheet specifies 27Ω nominal, 22-33Ω acceptable range. Using 33Ω due to JLCPCB part availability.",
+    "esd_protection": "USBLC6-4SC6 provides bi-directional ESD clamping on USB data lines. Protects both RP2040 USB PHY and USB connector from electrostatic discharge. Clamps to VCC (3.3V) rail.",
+    "usb_vdd_decoupling": "100nF ceramic capacitor per RP2040 datasheet requirement. Dedicated USB PHY power domain requires local decoupling within 5mm of pin.",
+    "shield_grounding": "Ferrite bead (600Ω @ 100MHz) + 1MΩ resistor in parallel. Provides high-frequency common-mode noise filtering while allowing DC discharge path. Prevents ground loops.",
+    "connector_choice": "USB Type-C for modern standard, reversible insertion, and better mechanical durability compared to Micro USB."
+  }
+}

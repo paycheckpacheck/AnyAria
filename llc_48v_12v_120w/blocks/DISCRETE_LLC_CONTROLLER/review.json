@@ -1,0 +1,7 @@
+{
+  "verdict": "pending_review",
+  "passes_run": 0,
+  "findings": [],
+  "connections_frozen": false,
+  "notes": "Block created, awaiting block-reviewer to verify connections and component choices"
+}

@@ -1,0 +1,33 @@
+{
+  "name": "INPUT_FILTER",
+  "description": "48V input filtering, protection, and voltage sensing for LLC converter",
+  "ports": {
+    "VIN_FILT": {
+      "type": "power",
+      "direction": "output",
+      "description": "Filtered 48V to LLC resonant tank"
+    },
+    "VSENSE": {
+      "type": "signal",
+      "direction": "output",
+      "description": "Input voltage sense to RP2040 ADC (3.14V @ 48V input)"
+    }
+  },
+  "power_nets": {
+    "+48V": {
+      "description": "Unfiltered 48V input from screw terminal",
+      "internal": true
+    },
+    "GND": {
+      "description": "Ground reference",
+      "global": true
+    }
+  },
+  "figures_of_merit": {
+    "input_capacitance_bulk": "200µF (2× 100µF electrolytic)",
+    "input_capacitance_ceramic": "~22µF (2× 10µF + 2× 1µF, derated)",
+    "tvs_clamp_voltage": "93.6V @ 6.5A",
+    "voltage_sense_ratio": "0.0655 (48V → 3.14V)",
+    "sense_accuracy": "±2% (1% resistors)"
+  }
+}

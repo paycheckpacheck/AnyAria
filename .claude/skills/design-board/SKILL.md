@@ -108,14 +108,45 @@ blocks be built independently - see `BLOCK_CONTRACT.md`.
 ## 4. Integrate
 
 Compose the blocks into one root circuit from their `interface.json` files,
-then:
+generate it, then **reuse the layout each block already worked out** rather
+than laying the board out from scratch.
 
-```
-generate  ->  layout-schematic  ->  make_spice_clean  ->  verify_project
+```python
+from circuit_synth.kicad.layout import apply_placement
+from circuit_synth.kicad.layout.extract import block_renames, instance_renames
+from circuit_synth.kicad.spice_hygiene import make_spice_clean
+from circuit_synth.verify import verify_project
+
+instances = instance_renames(circuit_json)        # both derived, never
+for sheet, block in sheets_to_blocks.items():     # hand-written
+    # The block laid itself out in a preview where its parts start at R1, so
+    # the mapping is preview -> this sheet, chained through the instance the
+    # preview corresponds to.
+    to_first = block_renames(block.preview_json, block.name, circuit_json, block.name)
+    mapping = {src: instances[sheet].get(dst, dst) for src, dst in to_first.items()}
+    apply_placement(project / f"{sheet}.kicad_sch", block.SPEC.renamed(mapping))
+
+apply_placement(root, ROOT_SPEC)                  # the only layout you write
+make_spice_clean(project)
+report = verify_project(root, circuit_json)
 ```
 
-`verify_project` runs every check the toolchain has and reports one verdict.
-Read the renders it produces. Actually look at them.
+Two mappings, both derived from the generated circuits rather than written
+down. `block_renames` carries a layout from the preview a block laid itself out
+in - where its parts start at `R1` - onto the same block in the finished board,
+where they might be `R12`. `instance_renames` then carries it onto the block's
+other instances. Together they mean a block instantiated three times costs one
+layout, and a part added anywhere earlier in the design does not silently break
+every layout after it by shifting the numbering.
+
+**The only sheet you lay out is the root**, and it is a block diagram: one
+sheet symbol per block, arranged so the board reads left to right, with short
+stubs and labels rather than wires between them. A page of sheet symbols wired
+point to point is a rat's nest.
+
+Then read the renders. Actually look at them - a block's sheet was judged in
+isolation, and a block that looks right on its own can still be wrong for the
+board it landed in.
 
 ## 5. Report
 

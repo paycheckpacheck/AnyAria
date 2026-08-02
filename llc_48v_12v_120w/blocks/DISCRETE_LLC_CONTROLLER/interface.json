@@ -1,0 +1,52 @@
+{
+  "name": "DISCRETE_LLC_CONTROLLER",
+  "instances": 1,
+  "ports": [
+    {
+      "name": "I_RESONANT",
+      "direction": "input",
+      "meaning": "Resonant tank current sense signal, 0-3V proportional to primary current (from CT secondary or shunt amplifier)"
+    },
+    {
+      "name": "VOUT_SENSE",
+      "direction": "input",
+      "meaning": "Output voltage tap from 12V secondary rail for feedback regulation"
+    },
+    {
+      "name": "GATE_HI",
+      "direction": "output",
+      "meaning": "High-side gate drive signal to primary half-bridge top GaN FET (Q1)"
+    },
+    {
+      "name": "GATE_LO",
+      "direction": "output",
+      "meaning": "Low-side gate drive signal to primary half-bridge bottom GaN FET (Q2)"
+    },
+    {
+      "name": "SWITCH_NODE",
+      "direction": "bidirectional",
+      "meaning": "Half-bridge switching node (midpoint between Q1 and Q2), provides bootstrap reference for high-side driver"
+    },
+    {
+      "name": "ENABLE",
+      "direction": "input",
+      "meaning": "Controller enable signal, logic high = operating, logic low = shutdown (all gates off)"
+    }
+  ],
+  "rails_consumed": [
+    "+15V (analog control supply, 200mA typical)",
+    "+12V (secondary-side supply for TL431/opto feedback, 20mA)",
+    "+5V (ramp clamp reference, minimal current)"
+  ],
+  "rails_produced": [],
+  "description": "Fully discrete current-mode LLC resonant converter controller. Implements complete analog control loop with current sensing, voltage feedback (optocoupler isolated), slope compensation, VCO frequency modulation (100-500kHz), RS latch PWM generation, dead-time logic, and half-bridge gate driver. All components are JLCPCB Basic or Extended parts.",
+  "complexity": "HIGH - 7 sub-circuits, analog feedback loop requiring stability analysis",
+  "critical_notes": [
+    "This is the most complex block in the LLC converter",
+    "Control loop stability depends on error amplifier compensation network",
+    "Dead-time must be adequate for GaN FET switching (33ns minimum)",
+    "Bootstrap capacitor must be recharged every cycle",
+    "Slope compensation prevents sub-harmonic oscillation in current-mode control",
+    "All placeholder component values must be derived by simulator based on loop stability"
+  ]
+}

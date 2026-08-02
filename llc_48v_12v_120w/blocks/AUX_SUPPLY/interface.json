@@ -1,0 +1,39 @@
+{
+  "name": "AUX_SUPPLY",
+  "description": "Auxiliary power supply - three sub-regulators providing 5V, 3.3V, and 1.2V from 12V main output",
+  "ports": [
+    {
+      "name": "VIN_12V",
+      "direction": "input",
+      "type": "power",
+      "description": "12V input from main LLC converter output"
+    },
+    {
+      "name": "VOUT_5V",
+      "direction": "output",
+      "type": "power",
+      "description": "5V output for analog control circuits and gate drivers (500mA max)"
+    },
+    {
+      "name": "VOUT_3V3",
+      "direction": "output",
+      "type": "power",
+      "description": "3.3V output for RP2040 I/O (300mA max)"
+    },
+    {
+      "name": "VOUT_1V2",
+      "direction": "output",
+      "type": "power",
+      "description": "1.2V output for RP2040 core (100mA max, nominally 1.1V per RP2040 spec)"
+    }
+  ],
+  "figures_of_merit": {
+    "efficiency_12v_to_5v": "TBD",
+    "efficiency_5v_to_3v3": "TBD",
+    "efficiency_3v3_to_1v2": "TBD",
+    "total_power_dissipation": "TBD",
+    "ripple_5v": "TBD",
+    "ripple_3v3": "TBD",
+    "ripple_1v2": "TBD"
+  }
+}

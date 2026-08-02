@@ -1,0 +1,33 @@
+{
+  "name": "LLC_RESONANT_TANK",
+  "instances": 1,
+  "ports": [
+    {
+      "name": "HB_OUT",
+      "direction": "input",
+      "meaning": "Half-bridge output (midpoint of Q1/Q2), square wave 0-48V"
+    },
+    {
+      "name": "PRI_DOT",
+      "direction": "output",
+      "meaning": "Transformer primary dot side connection"
+    },
+    {
+      "name": "PRI_NODOT",
+      "direction": "output",
+      "meaning": "Transformer primary non-dot side (return path)"
+    },
+    {
+      "name": "ISENSE_P",
+      "direction": "output",
+      "meaning": "Current sense positive tap (for differential amplifier)"
+    },
+    {
+      "name": "ISENSE_N",
+      "direction": "output",
+      "meaning": "Current sense negative tap (for differential amplifier)"
+    }
+  ],
+  "rails_consumed": [],
+  "rails_produced": []
+}

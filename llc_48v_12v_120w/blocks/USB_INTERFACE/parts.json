@@ -1,0 +1,106 @@
+{
+  "USB_CONNECTOR": {
+    "role": "USB data connector",
+    "lcsc": "C165948",
+    "type": "Extended",
+    "mpn": "TYPE-C-31-M-12",
+    "brand": "Korean Hroparts Elec",
+    "package": "SMD",
+    "price": 0.1843,
+    "currency": "$",
+    "stock": 244257,
+    "datasheet": "https://www.lcsc.com/datasheet/lcsc_datasheet_2205251630_Korean-Hroparts-Elec-TYPE-C-31-M-12_C165948.pdf",
+    "symbol": "JLCImport:TYPE-C-31-M-12",
+    "footprint": "JLCImport:TYPE-C-31-M-12",
+    "query": "TYPE-C-31-M-12",
+    "rejected": [
+      "C5337088: Extended, $0.2364, not the best on the policy"
+    ],
+    "deviation": ""
+  },
+  "ESD_PROTECTION": {
+    "role": "USB D+/D- ESD protection",
+    "lcsc": "C5180279",
+    "type": "Extended",
+    "mpn": "USBLC6-4SC6-ES",
+    "brand": "ElecSuper",
+    "package": "SOT-23-6L",
+    "price": 0.0251,
+    "currency": "$",
+    "stock": 63129,
+    "datasheet": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2209201730_ElecSuper-USBLC6-4SC6-ES_C5180279.pdf",
+    "symbol": "JLCImport:USBLC6-4SC6-ES",
+    "footprint": "JLCImport:USBLC6-4SC6-ES",
+    "query": "USBLC6",
+    "rejected": [
+      "C5180249: Extended, $0.0276, not the best on the policy",
+      "C19170931: Extended, $0.0284, not the best on the policy",
+      "C48971164: Extended, $0.033, not the best on the policy"
+    ],
+    "deviation": ""
+  },
+  "FERRITE_BEAD": {
+    "role": "USB shield ground filtering",
+    "lcsc": "C85840",
+    "type": "Extended",
+    "mpn": "BLM21PG221SN1D",
+    "brand": "Murata Electronics",
+    "package": "0805",
+    "price": 0.027,
+    "currency": "$",
+    "stock": 623319,
+    "datasheet": "https://www.lcsc.com/datasheet/lcsc_datasheet_2304140030_Murata-Electronics-BLM21PG221SN1D_C85840.pdf",
+    "symbol": "JLCImport:BLM21PG221SN1D",
+    "footprint": "JLCImport:BLM21PG221SN1D",
+    "query": "BLM21PG",
+    "rejected": [
+      "C88993: Extended, $0.0299, not the best on the policy",
+      "C79382: Extended, $0.0302, not the best on the policy",
+      "C74764: Extended, $0.0325, not the best on the policy"
+    ],
+    "deviation": ""
+  },
+  "USB_SERIES_R": {
+    "role": "USB D+/D- series termination",
+    "lcsc": "C911079",
+    "type": "Extended",
+    "mpn": "TMI6050-33",
+    "brand": "TMI",
+    "package": "SOT-23-5",
+    "price": 0.0341,
+    "currency": "$",
+    "stock": 11562,
+    "datasheet": "https://www.lcsc.com/datasheet/lcsc_datasheet_2409031534_TMI-TMI6050-33_C911079.pdf",
+    "symbol": "JLCImport:TMI6050-33",
+    "footprint": "JLCImport:TMI6050-33",
+    "query": "33 0603 1%",
+    "rejected": [
+      "C2682762: $0.1238 is over the 0.1 ceiling",
+      "C125622: $0.1985 is over the 0.1 ceiling",
+      "C71121: Extended, $0.0799, not the best on the policy"
+    ],
+    "deviation": "",
+    "quantity": 2
+  },
+  "SHIELD_R": {
+    "role": "USB shield discharge to ground",
+    "lcsc": "C22935",
+    "type": "Basic",
+    "mpn": "0603WAF1004T5E",
+    "brand": "UNI-ROYAL(Uniroyal Elec)",
+    "package": "0603",
+    "price": 0.0028,
+    "currency": "$",
+    "stock": 2913821,
+    "datasheet": "https://www.lcsc.com/datasheet/lcsc_datasheet_2206010130_UNI-ROYAL-Uniroyal-Elec-0603WAF1004T5E_C22935.pdf",
+    "symbol": "JLCImport:0603WAF1004T5E",
+    "footprint": "JLCImport:0603WAF1004T5E",
+    "query": "1M 0603 1%",
+    "rejected": [
+      "C136593: Extended, $0.0021, not the best on the policy",
+      "C2907003: Extended, $0.0025, not the best on the policy",
+      "C51048116: Extended, $0.0033, not the best on the policy"
+    ],
+    "deviation": ""
+  }
+}

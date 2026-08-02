@@ -1,0 +1,84 @@
+{
+  "block": "RP2040_TELEMETRY",
+  "note": "RP2040 is a digital microcontroller - no analog component value derivation needed",
+  "power_decoupling": {
+    "C1-C6_100nF_IOVDD": {
+      "value": "100nF",
+      "source": "datasheet_specified",
+      "rationale": "RP2040 datasheet Section 2.16 specifies 100nF on each IOVDD pin"
+    },
+    "C7_VREG_VIN": {
+      "value": "1µF",
+      "source": "datasheet_specified",
+      "rationale": "Datasheet REQUIRES 1µF (not 100nF) on VREG_VIN. Critical for regulator stability."
+    },
+    "C8_VREG_VOUT": {
+      "value": "1µF",
+      "source": "datasheet_specified",
+      "rationale": "Datasheet REQUIRES 1µF (not 100nF) on VREG_VOUT. Critical for 1.1V core supply."
+    },
+    "C9_ADC_AVDD": {
+      "value": "100nF",
+      "source": "datasheet_specified",
+      "rationale": "ADC analog supply decoupling per datasheet"
+    },
+    "C10_C11_crystal_load": {
+      "value": "15pF",
+      "source": "calculated",
+      "rationale": "Load capacitor calculation: C = 2×(CL - Cstray) = 2×(9pF - 3pF) = 12pF. Use 15pF standard value (within acceptable 10-20pF range)."
+    },
+    "C12_flash_decoupling": {
+      "value": "100nF",
+      "source": "datasheet_specified",
+      "rationale": "Standard flash VCC decoupling"
+    },
+    "C13_RUN_debounce": {
+      "value": "100nF",
+      "source": "design_choice",
+      "rationale": "Reset button debounce capacitor. Provides ~1ms debounce time with 10kΩ pull-up."
+    }
+  },
+  "resistors": {
+    "R1_ADC_filter": {
+      "value": "10Ω",
+      "source": "design_choice",
+      "rationale": "ADC supply filter resistor. With 100nF forms 160kHz low-pass filter. Provides clean ADC supply without excessive voltage drop (max 2mA ADC current → 20mV drop)."
+    },
+    "R2_R3_USB_termination": {
+      "value": "27Ω",
+      "source": "datasheet_specified",
+      "rationale": "RP2040 datasheet Section 2.18 specifies 27Ω series termination on both USB data lines for impedance matching and signal integrity."
+    },
+    "R4_BOOTSEL_pullup": {
+      "value": "1kΩ",
+      "source": "design_choice",
+      "rationale": "Weak pull-up on BOOTSEL (QSPI_SS). 1kΩ is weak enough to allow QSPI flash operation, strong enough to ensure clean logic high. Datasheet suggests 1kΩ-10kΩ range."
+    },
+    "R5_RUN_pullup": {
+      "value": "10kΩ",
+      "source": "design_choice",
+      "rationale": "RUN pin pull-up enables RP2040. 10kΩ is standard value providing firm HIGH while allowing reset button to pull LOW. Datasheet suggests 10kΩ-100kΩ range."
+    }
+  },
+  "crystal": {
+    "Y1_frequency": {
+      "value": "12MHz",
+      "source": "datasheet_required",
+      "rationale": "RP2040 REQUIRES exactly 12MHz crystal for USB operation. Internal RC oscillator is not accurate enough for USB communication."
+    },
+    "Y1_load_capacitance": {
+      "value": "9pF",
+      "source": "crystal_spec",
+      "rationale": "Specified by crystal datasheet (X322512MSB4SI). Determines load cap values."
+    }
+  },
+  "flash": {
+    "U2_capacity": {
+      "value": "2MB",
+      "source": "design_choice",
+      "rationale": "2MB (16Mbit) flash is standard for RP2040 designs. Sufficient for MicroPython + application firmware. Larger capacities (4MB, 8MB) available if needed."
+    }
+  },
+  "no_simulation_needed": true,
+  "reason": "RP2040 is a digital microcontroller with fixed power supply requirements and USB crystal requirements. All component values are either specified by the RP2040 datasheet or calculated from standard formulas (crystal load caps). No analog circuit simulation or optimization required."
+}

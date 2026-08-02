@@ -1,0 +1,19 @@
+{
+  "verdict": "needs_review",
+  "passes_run": 0,
+  "findings": [
+    {
+      "severity": "note",
+      "what": "Block created, connections not yet reviewed"
+    },
+    {
+      "severity": "note",
+      "what": "Placeholder components (R_OVP_HYST 100kΩ, C_TEMP_FILT 10nF) need sourcing from JLCPCB"
+    },
+    {
+      "severity": "note",
+      "what": "INA180A1 gain variant selection needs verification - sourced part may be A2"
+    }
+  ],
+  "connections_frozen": false
+}

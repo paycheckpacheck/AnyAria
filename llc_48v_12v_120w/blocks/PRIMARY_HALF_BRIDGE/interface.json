@@ -1,0 +1,44 @@
+{
+  "name": "PrimaryHalfBridge",
+  "instances": 1,
+  "ports": [
+    {
+      "name": "HI_IN",
+      "direction": "input",
+      "meaning": "High-side gate drive input from dead-time logic (PWM with non-overlap)"
+    },
+    {
+      "name": "LO_IN",
+      "direction": "input",
+      "meaning": "Low-side gate drive input from dead-time logic (PWM with non-overlap, complementary to HI_IN)"
+    },
+    {
+      "name": "SW_OUT",
+      "direction": "output",
+      "meaning": "Switching node output to LLC resonant tank (0V to 48V square wave at 100-500kHz)"
+    },
+    {
+      "name": "VCC_12V",
+      "direction": "input",
+      "meaning": "+12V supply for gate driver power (IR2110 VCC pin)"
+    },
+    {
+      "name": "VDD_5V",
+      "direction": "input",
+      "meaning": "+5V logic supply for gate driver input circuits (IR2110 VDD pin)"
+    }
+  ],
+  "rails_consumed": [
+    "V_BUS_48V",
+    "GND"
+  ],
+  "rails_produced": [],
+  "notes": [
+    "V_BUS_48V and GND are power symbols, not ports - they connect by name across the design",
+    "HI_IN and LO_IN must have dead-time (non-overlap) to prevent shoot-through",
+    "Typical dead-time requirement: 100-200ns for IPP80N05S4-02 MOSFETs",
+    "Bootstrap circuit requires VS to drop to near GND periodically to recharge Cboot",
+    "Minimum duty cycle for bootstrap recharge: ~10% low-side on-time",
+    "SW_OUT connects directly to LLC resonant tank (Lr + Cr series network)"
+  ]
+}

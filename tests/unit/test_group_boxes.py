@@ -155,3 +155,61 @@ def test_the_first_instance_maps_to_itself(tmp_path: Path):
 
     assert renames["Leg"]["R1"] == "R1"
     assert renames["Root"]["J1"] == "J1"
+
+
+def preview(tmp_path: Path) -> Path:
+    """Write a circuit JSON standing in for a block's standalone preview.
+
+    Args:
+        tmp_path: A temporary directory.
+
+    Returns:
+        Path to the JSON file.
+    """
+    data = {
+        "name": "Preview",
+        "components": {},
+        "subcircuits": [{"name": "Leg", "components": {"R1": {}, "C1": {}},
+                         "subcircuits": [{"name": "Sense", "components": {"U1": {}}}]}],
+    }
+    path = tmp_path / "Preview.json"
+    path.write_text(json.dumps(data), encoding="utf-8")
+    return path
+
+
+def test_a_preview_layout_maps_onto_the_finished_board(tmp_path: Path):
+    """A block lays itself out where its parts start at R1; the board differs.
+
+    Without this the layout a block agent produced would have to be
+    re-tabulated by hand the moment a part was added anywhere before it.
+    """
+    from circuit_synth.kicad.layout.extract import block_renames
+
+    mapping = block_renames(preview(tmp_path), "Leg", circuit(tmp_path), "Leg")
+
+    assert mapping["R1"] == "R1"
+    assert mapping["C1"] == "C1"
+    assert mapping["Leg"] == "Leg"
+
+
+def test_the_preview_mapping_chains_onto_other_instances(tmp_path: Path):
+    """Preview -> first instance -> every other instance, both derived."""
+    from circuit_synth.kicad.layout.extract import block_renames, instance_renames
+
+    board = circuit(tmp_path)
+    to_first = block_renames(preview(tmp_path), "Leg", board, "Leg")
+    instances = instance_renames(board)
+    chained = {src: instances["Leg2"].get(dst, dst) for src, dst in to_first.items()}
+
+    assert chained["R1"] == "R5"
+    assert chained["C1"] == "C4"
+    assert chained["Leg"] == "Leg2"
+
+
+def test_mapping_between_different_blocks_is_refused(tmp_path: Path):
+    """Matching by position would silently pair up the wrong parts."""
+    import pytest as _pytest
+    from circuit_synth.kicad.layout.extract import block_renames
+
+    with _pytest.raises(ValueError, match="not the same block"):
+        block_renames(preview(tmp_path), "Leg", circuit(tmp_path), "Sense")

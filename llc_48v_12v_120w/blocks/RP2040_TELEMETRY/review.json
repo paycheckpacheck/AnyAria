@@ -1,0 +1,8 @@
+{
+  "block": "RP2040_TELEMETRY",
+  "review_date": "2026-08-01",
+  "reviewer": "block-reviewer (to be run)",
+  "connections_frozen": false,
+  "status": "pending_review",
+  "note": "Run block-reviewer skill to complete this review"
+}

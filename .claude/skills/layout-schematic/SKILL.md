@@ -97,6 +97,80 @@ Applying a spec moves the symbols and redraws all of the wiring. Component
 UUIDs, properties and hierarchical instance paths are left alone, so the sheet
 stays the same design.
 
+## Laying out one block on its own
+
+A block agent lays out its own sheet, before the block is ever composed into a
+board. That is the right moment: you have just chosen the parts, copied the
+reference circuit and written down why each value is what it is, and all of
+that is what decides where things go. An integrator arriving later has the
+netlist and none of the reasons.
+
+Generate the block by itself, lay out the one sheet, and hand back the spec.
+
+A block cannot be generated entirely alone: `Net(...)` needs an active circuit,
+so the block's ports have nothing to bind to. Wrap it in a one-line circuit
+that exists only to hand it its nets.
+
+```python
+from pathlib import Path
+from circuit_synth import Net, circuit
+from circuit_synth.kicad.layout import apply_placement, describe_sheet
+from circuit_synth.kicad.layout.extract import sheet_nets, sheet_ports
+from circuit_synth.verify import verify_project
+from block import half_bridge
+
+@circuit(name="Preview")
+def preview():
+    """Exists only to give the block its nets."""
+    half_bridge(Net("HI"), Net("LI"), Net("PHASE"), Net("VM"),
+                Net("VDRV"), Net("ISENSE"), Net("NEUTRAL"), Net("ZC"))
+
+project = Path("preview")
+preview().generate_kicad_project(str(project), generate_pcb=False)
+
+# The block gets its own sheet beside the wrapper's. That sheet is yours.
+sheet_path = project / "HalfBridge.kicad_sch"
+circuit_json = project / "Preview.json"
+
+# 1. Describe what landed, then decide the placement.
+sheet = describe_sheet(sheet_path, sheet_nets(circuit_json)["HalfBridge"],
+                       sheet_ports(circuit_json)["HalfBridge"])
+print(sheet.to_json())
+
+# 2. Apply, verify, render, look at it, refine.
+apply_placement(sheet_path, SPEC)
+report = verify_project(project / "Preview.kicad_sch", circuit_json)
+assert report.passed, report.summary()
+```
+
+Lay out the **block's** sheet, not the wrapper's. The wrapper is scaffolding
+and is thrown away; only `SPEC` and the render are kept.
+
+Write the spec to `layout.py` in the block's directory, as a module-level
+`SPEC = PlacementSpec(...)`. That file is the block's layout, and the
+integrator imports it rather than re-deriving it.
+
+**Use what you know that a netlist does not.** The `reference-circuit`
+checklist says which parts came from the vendor's figure - draw them the way
+the figure draws them. The rationale says what each group is for - that is
+your group boxes, already written. The parts list says which capacitor
+decouples which pin - that is which capacitor sits next to which pin.
+
+**Reference designators will change.** A block instantiated three times gets
+three sets, and adding a part anywhere earlier in the design shifts all of
+them. Do not hand-maintain a rename table: the integrator calls
+`instance_renames(circuit_json)` and `SPEC.renamed(mapping)`, which works out
+the mapping from the generated circuit. Write the spec against the references
+your standalone preview produced and leave it at that.
+
+**Ports, not power.** Your block's interface is hierarchical labels, one per
+declared port, with the direction the block declared. Ground and the supply
+rails are power symbols - they connect by name across the whole design and are
+not ports. Getting that wrong shows up as a sheet pin that does not match.
+
+**Paper size is yours to choose.** Pick one that fits the circuit with room for
+the group box rationale, rather than making the circuit fit a default.
+
 ## Close KiCad before you write, and leave it closed
 
 KiCad holds a project in memory from the moment it opens it. Rewriting the

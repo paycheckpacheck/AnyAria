@@ -1,0 +1,155 @@
+{
+  "Q_SR1": {
+    "part_number": "BSC010N04LS",
+    "value": "BSC010N04LS",
+    "provenance": "datasheet",
+    "reference": "SLUA748A section 4.3.2, Infineon BSC010N04LS datasheet",
+    "derivation": "Selected for RDS(on)=1mΩ, V_DS=40V (3× Vout), I_D=100A (10× Iout). Conduction loss = I²RMS × RDS(on) = 7² × 0.001 = 0.05W << 1.2W target.",
+    "inputs": {
+      "V_out": "12V",
+      "I_out": "10A",
+      "I_RMS_per_FET": "7.07A",
+      "duty_per_FET": "50%"
+    },
+    "margin": "40V rating provides 2.26× margin over 17.7V peak secondary voltage. RDS(on) loss only 0.04% of output power."
+  },
+  "Q_SR2": {
+    "part_number": "BSC010N04LS",
+    "value": "BSC010N04LS",
+    "provenance": "datasheet",
+    "reference": "Matched to Q_SR1 for balanced rectification",
+    "derivation": "Identical to Q_SR1. Matched pair ensures equal heating and balanced current sharing.",
+    "inputs": {
+      "V_out": "12V",
+      "I_out": "10A",
+      "I_RMS_per_FET": "7.07A",
+      "duty_per_FET": "50%"
+    },
+    "margin": "Same as Q_SR1"
+  },
+  "R_SENSE1": {
+    "value": "10m",
+    "provenance": "first_principles",
+    "derivation": "I_RMS = 7A, power dissipation target < 0.5W. P = I²×R → R_max = 0.5W / 49A² = 10.2mΩ. Selected 10mΩ for voltage sensing resolution (70mV drop at 7A RMS).",
+    "inputs": {
+      "I_RMS": "7A",
+      "P_max": "0.5W",
+      "V_sense_target": "~70mV"
+    },
+    "margin": "0.49W dissipation at 0.5W rating (98% utilization). 2512 package handles this with adequate PCB copper.",
+    "notes": "Optional - DNF if current sensing not needed. Eliminating saves 1W total (both resistors)."
+  },
+  "R_SENSE2": {
+    "value": "10m",
+    "provenance": "first_principles",
+    "derivation": "Matched to R_SENSE1 for balanced current sensing. Same 10mΩ value.",
+    "inputs": {
+      "I_RMS": "7A",
+      "P_max": "0.5W"
+    },
+    "margin": "Same as R_SENSE1",
+    "notes": "Must match R_SENSE1 tolerance (1%) for accurate differential current measurement."
+  },
+  "R_GD1": {
+    "value": "10k",
+    "provenance": "datasheet",
+    "reference": "UCC24610 datasheet SLUSB94D, typical application. Standard SR gate pull-down.",
+    "derivation": "Pull-down must overcome gate leakage (<100nA) and prevent false turn-on. 10kΩ provides 250µA at Vgs_th=2.5V, sinks 1.2mA from driver (negligible vs 2.5A drive capability).",
+    "inputs": {
+      "I_gate_leakage": "100nA",
+      "V_gs_th": "2.5V",
+      "I_driver_source": "2.5A"
+    },
+    "margin": "Pull-down current 2500× gate leakage. Loads driver by only 0.05%."
+  },
+  "R_GD2": {
+    "value": "10k",
+    "provenance": "datasheet",
+    "reference": "Matched to R_GD1",
+    "derivation": "Identical to R_GD1. Both SR FETs use same pull-down value.",
+    "inputs": {
+      "same_as": "R_GD1"
+    },
+    "margin": "Same as R_GD1"
+  },
+  "C_VCC": {
+    "value": "1u",
+    "provenance": "first_principles",
+    "derivation": "Gate charge per transition: Q_g = 70nC. Capacitor must supply 2× Q_g per switching cycle (both SR FETs). C = Q/ΔV = 140nC / 0.5V = 280nF minimum. Selected 1µF (3.6× margin).",
+    "inputs": {
+      "Q_g_total": "70nC",
+      "f_sw": "250kHz",
+      "delta_V_acceptable": "0.5V",
+      "SR_count": "2"
+    },
+    "margin": "1µF provides 3.6× margin over 280nF minimum. Handles transient gate drive current (35mA average) without voltage droop.",
+    "notes": "Place close to gate driver VCC pin to minimize loop inductance during fast gate transients."
+  },
+  "C_BST1": {
+    "value": "1u",
+    "provenance": "datasheet",
+    "reference": "IR2110 datasheet, bootstrap capacitor recommendation",
+    "derivation": "Standard bootstrap value for gate charge up to 100nC. BSC010N04LS Q_g = 70nC < 100nC.",
+    "inputs": {
+      "Q_g": "70nC",
+      "Q_g_max_supported": "100nC"
+    },
+    "margin": "Sized for 100nC, actual 70nC (43% margin).",
+    "notes": "DNF by default - only fit if gate driver topology requires bootstrap. Low-side SR FETs typically don't need bootstrap."
+  },
+  "C_BST2": {
+    "value": "1u",
+    "provenance": "datasheet",
+    "reference": "Matched to C_BST1",
+    "derivation": "Identical to C_BST1. Matched bootstrap caps if needed.",
+    "inputs": {
+      "same_as": "C_BST1"
+    },
+    "margin": "Same as C_BST1",
+    "notes": "DNF by default - fit only if bootstrap topology used."
+  },
+  "simulation_notes": {
+    "RMS_current_calculation": {
+      "description": "Center-tap rectifier, each FET conducts for 50% duty cycle",
+      "formula": "I_RMS = I_out / sqrt(2) for 50% duty",
+      "I_out": "10A",
+      "I_RMS_per_FET": "7.07A",
+      "assumption": "Sinusoidal current waveform approximation - actual LLC waveform is quasi-square, may differ by 10-15%"
+    },
+    "conduction_loss": {
+      "description": "Primary loss mechanism in SR FETs",
+      "formula": "P_cond = I²RMS × RDS(on)",
+      "P_cond_Q_SR1": "0.050W",
+      "P_cond_Q_SR2": "0.050W",
+      "total_MOSFET_loss": "0.10W",
+      "percentage_of_output": "0.08%"
+    },
+    "switching_loss": {
+      "description": "Gate charge losses, estimated",
+      "formula": "P_sw ≈ Q_g × V_gs × f_sw",
+      "Q_g": "70nC",
+      "V_gs": "12V",
+      "f_sw": "250kHz",
+      "P_sw_per_FET": "0.21W",
+      "total_switching_loss": "0.42W",
+      "percentage_of_output": "0.35%"
+    },
+    "sense_resistor_loss": {
+      "description": "Power dissipation in current sense resistors",
+      "formula": "P = I²RMS × R",
+      "P_R_SENSE1": "0.50W",
+      "P_R_SENSE2": "0.50W",
+      "total_sense_loss": "1.00W",
+      "percentage_of_output": "0.83%",
+      "note": "Can be eliminated by DNF if telemetry not required"
+    },
+    "total_SR_block_loss": {
+      "MOSFET_conduction": "0.10W",
+      "MOSFET_switching": "0.42W",
+      "sense_resistors": "1.00W",
+      "total": "1.52W",
+      "efficiency_impact": "1.27%",
+      "without_sense_resistors": "0.52W (0.43% impact)"
+    }
+  }
+}

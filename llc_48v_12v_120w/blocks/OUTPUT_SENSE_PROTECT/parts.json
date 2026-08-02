@@ -1,0 +1,179 @@
+{
+  "parts": {
+    "current_shunt": {
+      "role": "current_shunt",
+      "lcsc": "C5375420",
+      "type": "Extended",
+      "mpn": "HoYLR2512-2W-10mR-1%",
+      "brand": "Milliohm",
+      "package": "2512",
+      "price": 0.0502,
+      "currency": "$",
+      "stock": 27944,
+      "datasheet": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2305061705_Milliohm-HoYLR2512-2W-10mR-1-_C5375420.pdf",
+      "symbol": "JLCImport:HOYLR2512-2W-10MR-1",
+      "footprint": "JLCImport:HOYLR2512-2W-10MR-1",
+      "query": "0.01 ohm 1% 2W 2512 current sense resistor",
+      "rejected": [
+        "C375688: $0.3194 is over the 0.1 ceiling",
+        "C844087: $0.5729 is over the 0.1 ceiling",
+        "C20608726: Extended, $0.0533, not the best on the policy",
+        "C49164691: Extended, $0.0756, not the best on the policy",
+        "C105366: Extended, $0.0799, not the best on the policy"
+      ],
+      "deviation": ""
+    },
+    "current_amp": {
+      "role": "current_amp",
+      "lcsc": "C48533471",
+      "type": "Extended",
+      "mpn": "INA180A2IDBVR(LX)",
+      "brand": "lingxingic",
+      "package": "SOT-23-5",
+      "price": 0.1298,
+      "currency": "$",
+      "stock": 7085,
+      "datasheet": "https://www.lcsc.com/datasheet/lcsc_datasheet_2504221610_lingxingic-INA180A2IDBVR-LX_C48533471.pdf",
+      "symbol": "JLCImport:INA180A2IDBVR_LX",
+      "footprint": "JLCImport:INA180A2IDBVR_LX",
+      "query": "INA180 SOT-23-5 current sense amplifier",
+      "rejected": [
+        "C48533472: Extended, $0.1467, not the best on the policy",
+        "C45351497: Extended, $0.1472, not the best on the policy",
+        "C47021222: Extended, $0.1474, not the best on the policy"
+      ],
+      "deviation": ""
+    },
+    "ovp_comparator": {
+      "role": "ovp_comparator",
+      "lcsc": "C7955",
+      "type": "Basic",
+      "mpn": "LM393DR2G",
+      "brand": "onsemi",
+      "package": "SOIC-8",
+      "price": 0.0656,
+      "currency": "$",
+      "stock": 376620,
+      "datasheet": "https://www.lcsc.com/datasheet/lcsc_datasheet_1809171611_onsemi-LM393DR2G_C7955.pdf",
+      "symbol": "JLCImport:LM393DR2G",
+      "footprint": "JLCImport:LM393DR2G",
+      "query": "LM393 SOP-8 comparator",
+      "rejected": [
+        "C2865059: $0.1235 is over the 0.1 ceiling",
+        "C136033: $0.3186 is over the 0.1 ceiling",
+        "C51026331: Extended, $0.0335, not the best on the policy",
+        "C5252905: Extended, $0.0401, not the best on the policy",
+        "C19723733: Extended, $0.0407, not the best on the policy"
+      ],
+      "deviation": ""
+    },
+    "feedback_optocoupler": {
+      "role": "feedback_optocoupler",
+      "lcsc": "C3025068",
+      "type": "Extended",
+      "mpn": "PC817C",
+      "brand": "GOODWORK",
+      "package": "DIP-4",
+      "price": 0.0299,
+      "currency": "$",
+      "stock": 180052,
+      "datasheet": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2205301745_GOODWORK-PC817C_C3025068.pdf",
+      "symbol": "JLCImport:PC817C_C3025068",
+      "footprint": "JLCImport:PC817C_C3025068",
+      "query": "PC817 SOP-4 optocoupler phototransistor",
+      "rejected": [
+        "C20612594: Extended, $0.032, not the best on the policy",
+        "C3008368: Extended, $0.0333, not the best on the policy",
+        "C50380038: Extended, $0.0335, not the best on the policy"
+      ],
+      "deviation": ""
+    },
+    "temperature_sensor": {
+      "role": "temperature_sensor",
+      "lcsc": "C176201",
+      "type": "Extended",
+      "mpn": "QR0805F10K0P05Z",
+      "brand": "Ever Ohms Tech",
+      "package": "0805",
+      "price": 0.0068,
+      "currency": "$",
+      "stock": 14935,
+      "datasheet": "https://www.lcsc.com/datasheet/lcsc_datasheet_2304140030_Ever-Ohms-Tech-QR0805F10K0P05Z_C176201.pdf",
+      "symbol": "JLCImport:QR0805F10KP05",
+      "footprint": "JLCImport:QR0805F10KP05",
+      "query": "10k ohm NTC thermistor 0805 B3950",
+      "rejected": [
+        "C332266: Extended, $0.0147, not the best on the policy"
+      ],
+      "deviation": ""
+    },
+    "vdiv_low": {
+      "role": "vdiv_low",
+      "lcsc": "C17414",
+      "type": "Basic",
+      "mpn": "0805W8F1002T5E",
+      "brand": "UNI-ROYAL(Uniroyal Elec)",
+      "package": "0805",
+      "price": 0.011,
+      "currency": "$",
+      "stock": 21922383,
+      "datasheet": "https://www.lcsc.com/datasheet/lcsc_datasheet_2411221126_UNI-ROYAL-Uniroyal-Elec-0805W8F1002T5E_C17414.pdf",
+      "symbol": "JLCImport:0805W8F1002T5E",
+      "footprint": "JLCImport:0805W8F1002T5E",
+      "query": "10k 1% 0805 resistor",
+      "rejected": [
+        "C702829: Extended, $0.0034, not the best on the policy",
+        "C2907219: Extended, $0.0037, not the best on the policy",
+        "C22356686: Extended, $0.0037, not the best on the policy"
+      ],
+      "deviation": ""
+    },
+    "vdiv_high": {
+      "role": "vdiv_high",
+      "lcsc": "C17593",
+      "type": "Basic",
+      "mpn": "0805W8F2702T5E",
+      "brand": "UNI-ROYAL(Uniroyal Elec)",
+      "package": "0805",
+      "price": 0.0044,
+      "currency": "$",
+      "stock": 429655,
+      "datasheet": "https://www.lcsc.com/datasheet/lcsc_datasheet_2206010200_UNI-ROYAL-Uniroyal-Elec-0805W8F2702T5E_C17593.pdf",
+      "symbol": "JLCImport:0805W8F2702T5E",
+      "footprint": "JLCImport:0805W8F2702T5E",
+      "query": "27k 1% 0805 resistor",
+      "rejected": [
+        "C54921151: Extended, $0.0019, not the best on the policy",
+        "C2907247: Extended, $0.0037, not the best on the policy",
+        "C114533: Extended, $0.0055, not the best on the policy"
+      ],
+      "deviation": ""
+    },
+    "current_sense_filter_cap": {
+      "role": "current_sense_filter_cap",
+      "lcsc": "C14663",
+      "type": "Basic",
+      "mpn": "CC0603KRX7R9BB104",
+      "brand": "YAGEO",
+      "package": "0603",
+      "price": 0.0241,
+      "currency": "$",
+      "stock": 33241530,
+      "datasheet": "https://www.lcsc.com/datasheet/lcsc_datasheet_2211101700_YAGEO-CC0603KRX7R9BB104_C14663.pdf",
+      "symbol": "JLCImport:CC0603KRX7R9BB104",
+      "footprint": "JLCImport:CC0603KRX7R9BB104",
+      "query": "100nF 50V X7R 0603 ceramic capacitor",
+      "rejected": [
+        "C6119867: Extended, $0.0105, not the best on the policy",
+        "C282518: Extended, $0.0121, not the best on the policy",
+        "C282519: Extended, $0.0144, not the best on the policy"
+      ],
+      "deviation": ""
+    }
+  },
+  "deviations": [
+    "ovp_comparator: Used 'LM393 SOP-8 comparator' instead of 'LM393 SOIC-8 dual comparator'",
+    "vdiv_low: Used '10k 1% 0805 resistor' instead of '10k ohm 1% 0.1W 0603 resistor'",
+    "vdiv_high: Used '27k 1% 0805 resistor' instead of '27k ohm 1% 0.1W 0603 resistor'"
+  ]
+}

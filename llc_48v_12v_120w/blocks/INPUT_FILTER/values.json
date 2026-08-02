@@ -1,0 +1,83 @@
+{
+  "tvs_breakdown_voltage": {
+    "value": 58,
+    "unit": "V",
+    "description": "TVS breakdown voltage for 48V nominal input",
+    "source": "datasheet",
+    "part": "SMBJ58A"
+  },
+  "tvs_clamp_voltage": {
+    "value": 93.6,
+    "unit": "V",
+    "description": "TVS clamping voltage @ 6.5A surge",
+    "source": "datasheet",
+    "part": "SMBJ58A"
+  },
+  "bulk_capacitance_total": {
+    "value": 200,
+    "unit": "µF",
+    "description": "Total bulk electrolytic capacitance (2× 100µF)",
+    "calculation": "2 × 100µF = 200µF"
+  },
+  "ceramic_capacitance_10u": {
+    "value": 20,
+    "unit": "µF",
+    "description": "Nominal ceramic capacitance, 1206 (2× 10µF parts, derated ~50% at 48V)",
+    "note": "X7R derates significantly at DC bias"
+  },
+  "ceramic_capacitance_1u": {
+    "value": 2,
+    "unit": "µF",
+    "description": "Additional HF bypass capacitance, 0805 (2× 1µF parts)"
+  },
+  "voltage_divider_ratio": {
+    "value": 0.0655,
+    "unit": "dimensionless",
+    "description": "Voltage sense divider ratio (3.3k / (47k + 3.3k))",
+    "calculation": "3300 / (47000 + 3300) = 0.0655"
+  },
+  "vsense_at_48v": {
+    "value": 3.14,
+    "unit": "V",
+    "description": "ADC sense voltage at 48V input",
+    "calculation": "48V × 0.0655 = 3.14V"
+  },
+  "vsense_at_36v": {
+    "value": 2.36,
+    "unit": "V",
+    "description": "ADC sense voltage at 36V min input",
+    "calculation": "36V × 0.0655 = 2.36V"
+  },
+  "vsense_at_60v": {
+    "value": 3.93,
+    "unit": "V",
+    "description": "ADC sense voltage at 60V max input (EXCEEDS 3.3V ADC range)",
+    "calculation": "60V × 0.0655 = 3.93V",
+    "warning": "ADC will saturate above ~50V input. Not safety-critical (telemetry only)."
+  },
+  "divider_current": {
+    "value": 0.95,
+    "unit": "mA",
+    "description": "Quiescent current through voltage divider",
+    "calculation": "48V / (47k + 3.3k) = 0.95mA"
+  },
+  "adc_filter_cutoff": {
+    "value": 482,
+    "unit": "Hz",
+    "description": "RC filter cutoff frequency (R2 × C_ADC)",
+    "calculation": "f_c = 1 / (2π × 3.3kΩ × 100nF) = 482Hz"
+  },
+  "input_energy_storage": {
+    "value": 230,
+    "unit": "mJ",
+    "description": "Energy stored in bulk caps at 48V",
+    "calculation": "E = 0.5 × 200µF × 48² = 230mJ"
+  },
+  "holdup_time_estimate": {
+    "value": 1.92,
+    "unit": "ms",
+    "description": "Approximate holdup if input drops from 60V to 36V @ 120W",
+    "calculation": "t = C × (V_max² - V_min²) / (2P) = 200µF × (60² - 36²) / (2 × 120W) = 1.92ms",
+    "note": "Minimal - LLC doesn't require holdup, just bulk storage for ripple"
+  }
+}

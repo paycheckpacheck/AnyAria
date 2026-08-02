@@ -1,0 +1,88 @@
+{
+  "verdict": "clean",
+  "passes_run": 6,
+  "findings": [
+    {
+      "severity": "note",
+      "pass": 1,
+      "what": "SR controller IC (UCC24610) not included - gate drive signals are ports per architecture decision to use discrete controller in separate block"
+    },
+    {
+      "severity": "note",
+      "pass": 1,
+      "what": "VCC supply for gate drive is power symbol (+12V) not a port - connects by name across design"
+    },
+    {
+      "severity": "note",
+      "pass": 2,
+      "what": "BSC010N04LS has no pinout check needed - generic MOSFET symbol with drain/gate/source connections verified correct"
+    },
+    {
+      "severity": "note",
+      "pass": 3,
+      "what": "Both SR MOSFETs have all pins connected: drain (to SEC_A/SEC_B), gate (to SR1_GATE/SR2_GATE ports), source (to sense resistor then GND)"
+    },
+    {
+      "severity": "note",
+      "pass": 3,
+      "what": "Power symbols GND and +12V used correctly - no supply pins on MOSFETs beyond gate drive"
+    },
+    {
+      "severity": "note",
+      "pass": 4,
+      "what": "Voltage compatibility verified: SEC_A/SEC_B peak ~18V < 40V MOSFET rating. Gate drive 0-12V compatible with Vgs_th 2-3V and Vgs_max 20V."
+    },
+    {
+      "severity": "note",
+      "pass": 4,
+      "what": "Gate pull-down resistors (10k) ensure gates default to off state when SR_GATE signals are floating"
+    },
+    {
+      "severity": "note",
+      "pass": 5,
+      "what": "Port directions verified: SEC_A, SEC_B, SR1_GATE, SR2_GATE are inputs (from transformer and controller). CT is output (to filter)."
+    },
+    {
+      "severity": "note",
+      "pass": 5,
+      "what": "CT output driven by center-tap connection point where both SR FET sources combine through sense resistors"
+    },
+    {
+      "severity": "note",
+      "pass": 6,
+      "what": "Current sense resistors R_SENSE1, R_SENSE2 included for telemetry - marked as optional in rationale, can be DNF"
+    },
+    {
+      "severity": "note",
+      "pass": 6,
+      "what": "Bootstrap capacitors C_BST1, C_BST2 included but marked DNF - only needed if discrete gate driver uses bootstrap topology"
+    },
+    {
+      "severity": "note",
+      "pass": 6,
+      "what": "VCC decoupling capacitor C_VCC included for gate drive supply filtering"
+    }
+  ],
+  "connections_frozen": true,
+  "review_summary": {
+    "topology": "Center-tap synchronous rectifier with two N-channel MOSFETs",
+    "mosfets_verified": "Q_SR1, Q_SR2 connected correctly to SEC_A, SEC_B drains and common source ground",
+    "gate_drive_interface": "SR1_GATE, SR2_GATE ports receive gate signals from external SR controller block",
+    "optional_components": "Current sense resistors and bootstrap caps marked for conditional fitment",
+    "power_connections": "GND and +12V power symbols used correctly, no floating nodes",
+    "ports_validated": "All 5 ports (SEC_A, SEC_B, CT, SR1_GATE, SR2_GATE) have correct direction and connections",
+    "deviations_justified": "SR controller IC omitted per architecture - implemented in separate discrete block"
+  },
+  "confidence": {
+    "connection_correctness": "high",
+    "voltage_compatibility": "high",
+    "missing_components": "none_identified",
+    "reference_compliance": "high - deviations documented and justified"
+  },
+  "notes_for_simulator": [
+    "Values are placeholders - simulator should verify R_SENSE dissipation and C_VCC sizing",
+    "Gate drive timing (rise/fall times) depends on external SR controller implementation",
+    "Body diode conduction interval cannot be simulated without knowing SR gate timing",
+    "Thermal analysis should include both MOSFET conduction loss and sense resistor dissipation"
+  ]
+}

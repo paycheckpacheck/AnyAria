@@ -1,0 +1,60 @@
+{
+  "parts": [
+    {
+      "reference": "T1",
+      "value": "LLC_XFMR_4:1:1",
+      "description": "LLC isolation transformer, ETD29 core, 4:1:1 turns ratio, 110µH magnetizing inductance",
+      "manufacturer": "CUSTOM",
+      "part_number": "LLC-XFMR-ETD29-16:4:4",
+      "lcsc_number": null,
+      "classification": "EXTERNAL",
+      "price_usd": null,
+      "stock": "Not applicable - external sourcing",
+      "symbol": "Transformer_1P_2S",
+      "footprint": "Transformer_THT:Transformer_ETD29",
+      "sourcing_query": "Not applicable - custom magnetic component",
+      "alternatives_considered": [
+        "Coilcraft - Custom design service (lead time 2-4 weeks)",
+        "Würth Elektronik 750343373 series - Check turns ratio compatibility",
+        "Bourns Custom Magnetics - Quote required",
+        "Pulse Electronics PA4000 series - Verify specifications"
+      ],
+      "deviation": {
+        "type": "EXTERNAL_SOURCING_REQUIRED",
+        "reason": "LLC transformers with specific turns ratio (4:1:1), magnetizing inductance (110µH), and center-tap secondary are not standard catalog parts. Custom design required.",
+        "impact": "Board cannot be fully assembled by JLCPCB. Transformer must be pre-consigned to JLCPCB or hand-assembled after PCBA.",
+        "mitigation": "Work with custom magnetics supplier (Coilcraft, Würth, or local winder) to manufacture transformer to specification in transformer_calculations.md. Lead time: 2-4 weeks. Cost estimate: $15-30/unit for qty 10-100.",
+        "assembly_note": "CRITICAL: This part MUST be pre-consigned to JLCPCB or the board will arrive without the transformer and require hand-assembly."
+      },
+      "specifications": {
+        "turns_ratio": "4:1:1 (16T primary : 4T+4T secondary)",
+        "primary_turns": "16T, Litz wire AWG 18 equivalent",
+        "secondary_turns": "4T + 4T center-tap, Litz wire AWG 14 equivalent",
+        "magnetizing_inductance": "110µH ±10% at 48V, 250kHz",
+        "leakage_inductance": "<10µH (minimize in design)",
+        "core_material": "ETD29, N87 or N97 ferrite",
+        "air_gap": "0.2mm on center leg",
+        "isolation_voltage": "1500V minimum (basic insulation)",
+        "power_rating": "150W continuous",
+        "operating_frequency": "100-500kHz (LLC variable frequency)",
+        "temperature_rise": "<40°C at full load, natural convection"
+      },
+      "verification_required": [
+        "Measure Lm at 1kHz and 250kHz (target: 110µH ±10%)",
+        "Measure Llk with short-circuit test (target: <10µH)",
+        "Hipot test 2000V DC for 1 second (1500V rated)",
+        "Thermal test at 150W, 250kHz (ΔT target: <40°C)",
+        "Verify turns ratio with LCR meter or winding resistance ratio"
+      ]
+    }
+  ],
+  "summary": {
+    "total_parts": 1,
+    "jlcpcb_sourceable": 0,
+    "external_parts": 1,
+    "total_cost_usd": "15-30 (external, estimated)",
+    "assembly_blockers": [
+      "T1: LLC transformer - EXTERNAL SOURCING REQUIRED"
+    ]
+  }
+}

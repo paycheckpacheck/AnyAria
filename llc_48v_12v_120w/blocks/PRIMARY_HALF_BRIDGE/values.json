@@ -1,0 +1,112 @@
+{
+  "C_BOOT": {
+    "value": "0.47uF",
+    "provenance": "first_principles",
+    "derivation": "Cboot_min = (Qg_total + I_leakage × t_on_max) / ΔV_allowed. Where Qg = 120nC (IPP80N05S4-02), I_leakage ≈ 100µA (IR2110), t_on_max = 2µs (500kHz worst case), ΔV_allowed = 1V. Result: 320nF minimum, selected 0.47µF for 47% margin.",
+    "inputs": {
+      "Qg_total": "120nC",
+      "I_leakage": "100µA",
+      "t_on_max": "2µs",
+      "ΔV_allowed": "1V"
+    },
+    "margin": "47% above calculated minimum"
+  },
+  "D_BOOT": {
+    "value": "1N5819 or equivalent Schottky",
+    "provenance": "datasheet",
+    "reference": "IR2110 datasheet recommends fast-recovery or Schottky diode for bootstrap circuit. Schottky preferred for low forward drop and fast recovery at 100-500kHz.",
+    "margin": "Vf < 0.5V ensures adequate VB voltage"
+  },
+  "R_GATE_HIGH": {
+    "value": "5.1Ω",
+    "provenance": "first_principles",
+    "derivation": "Gate resistor balances switching speed vs ringing. Turn-on time: t_on ≈ Rgate × Qg / Vgs ≈ 5Ω × 120nC / 12V = 50ns. Peak gate current: I_peak = 12V / 5Ω = 2.4A (within IR2110 2A typical, 2.5A max capability). Lower R reduces losses, higher R reduces EMI.",
+    "inputs": {
+      "Qg": "120nC",
+      "Vgs": "12V",
+      "I_driver_max": "2.5A"
+    },
+    "margin": "Peak current 4% below driver rating"
+  },
+  "R_GATE_LOW": {
+    "value": "5.1Ω",
+    "provenance": "first_principles",
+    "derivation": "Same calculation as R_GATE_HIGH. Symmetric gate drive for both FETs ensures balanced switching characteristics.",
+    "inputs": {
+      "Qg": "120nC",
+      "Vgs": "12V",
+      "I_driver_max": "2.5A"
+    },
+    "margin": "Peak current 4% below driver rating"
+  },
+  "R_SG_HIGH": {
+    "value": "10kΩ",
+    "provenance": "datasheet",
+    "reference": "IR2110 application notes and industry standard practice. 10kΩ provides gate discharge path without loading driver. Prevents Miller turn-on from dv/dt during complementary FET switching. Gate leakage current: Vgs_max / R = 12V / 10kΩ = 1.2mA (negligible).",
+    "margin": "Typical range 10k-100k, 10k selected for faster gate discharge"
+  },
+  "R_SG_LOW": {
+    "value": "10kΩ",
+    "provenance": "datasheet",
+    "reference": "Same as R_SG_HIGH. Symmetric gate discharge for both FETs.",
+    "margin": "Typical range 10k-100k"
+  },
+  "C_VCC_CERAMIC": {
+    "value": "0.1uF",
+    "provenance": "datasheet",
+    "reference": "IR2110 datasheet section on supply decoupling. 0.1µF ceramic capacitor close to VCC pin provides high-frequency bypass for switching transients.",
+    "margin": "Standard value for gate driver ICs"
+  },
+  "C_VCC_BULK": {
+    "value": "10uF",
+    "provenance": "datasheet",
+    "reference": "IR2110 application notes recommend bulk capacitance for VCC supply. Provides charge reservoir for bootstrap recharge events. At 500kHz, recharge every 2µs requires low-ESR bulk cap.",
+    "margin": "Provides ~100× charge compared to Cboot"
+  },
+  "C_VDD": {
+    "value": "0.1uF",
+    "provenance": "datasheet",
+    "reference": "IR2110 datasheet. VDD logic supply requires 0.1µF ceramic bypass for noise immunity on input circuits.",
+    "margin": "Standard logic supply decoupling"
+  },
+  "R_SNUB_Q1": {
+    "value": "10Ω",
+    "provenance": "first_principles",
+    "derivation": "RC snubber for critical damping: R = sqrt(L_parasitic / C_parasitic). For TO-220 package, L ≈ 10nH, C_oss ≈ 100pF → R ≈ sqrt(10nH / 100pF) ≈ 10Ω. Provides damping at resonant frequency f = 1/(2π√LC) ≈ 160MHz.",
+    "inputs": {
+      "L_parasitic": "10nH",
+      "C_oss": "100pF"
+    },
+    "margin": "Optional - DNF, populate if ringing observed"
+  },
+  "C_SNUB_Q1": {
+    "value": "1nF",
+    "provenance": "first_principles",
+    "derivation": "Snubber capacitor selected to provide pole at ~10MHz (above switching frequency, below parasitic resonance). C × R = 1nF × 10Ω = 10ns time constant → f = 16MHz. C0G/NP0 dielectric for low loss.",
+    "inputs": {
+      "R_snub": "10Ω",
+      "f_target": "10MHz"
+    },
+    "margin": "Optional - DNF, populate if ringing observed"
+  },
+  "R_SNUB_Q2": {
+    "value": "10Ω",
+    "provenance": "first_principles",
+    "derivation": "Same as R_SNUB_Q1. Symmetric snubber networks for both FETs.",
+    "inputs": {
+      "L_parasitic": "10nH",
+      "C_oss": "100pF"
+    },
+    "margin": "Optional - DNF"
+  },
+  "C_SNUB_Q2": {
+    "value": "1nF",
+    "provenance": "first_principles",
+    "derivation": "Same as C_SNUB_Q1. Symmetric snubber networks.",
+    "inputs": {
+      "R_snub": "10Ω",
+      "f_target": "10MHz"
+    },
+    "margin": "Optional - DNF"
+  }
+}

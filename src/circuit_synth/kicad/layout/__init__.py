@@ -21,7 +21,12 @@ instead:
 * :mod:`render` turns a sheet into a PNG so the result can be looked at.
 """
 
-from .extract import SheetDescription, describe_sheet
+from .extract import (
+    SheetDescription,
+    block_renames,
+    describe_sheet,
+    instance_renames,
+)
 from .render import render_sheets
 from .routing import (
     Box,
@@ -46,6 +51,8 @@ from .validate import LayoutProblem, validate_layout
 __all__ = [
     "SheetDescription",
     "describe_sheet",
+    "block_renames",
+    "instance_renames",
     "PlacementSpec",
     "NotePlacement",
     "SheetPlacement",

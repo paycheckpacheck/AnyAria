@@ -1,0 +1,199 @@
+{
+  "Q_SR1": {
+    "query": "MOSFET N-channel 40V RDS(on) < 5mΩ high current synchronous rectifier",
+    "role": "Synchronous rectifier FET 1 (center-tap secondary)",
+    "part_number": "BSC010N04LS",
+    "manufacturer": "Infineon",
+    "lcsc": "C70783",
+    "package": "TDSON-8",
+    "stock": "researching",
+    "price_usd": "researching",
+    "basic_extended": "Extended",
+    "specifications": {
+      "V_DSS": "40V",
+      "I_D": "100A",
+      "R_DS_on": "1.0mΩ @ 10V Vgs",
+      "Q_g": "70nC",
+      "V_gs_th": "2.0-3.0V"
+    },
+    "symbol": "to_be_imported",
+    "footprint": "to_be_imported",
+    "notes": "Excellent low RDS(on) for minimal conduction loss. Center-tap rectifier configuration."
+  },
+  "Q_SR2": {
+    "query": "MOSFET N-channel 40V RDS(on) < 5mΩ high current synchronous rectifier",
+    "role": "Synchronous rectifier FET 2 (center-tap secondary)",
+    "part_number": "BSC010N04LS",
+    "manufacturer": "Infineon",
+    "lcsc": "C70783",
+    "package": "TDSON-8",
+    "stock": "researching",
+    "price_usd": "researching",
+    "basic_extended": "Extended",
+    "specifications": {
+      "V_DSS": "40V",
+      "I_D": "100A",
+      "R_DS_on": "1.0mΩ @ 10V Vgs",
+      "Q_g": "70nC",
+      "V_gs_th": "2.0-3.0V"
+    },
+    "symbol": "to_be_imported",
+    "footprint": "to_be_imported",
+    "notes": "Matched pair for synchronous rectification"
+  },
+  "U_SR_CTRL": {
+    "query": "Synchronous rectifier controller LLC center-tap",
+    "role": "SR gate drive controller",
+    "part_number": "UCC24610",
+    "manufacturer": "Texas Instruments",
+    "lcsc": "DEVIATION",
+    "package": "SOIC-8",
+    "stock": "DEVIATION: Not in JLCPCB catalog",
+    "price_usd": "N/A",
+    "basic_extended": "N/A",
+    "specifications": {
+      "topology": "Center-tapped synchronous rectifier driver",
+      "V_cc": "12V",
+      "I_source": "2.5A peak",
+      "I_sink": "5A peak",
+      "dead_time": "Adaptive"
+    },
+    "symbol": "to_be_imported",
+    "footprint": "SOIC-8_3.9x4.9mm_P1.27mm",
+    "notes": "DEVIATION: Dedicated SR controller likely not in JLCPCB. Alternative: drive from transformer sensing with comparator + gate driver. Transformer-coupled drive is common for LLC SR."
+  },
+  "R_SENSE1": {
+    "query": "resistor 10mΩ 0.5W 1% current sense",
+    "role": "Current sense resistor SR1 source",
+    "part_number": "PLACEHOLDER",
+    "manufacturer": "TBD",
+    "lcsc": "TBD",
+    "package": "2512 or larger",
+    "stock": "TBD",
+    "price_usd": "TBD",
+    "basic_extended": "Extended",
+    "specifications": {
+      "resistance": "10mΩ",
+      "power": "0.5W",
+      "tolerance": "1%"
+    },
+    "symbol": "to_be_imported",
+    "footprint": "to_be_imported",
+    "notes": "Optional - for current monitoring. 7A RMS → 0.5W dissipation."
+  },
+  "R_SENSE2": {
+    "query": "resistor 10mΩ 0.5W 1% current sense",
+    "role": "Current sense resistor SR2 source",
+    "part_number": "PLACEHOLDER",
+    "manufacturer": "TBD",
+    "lcsc": "TBD",
+    "package": "2512 or larger",
+    "stock": "TBD",
+    "price_usd": "TBD",
+    "basic_extended": "Extended",
+    "specifications": {
+      "resistance": "10mΩ",
+      "power": "0.5W",
+      "tolerance": "1%"
+    },
+    "symbol": "to_be_imported",
+    "footprint": "to_be_imported",
+    "notes": "Optional - for current monitoring. Matched with R_SENSE1."
+  },
+  "C_BST1": {
+    "query": "ceramic capacitor 1uF 25V X7R 0805",
+    "role": "Bootstrap capacitor for SR1 gate drive",
+    "part_number": "CL21B105KAFNNNE",
+    "manufacturer": "Samsung",
+    "lcsc": "C1848",
+    "package": "0805",
+    "stock": "Basic",
+    "price_usd": "0.003",
+    "basic_extended": "Basic",
+    "specifications": {
+      "capacitance": "1µF",
+      "voltage": "25V",
+      "dielectric": "X7R",
+      "tolerance": "10%"
+    },
+    "symbol": "to_be_imported",
+    "footprint": "C_0805",
+    "notes": "Bootstrap supply for high-side gate drive if needed. Basic part."
+  },
+  "C_BST2": {
+    "query": "ceramic capacitor 1uF 25V X7R 0805",
+    "role": "Bootstrap capacitor for SR2 gate drive",
+    "part_number": "CL21B105KAFNNNE",
+    "manufacturer": "Samsung",
+    "lcsc": "C1848",
+    "package": "0805",
+    "stock": "Basic",
+    "price_usd": "0.003",
+    "basic_extended": "Basic",
+    "specifications": {
+      "capacitance": "1µF",
+      "voltage": "25V",
+      "dielectric": "X7R",
+      "tolerance": "10%"
+    },
+    "symbol": "to_be_imported",
+    "footprint": "C_0805",
+    "notes": "Matched bootstrap capacitor. Basic part."
+  },
+  "D_BODY1": {
+    "query": "None - using MOSFET body diode",
+    "role": "Body diode of Q_SR1",
+    "part_number": "Integral to BSC010N04LS",
+    "manufacturer": "Infineon",
+    "lcsc": "N/A",
+    "package": "N/A",
+    "stock": "N/A",
+    "price_usd": "0.00",
+    "basic_extended": "N/A",
+    "specifications": {
+      "V_F": "~0.7V",
+      "I_F": "Limited by MOSFET rating",
+      "note": "Conducts during dead time before MOSFET turns on"
+    },
+    "symbol": "N/A",
+    "footprint": "N/A",
+    "notes": "Body diode provides freewheeling path during dead time. No external diode needed for synchronous rectification."
+  },
+  "D_BODY2": {
+    "query": "None - using MOSFET body diode",
+    "role": "Body diode of Q_SR2",
+    "part_number": "Integral to BSC010N04LS",
+    "manufacturer": "Infineon",
+    "lcsc": "N/A",
+    "package": "N/A",
+    "stock": "N/A",
+    "price_usd": "0.00",
+    "basic_extended": "N/A",
+    "specifications": {
+      "V_F": "~0.7V",
+      "I_F": "Limited by MOSFET rating",
+      "note": "Conducts during dead time before MOSFET turns on"
+    },
+    "symbol": "N/A",
+    "footprint": "N/A",
+    "notes": "Body diode provides freewheeling path during dead time"
+  },
+  "deviations": [
+    {
+      "component": "U_SR_CTRL",
+      "issue": "Dedicated SR controller (UCC24610 or similar) likely not in JLCPCB Extended catalog",
+      "impact": "Cannot use integrated SR controller IC",
+      "mitigation": "Use transformer-coupled gate drive OR discrete comparator + gate driver solution. Common approach: sense transformer voltage, use comparator to detect conduction interval, drive gates with IR2110-style driver.",
+      "assembly_impact": "Requires discrete implementation instead of single IC. Adds ~3-4 components per SR channel."
+    },
+    {
+      "component": "R_SENSE1, R_SENSE2",
+      "issue": "Low-value current sense resistors in SMD packages may be limited in JLCPCB Basic",
+      "impact": "May need to use Extended parts or larger footprints",
+      "mitigation": "Search for 10mΩ 2512 or larger packages in Extended. Alternative: omit current sensing if not required for control.",
+      "assembly_impact": "Extended parts add cost. Current sensing is optional for basic operation."
+    }
+  ],
+  "total_estimated_cost_per_board": "TBD - requires JLCPCB stock verification",
+  "assembly_feasibility": "PARTIAL - SR MOSFETs assemblable, dedicated SR controller likely requires discrete implementation"
+}

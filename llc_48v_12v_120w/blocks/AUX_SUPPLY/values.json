@@ -1,0 +1,67 @@
+{
+  "values": {
+    "TPS5430_output_voltage": {
+      "component": "U1",
+      "value": "5.0V",
+      "derived_from": "datasheet",
+      "calculation": "VOUT = 0.8V × (1 + R2/R3) = 0.8V × (1 + 10k/2.43k) = 4.11V (TO BE REFINED to 5.0V by adjusting R3)",
+      "source": "TPS5430 datasheet SLVS555, section 8.2.2.2",
+      "status": "placeholder"
+    },
+    "TPS5430_inductor": {
+      "component": "L1",
+      "value": "22uH",
+      "derived_from": "datasheet",
+      "calculation": "L = (VIN - VOUT) × (VOUT / VIN) / (ΔI_L × f_SW) = (12-5)×(5/12)/(0.15A×500kHz) ≈ 19µH, use 22µH standard",
+      "source": "TPS5430 datasheet SLVS555, section 8.2.2.3",
+      "status": "datasheet"
+    },
+    "TPS5430_output_cap": {
+      "component": "C3, C4",
+      "value": "47uF + 22uF = 69uF total",
+      "derived_from": "datasheet",
+      "calculation": "C_OUT > ΔI_L / (8 × f_SW × ΔV_OUT) = 0.15A/(8×500kHz×0.05V) = 7.5µF minimum",
+      "source": "TPS5430 datasheet SLVS555, section 8.2.2.4",
+      "status": "datasheet"
+    },
+    "AMS1117_input_cap": {
+      "component": "C7",
+      "value": "10uF",
+      "derived_from": "datasheet",
+      "source": "AMS1117 datasheet, typical application",
+      "status": "datasheet"
+    },
+    "AMS1117_output_cap": {
+      "component": "C8",
+      "value": "22uF",
+      "derived_from": "datasheet",
+      "source": "AMS1117 datasheet, minimum 10µF required, 22µF for margin",
+      "status": "datasheet"
+    },
+    "WL2808_caps": {
+      "component": "C9, C10",
+      "value": "10uF each",
+      "derived_from": "datasheet",
+      "source": "WL2808 datasheet, typical application",
+      "status": "datasheet"
+    }
+  },
+  "figures_of_merit": {
+    "efficiency_12v_to_5v": {
+      "value": "TBD",
+      "note": "Typical 85-90% for TPS5430 at this operating point"
+    },
+    "efficiency_5v_to_3v3": {
+      "value": "TBD",
+      "note": "LDO efficiency = VOUT/VIN = 3.3V/5V = 66%"
+    },
+    "efficiency_3v3_to_1v2": {
+      "value": "TBD",
+      "note": "LDO efficiency = VOUT/VIN = 1.2V/3.3V = 36%"
+    },
+    "power_dissipation": {
+      "value": "TBD",
+      "estimate": "Buck: ~0.5W, LDO1: ~0.51W, LDO2: ~0.21W, total ~1.22W"
+    }
+  }
+}

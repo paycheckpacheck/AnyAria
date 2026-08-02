@@ -1,0 +1,47 @@
+{
+  "output_bulk_cap": {
+    "lcsc": "C484817",
+    "model": "1000uF 25V",
+    "manufacturer": "Rubycon",
+    "description": "1000µF ±20% 25V Through Hole,D10xL16mm Aluminum Electrolytic Capacitors - Leaded ROHS",
+    "price": 0.0965,
+    "stock": 18432,
+    "basic": false,
+    "category": "Aluminum Electrolytic Capacitors - Leaded",
+    "symbol": "Device:C_Polarized",
+    "footprint": "Capacitor_THT:CP_Radial_D10.0mm_P5.00mm",
+    "query": "1000uF 25V aluminum electrolytic low ESR radial",
+    "role": "Bulk output capacitance for 12V rail, minimize output voltage ripple",
+    "notes": "Low ESR radial electrolytic for bulk energy storage. Will use 2x in parallel for 2000µF total."
+  },
+  "output_hf_filter_cap": {
+    "lcsc": "C19666",
+    "model": "47uF 25V X5R 1206",
+    "manufacturer": "Samsung",
+    "description": "47µF ±20% 25V X5R 1206 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
+    "price": 0.0586,
+    "stock": 245876,
+    "basic": false,
+    "category": "Multilayer Ceramic Capacitors MLCC - SMD/SMT",
+    "symbol": "Device:C",
+    "footprint": "Capacitor_SMD:C_1206_3216Metric",
+    "query": "47uF 25V X7R 1206 ceramic capacitor",
+    "role": "High-frequency filtering, parallel with electrolytics to reduce ESR at switching frequency",
+    "notes": "Will use 4-6x in parallel for ~200-300µF total HF capacitance. X5R/X7R for stable capacitance."
+  },
+  "output_connector": {
+    "lcsc": "C8465",
+    "model": "KF128-5.08-2P",
+    "manufacturer": "Cixi Kefa Elec",
+    "description": "2 5.08mm Screw terminal Brick nogging Wire To Board / Wire To Wire Connector ROHS",
+    "price": 0.0862,
+    "stock": 52843,
+    "basic": false,
+    "category": "Pluggable System Terminal Block",
+    "symbol": "Connector:Screw_Terminal_01x02",
+    "footprint": "TerminalBlock:TerminalBlock_bornier-2_P5.08mm",
+    "query": "screw terminal 2 pin 5.08mm 10A wire-to-board",
+    "role": "12V 10A output connection",
+    "notes": "Screw terminal rated for 10A continuous. 5.08mm pitch for 16-24 AWG wire."
+  }
+}

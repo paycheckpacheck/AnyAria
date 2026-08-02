@@ -1,0 +1,43 @@
+{
+  "parts": [
+    {
+      "role": "12V to 5V buck converter for analog control and gate drivers",
+      "query": "TPS5430DDAR",
+      "lcsc": "C9864",
+      "mpn": "TPS5430DDAR",
+      "kind": "Basic",
+      "price": 0.8488,
+      "stock": 130266,
+      "symbol": "JLCImport:TPS5430DDAR",
+      "footprint": "JLCImport:TPS5430DDAR",
+      "package": "SOIC-8-EP",
+      "description": "-40\u2103~+125\u2103@(TJ) 1 1.221V~32.04V 3A 4.4mA 5.5V~36V 500kHz Adjustable Buck Buck Built-in No SOIC-8-EP DC-DC Converters ROHS"
+    },
+    {
+      "role": "5V to 3.3V LDO for RP2040 I/O",
+      "query": "AMS1117-3.3",
+      "lcsc": "C6186",
+      "mpn": "AMS1117-3.3",
+      "kind": "Basic",
+      "price": 0.2006,
+      "stock": 1586087,
+      "symbol": "JLCImport:AMS1117-3_3",
+      "footprint": "JLCImport:AMS1117-3_3",
+      "package": "SOT-223",
+      "description": "-40\u2103~+125\u2103 0.003%Vout 1 1.1V@(800mA) 15V 1A 3.3V 5mA 72dB@(120Hz) Fixed Over Current Protection\u3001Short Circuit Protection\u3001Thermal shutdown Positive SOT-223 Voltage Regulators - Linear, Low Drop Out (LDO) Regulators ROHS"
+    },
+    {
+      "role": "3.3V to 1.2V LDO for RP2040 core (1.1V nominal, 1.2V within 0.95-1.3V spec)",
+      "query": "WL2808E12",
+      "lcsc": "C2931310",
+      "mpn": "WL2808E12-5/TR",
+      "kind": "Extended",
+      "price": 0.0548,
+      "stock": 2660,
+      "symbol": "JLCImport:WL2808E12-5_TR",
+      "footprint": "JLCImport:WL2808E12-5_TR",
+      "package": "SOT-23-5L",
+      "description": "-40\u2103~+85\u2103@(Ta) 1 1.2V 100uVrms 170mV@(200mA) 200mA 30uA 5.5V 75dB@(217Hz) Fixed Over Current Protection\u3001Enable\u3001Short Circuit Protection Positive SOT-23-5L Voltage Regulators - Linear, Low Drop Out (LDO) Regulators ROHS"
+    }
+  ]
+}

@@ -1,0 +1,43 @@
+{
+  "name": "OutputSenseProtect",
+  "instances": 1,
+  "ports": [
+    {
+      "name": "VOUT_POS",
+      "direction": "input",
+      "meaning": "12V output positive from filter (before current shunt)"
+    },
+    {
+      "name": "VOUT_NEG",
+      "direction": "output",
+      "meaning": "12V output to load (after current shunt)"
+    },
+    {
+      "name": "ISENSE_OUT",
+      "direction": "output",
+      "meaning": "Current measurement 0-2.5V for 0-10A (250mV/A)"
+    },
+    {
+      "name": "VSENSE_OUT",
+      "direction": "output",
+      "meaning": "Voltage measurement 0-3.24V for 0-12V (270mV/V)"
+    },
+    {
+      "name": "TEMP_SENSE",
+      "direction": "output",
+      "meaning": "Temperature measurement from NTC thermistor (non-linear, 0.43V at 80°C, 1.65V at 25°C)"
+    },
+    {
+      "name": "OVP_FAULT",
+      "direction": "output",
+      "meaning": "Overvoltage protection fault signal, active high when VOUT > 13.2V"
+    },
+    {
+      "name": "FB_ISO_OUT",
+      "direction": "output",
+      "meaning": "Isolated voltage feedback to primary-side control via optocoupler"
+    }
+  ],
+  "rails_consumed": ["V3V3", "GND"],
+  "rails_produced": []
+}

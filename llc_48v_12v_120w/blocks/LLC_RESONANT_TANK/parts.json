@@ -1,0 +1,44 @@
+{
+  "Cr": {
+    "role": "LLC resonant capacitor",
+    "value": "100nF",
+    "voltage_rating": "100V minimum (150V preferred)",
+    "dielectric": "X7R or C0G preferred",
+    "package": "1206 or larger",
+    "quantity": 1,
+    "deviation": "JLCPCB automated search found no suitable parts in Basic category. High-voltage ceramic capacitors (>100V) in C0G/NP0 are rare in JLCPCB Basic parts. Options: (1) Use Extended part, (2) Parallel array of lower-voltage caps, (3) Film capacitor if available. Manual selection from JLCPCB catalog required.",
+    "query": "100nF 100V X7R ceramic capacitor",
+    "lcsc": null,
+    "symbol": null,
+    "footprint": null,
+    "status": "UNSOURCED"
+  },
+  "Lr": {
+    "role": "LLC resonant inductor",
+    "value": "22-30µH",
+    "current_rating": "8A RMS minimum",
+    "dcr": "<50mΩ preferred",
+    "package": "SMD power inductor, shielded",
+    "quantity": 1,
+    "deviation": "RECOMMENDED APPROACH: Integrate with transformer leakage inductance (standard LLC practice). Discrete inductor at 8A+ rating not found in JLCPCB Basic search. If discrete inductor needed, Extended part required or external sourcing.",
+    "query": "22uH 8A power inductor shielded SMD",
+    "lcsc": null,
+    "symbol": null,
+    "footprint": null,
+    "status": "INTEGRATE_WITH_TRANSFORMER - no discrete part needed"
+  },
+  "Rsense": {
+    "role": "Resonant current sense shunt",
+    "value": "10mΩ (0.01Ω)",
+    "power_rating": "1W minimum (2W preferred for margin)",
+    "tolerance": "1%",
+    "package": "2512",
+    "quantity": 1,
+    "deviation": "Current transformer would provide better AC measurement but not available in JLCPCB. Shunt resistor is acceptable for current-mode control. Manual JLCPCB catalog search required for low-value current-sense resistor.",
+    "query": "0.01 ohm 1W 1% resistor 2512",
+    "lcsc": null,
+    "symbol": null,
+    "footprint": null,
+    "status": "UNSOURCED - manual selection required"
+  }
+}

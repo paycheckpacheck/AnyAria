@@ -116,6 +116,149 @@ wheels = [
 ]
 
 [[package]]
+name = "anyaria"
+source = { editable = "." }
+dependencies = [
+    { name = "aiofiles" },
+    { name = "aiohttp" },
+    { name = "beautifulsoup4" },
+    { name = "cachetools" },
+    { name = "click" },
+    { name = "fastapi" },
+    { name = "kicad-sch-api" },
+    { name = "loguru" },
+    { name = "lxml" },
+    { name = "matplotlib" },
+    { name = "networkx" },
+    { name = "numpy" },
+    { name = "openai" },
+    { name = "packaging" },
+    { name = "psutil" },
+    { name = "pydantic" },
+    { name = "pyspice" },
+    { name = "python-dotenv" },
+    { name = "pyyaml" },
+    { name = "reportlab" },
+    { name = "requests" },
+    { name = "rich" },
+    { name = "scipy" },
+    { name = "sexpdata" },
+    { name = "twine" },
+    { name = "uvicorn" },
+]
+
+[package.optional-dependencies]
+claude = [
+    { name = "claude-code-sdk" },
+]
+dev = [
+    { name = "black" },
+    { name = "flake8" },
+    { name = "isort" },
+    { name = "mypy" },
+    { name = "pre-commit" },
+    { name = "pytest" },
+    { name = "pytest-cov" },
+    { name = "pytest-env" },
+    { name = "pytest-mock" },
+    { name = "types-pyyaml" },
+]
+fast-generation = [
+    { name = "asyncio-mqtt" },
+    { name = "google-adk" },
+]
+test = [
+    { name = "hypothesis" },
+    { name = "memory-profiler" },
+    { name = "pytest" },
+    { name = "pytest-asyncio" },
+    { name = "pytest-mock" },
+]
+
+[package.dev-dependencies]
+dev = [
+    { name = "black" },
+    { name = "build" },
+    { name = "flake8" },
+    { name = "isort" },
+    { name = "linkify-it-py" },
+    { name = "myst-parser" },
+    { name = "pytest-env" },
+    { name = "sphinx" },
+    { name = "sphinx-autodoc-typehints" },
+    { name = "sphinx-rtd-theme" },
+    { name = "twine" },
+]
+test = [
+    { name = "pytest-asyncio" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "aiofiles", specifier = ">=23.2.0" },
+    { name = "aiohttp", specifier = ">=3.9.0" },
+    { name = "asyncio-mqtt", marker = "extra == 'fast-generation'", specifier = ">=0.16.0" },
+    { name = "beautifulsoup4", specifier = ">=4.11.0" },
+    { name = "black", marker = "extra == 'dev'", specifier = ">=22.0.0" },
+    { name = "cachetools", specifier = ">=5.3.0" },
+    { name = "claude-code-sdk", marker = "extra == 'claude'", specifier = ">=0.0.17" },
+    { name = "click", specifier = ">=8.0.0" },
+    { name = "fastapi", specifier = ">=0.100.0" },
+    { name = "flake8", marker = "extra == 'dev'", specifier = ">=4.0.0" },
+    { name = "google-adk", marker = "extra == 'fast-generation'", specifier = ">=0.1.0" },
+    { name = "hypothesis", marker = "extra == 'test'", specifier = ">=6.0.0" },
+    { name = "isort", marker = "extra == 'dev'", specifier = ">=5.10.0" },
+    { name = "kicad-sch-api", specifier = ">=0.5.5" },
+    { name = "loguru", specifier = ">=0.5.0" },
+    { name = "lxml", specifier = ">=6.0.0" },
+    { name = "matplotlib", specifier = ">=3.3.0" },
+    { name = "memory-profiler", marker = "extra == 'test'", specifier = ">=0.60.0" },
+    { name = "mypy", marker = "extra == 'dev'", specifier = ">=0.950" },
+    { name = "networkx", specifier = ">=2.6.0" },
+    { name = "numpy", specifier = ">=1.20.0" },
+    { name = "openai", specifier = ">=1.0.0" },
+    { name = "packaging", specifier = ">=21.0" },
+    { name = "pre-commit", marker = "extra == 'dev'", specifier = ">=2.17.0" },
+    { name = "psutil", specifier = ">=5.9.0" },
+    { name = "pydantic", specifier = ">=2.0.0" },
+    { name = "pyspice", specifier = ">=1.5" },
+    { name = "pytest", marker = "extra == 'dev'", specifier = ">=7.0.0" },
+    { name = "pytest", marker = "extra == 'test'", specifier = ">=7.0.0" },
+    { name = "pytest-asyncio", marker = "extra == 'test'", specifier = ">=0.24.0" },
+    { name = "pytest-cov", marker = "extra == 'dev'", specifier = ">=3.0.0" },
+    { name = "pytest-env", marker = "extra == 'dev'", specifier = ">=1.1.0" },
+    { name = "pytest-mock", marker = "extra == 'dev'", specifier = ">=3.14.0" },
+    { name = "pytest-mock", marker = "extra == 'test'", specifier = ">=3.14.0" },
+    { name = "python-dotenv", specifier = ">=1.0.0" },
+    { name = "pyyaml", specifier = ">=5.4.0" },
+    { name = "reportlab", specifier = ">=4.4.0" },
+    { name = "requests", specifier = ">=2.28.0" },
+    { name = "rich", specifier = ">=10.0.0" },
+    { name = "scipy", specifier = ">=1.7.0" },
+    { name = "sexpdata", specifier = ">=0.0.3" },
+    { name = "twine", specifier = ">=6.1.0" },
+    { name = "types-pyyaml", marker = "extra == 'dev'", specifier = ">=6.0.0" },
+    { name = "uvicorn", specifier = ">=0.20.0" },
+]
+provides-extras = ["dev", "claude", "fast-generation", "test"]
+
+[package.metadata.requires-dev]
+dev = [
+    { name = "black", specifier = ">=25.1.0" },
+    { name = "build", specifier = ">=1.2.2.post1" },
+    { name = "flake8", specifier = ">=7.3.0" },
+    { name = "isort", specifier = ">=6.0.1" },
+    { name = "linkify-it-py", specifier = ">=2.0.3" },
+    { name = "myst-parser", specifier = ">=3.0.1" },
+    { name = "pytest-env", specifier = ">=1.1.5" },
+    { name = "sphinx", specifier = ">=7.4.7" },
+    { name = "sphinx-autodoc-typehints", specifier = ">=2.3.0" },
+    { name = "sphinx-rtd-theme", specifier = ">=3.0.2" },
+    { name = "twine", specifier = ">=6.1.0" },
+]
+test = [{ name = "pytest-asyncio", specifier = ">=1.1.0" }]
+
+[[package]]
 name = "anyio"
 version = "4.10.0"
 source = { registry = "https://pypi.org/simple" }
@@ -322,149 +465,6 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/ee/7a/36fbcf646e41f710ce0a563c1c9a343c6edf9be80786edeb15b6f62e17db/charset_normalizer-3.4.3-cp314-cp314-win_amd64.whl", hash = "sha256:73dc19b562516fc9bcf6e5d6e596df0b4eb98d87e4f79f3ae71840e6ed21361c", size = 107400, upload-time = "2025-08-09T07:56:55.172Z" },
     { url = "https://files.pythonhosted.org/packages/8a/1f/f041989e93b001bc4e44bb1669ccdcf54d3f00e628229a85b08d330615c5/charset_normalizer-3.4.3-py3-none-any.whl", hash = "sha256:ce571ab16d890d23b5c278547ba694193a45011ff86a9162a71307ed9f86759a", size = 53175, upload-time = "2025-08-09T07:57:26.864Z" },
 ]
-
-[[package]]
-name = "circuit-synth"
-source = { editable = "." }
-dependencies = [
-    { name = "aiofiles" },
-    { name = "aiohttp" },
-    { name = "beautifulsoup4" },
-    { name = "cachetools" },
-    { name = "click" },
-    { name = "fastapi" },
-    { name = "kicad-sch-api" },
-    { name = "loguru" },
-    { name = "lxml" },
-    { name = "matplotlib" },
-    { name = "networkx" },
-    { name = "numpy" },
-    { name = "openai" },
-    { name = "packaging" },
-    { name = "psutil" },
-    { name = "pydantic" },
-    { name = "pyspice" },
-    { name = "python-dotenv" },
-    { name = "pyyaml" },
-    { name = "reportlab" },
-    { name = "requests" },
-    { name = "rich" },
-    { name = "scipy" },
-    { name = "sexpdata" },
-    { name = "twine" },
-    { name = "uvicorn" },
-]
-
-[package.optional-dependencies]
-claude = [
-    { name = "claude-code-sdk" },
-]
-dev = [
-    { name = "black" },
-    { name = "flake8" },
-    { name = "isort" },
-    { name = "mypy" },
-    { name = "pre-commit" },
-    { name = "pytest" },
-    { name = "pytest-cov" },
-    { name = "pytest-env" },
-    { name = "pytest-mock" },
-    { name = "types-pyyaml" },
-]
-fast-generation = [
-    { name = "asyncio-mqtt" },
-    { name = "google-adk" },
-]
-test = [
-    { name = "hypothesis" },
-    { name = "memory-profiler" },
-    { name = "pytest" },
-    { name = "pytest-asyncio" },
-    { name = "pytest-mock" },
-]
-
-[package.dev-dependencies]
-dev = [
-    { name = "black" },
-    { name = "build" },
-    { name = "flake8" },
-    { name = "isort" },
-    { name = "linkify-it-py" },
-    { name = "myst-parser" },
-    { name = "pytest-env" },
-    { name = "sphinx" },
-    { name = "sphinx-autodoc-typehints" },
-    { name = "sphinx-rtd-theme" },
-    { name = "twine" },
-]
-test = [
-    { name = "pytest-asyncio" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "aiofiles", specifier = ">=23.2.0" },
-    { name = "aiohttp", specifier = ">=3.9.0" },
-    { name = "asyncio-mqtt", marker = "extra == 'fast-generation'", specifier = ">=0.16.0" },
-    { name = "beautifulsoup4", specifier = ">=4.11.0" },
-    { name = "black", marker = "extra == 'dev'", specifier = ">=22.0.0" },
-    { name = "cachetools", specifier = ">=5.3.0" },
-    { name = "claude-code-sdk", marker = "extra == 'claude'", specifier = ">=0.0.17" },
-    { name = "click", specifier = ">=8.0.0" },
-    { name = "fastapi", specifier = ">=0.100.0" },
-    { name = "flake8", marker = "extra == 'dev'", specifier = ">=4.0.0" },
-    { name = "google-adk", marker = "extra == 'fast-generation'", specifier = ">=0.1.0" },
-    { name = "hypothesis", marker = "extra == 'test'", specifier = ">=6.0.0" },
-    { name = "isort", marker = "extra == 'dev'", specifier = ">=5.10.0" },
-    { name = "kicad-sch-api", specifier = ">=0.5.5" },
-    { name = "loguru", specifier = ">=0.5.0" },
-    { name = "lxml", specifier = ">=6.0.0" },
-    { name = "matplotlib", specifier = ">=3.3.0" },
-    { name = "memory-profiler", marker = "extra == 'test'", specifier = ">=0.60.0" },
-    { name = "mypy", marker = "extra == 'dev'", specifier = ">=0.950" },
-    { name = "networkx", specifier = ">=2.6.0" },
-    { name = "numpy", specifier = ">=1.20.0" },
-    { name = "openai", specifier = ">=1.0.0" },
-    { name = "packaging", specifier = ">=21.0" },
-    { name = "pre-commit", marker = "extra == 'dev'", specifier = ">=2.17.0" },
-    { name = "psutil", specifier = ">=5.9.0" },
-    { name = "pydantic", specifier = ">=2.0.0" },
-    { name = "pyspice", specifier = ">=1.5" },
-    { name = "pytest", marker = "extra == 'dev'", specifier = ">=7.0.0" },
-    { name = "pytest", marker = "extra == 'test'", specifier = ">=7.0.0" },
-    { name = "pytest-asyncio", marker = "extra == 'test'", specifier = ">=0.24.0" },
-    { name = "pytest-cov", marker = "extra == 'dev'", specifier = ">=3.0.0" },
-    { name = "pytest-env", marker = "extra == 'dev'", specifier = ">=1.1.0" },
-    { name = "pytest-mock", marker = "extra == 'dev'", specifier = ">=3.14.0" },
-    { name = "pytest-mock", marker = "extra == 'test'", specifier = ">=3.14.0" },
-    { name = "python-dotenv", specifier = ">=1.0.0" },
-    { name = "pyyaml", specifier = ">=5.4.0" },
-    { name = "reportlab", specifier = ">=4.4.0" },
-    { name = "requests", specifier = ">=2.28.0" },
-    { name = "rich", specifier = ">=10.0.0" },
-    { name = "scipy", specifier = ">=1.7.0" },
-    { name = "sexpdata", specifier = ">=0.0.3" },
-    { name = "twine", specifier = ">=6.1.0" },
-    { name = "types-pyyaml", marker = "extra == 'dev'", specifier = ">=6.0.0" },
-    { name = "uvicorn", specifier = ">=0.20.0" },
-]
-provides-extras = ["dev", "claude", "fast-generation", "test"]
-
-[package.metadata.requires-dev]
-dev = [
-    { name = "black", specifier = ">=25.1.0" },
-    { name = "build", specifier = ">=1.2.2.post1" },
-    { name = "flake8", specifier = ">=7.3.0" },
-    { name = "isort", specifier = ">=6.0.1" },
-    { name = "linkify-it-py", specifier = ">=2.0.3" },
-    { name = "myst-parser", specifier = ">=3.0.1" },
-    { name = "pytest-env", specifier = ">=1.1.5" },
-    { name = "sphinx", specifier = ">=7.4.7" },
-    { name = "sphinx-autodoc-typehints", specifier = ">=2.3.0" },
-    { name = "sphinx-rtd-theme", specifier = ">=3.0.2" },
-    { name = "twine", specifier = ">=6.1.0" },
-]
-test = [{ name = "pytest-asyncio", specifier = ">=1.1.0" }]
 
 [[package]]
 name = "claude-code-sdk"

@@ -1,0 +1,320 @@
+{
+  "R_ISENSE_IN": {
+    "value": "10k",
+    "provenance": "unsourced",
+    "derivation": "Placeholder - depends on current transformer ratio and desired 0-3V output range",
+    "inputs": {},
+    "margin": "TBD by simulator"
+  },
+  "R_ISENSE_FB": {
+    "value": "10k",
+    "provenance": "unsourced",
+    "derivation": "Placeholder - sets current sense amplifier gain = 1 + Rf/Rin = 2",
+    "inputs": {},
+    "margin": "TBD by simulator"
+  },
+  "R_ISENSE_SERIES": {
+    "value": "1k",
+    "provenance": "datasheet",
+    "reference": "LM358 datasheet SNOSC16D, input protection typical value",
+    "margin": "Standard input protection"
+  },
+  "C_ISENSE_FILTER": {
+    "value": "100pF",
+    "provenance": "research",
+    "derivation": "High-frequency noise filter on current sense input, fc = 1/(2πRC) ≈ 1.6MHz with 1kΩ series resistor",
+    "inputs": {"R_series": "1k"},
+    "margin": "Well above switching frequency, removes EMI"
+  },
+  "C_ISENSE_BYPASS": {
+    "value": "100nF",
+    "provenance": "datasheet",
+    "reference": "LM358 datasheet SNOSC16D section on supply bypassing",
+    "margin": "Standard op-amp bypass"
+  },
+  "R_VDIV_UPPER": {
+    "value": "10k",
+    "provenance": "datasheet",
+    "reference": "TL431 datasheet SLVS056J Figure 37, voltage divider for feedback",
+    "margin": "Standard value"
+  },
+  "R_VDIV_LOWER": {
+    "value": "2.7k",
+    "provenance": "first_principles",
+    "derivation": "TL431 regulates REF to 2.5V. For 12V output: Vout × R2/(R1+R2) = 2.5V → R2 = 2.5V × R1 / (Vout - 2.5V) = 2.5 × 10k / 9.5 = 2.63kΩ, nearest E24 = 2.7kΩ",
+    "inputs": {"Vout": "12V", "Vref": "2.5V", "R1": "10k"},
+    "margin": "Actual setpoint: 12V × 2.7k/12.7k = 2.55V (2% high, acceptable)"
+  },
+  "C_COMP_FB": {
+    "value": "100nF",
+    "provenance": "datasheet",
+    "reference": "TL431 datasheet SLVS056J Figure 37, Type 2 compensation capacitor",
+    "margin": "Typical value for voltage loop zero"
+  },
+  "R_LED_LIMIT": {
+    "value": "1k",
+    "provenance": "datasheet",
+    "reference": "PC817 datasheet, LED forward current I_LED = (Vout - Vf_TL431 - Vf_LED) / R = (12 - 2.5 - 1.2) / 1k = 8.3mA",
+    "inputs": {"Vout": "12V", "Vf_TL431": "2.5V", "Vf_LED": "1.2V"},
+    "margin": "PC817 rated to 50mA, operating at 17%"
+  },
+  "R_OPTO_PULLUP": {
+    "value": "10k",
+    "provenance": "datasheet",
+    "reference": "PC817 datasheet typical application, collector pull-up for CTR=50% gives ~4mA collector current",
+    "margin": "Adequate for TL072 input (pA bias current)"
+  },
+  "R_ERR_FB": {
+    "value": "100k",
+    "provenance": "unsourced",
+    "derivation": "Placeholder - Type 2 error amplifier feedback resistor, sets DC gain and zero frequency",
+    "inputs": {},
+    "margin": "TBD by loop stability analysis"
+  },
+  "C_ERR_ZERO": {
+    "value": "10nF",
+    "provenance": "unsourced",
+    "derivation": "Placeholder - Type 2 error amplifier zero capacitor, f_zero = 1/(2π × R_ERR_FB × C_ERR_ZERO)",
+    "inputs": {},
+    "margin": "TBD by loop stability analysis"
+  },
+  "R_ERR_POLE": {
+    "value": "10k",
+    "provenance": "unsourced",
+    "derivation": "Placeholder - Type 2 error amplifier high-frequency pole resistor",
+    "inputs": {},
+    "margin": "TBD by loop stability analysis"
+  },
+  "C_ERR_POLE": {
+    "value": "100nF",
+    "provenance": "unsourced",
+    "derivation": "Placeholder - Type 2 error amplifier high-frequency pole capacitor",
+    "inputs": {},
+    "margin": "TBD by loop stability analysis"
+  },
+  "C_ERR_BYPASS": {
+    "value": "100nF",
+    "provenance": "datasheet",
+    "reference": "TL072 datasheet, standard supply bypass",
+    "margin": "Low-ESR ceramic"
+  },
+  "R_VCO_TIMING": {
+    "value": "100k",
+    "provenance": "datasheet",
+    "reference": "CD4046 datasheet SCHS097D Figure 13, timing resistor for 100-500kHz range",
+    "derivation": "f = (Vin - 0.5V) / (R × C × VDD). For VDD=15V, R=100k, C=1nF: f(Vin=2V)=100kHz, f(Vin=10V)=633kHz",
+    "inputs": {"VDD": "15V", "C": "1nF", "f_min": "100kHz", "f_max": "500kHz"},
+    "margin": "Frequency range 100-633kHz covers LLC resonant range"
+  },
+  "C_VCO_TIMING": {
+    "value": "1nF",
+    "provenance": "datasheet",
+    "reference": "CD4046 datasheet SCHS097D Figure 13, timing capacitor calculated for frequency range",
+    "margin": "C0G/NP0 ceramic for frequency stability"
+  },
+  "R_VCO_FILTER": {
+    "value": "10k",
+    "provenance": "research",
+    "derivation": "Low-pass filter on VCO input to reduce jitter, fc = 1/(2π × 10k × 10nF) = 1.6kHz",
+    "inputs": {"C": "10nF"},
+    "margin": "Well below switching frequency, filters high-frequency noise"
+  },
+  "C_VCO_FILTER": {
+    "value": "10nF",
+    "provenance": "research",
+    "derivation": "VCO input filter capacitor, fc = 1.6kHz (see R_VCO_FILTER)",
+    "inputs": {"R": "10k"},
+    "margin": "Reduces frequency jitter"
+  },
+  "C_VCO_BYPASS": {
+    "value": "100nF",
+    "provenance": "datasheet",
+    "reference": "CD4046 datasheet, standard supply bypass",
+    "margin": "Low-ESR ceramic"
+  },
+  "R_RAMP_IN": {
+    "value": "100k",
+    "provenance": "datasheet",
+    "reference": "LM358 datasheet Figure 31 integrator circuit, input resistor sets ramp slope dV/dt = Vin/(R×C) = 15V/(100k×10nF) = 1.5 V/µs",
+    "inputs": {"Vin": "15V (VCO swing)", "C": "10nF"},
+    "margin": "At 250kHz (4µs period): ramp amplitude = 6V (clamped to 5V by diode)"
+  },
+  "C_RAMP_INTEG": {
+    "value": "10nF",
+    "provenance": "datasheet",
+    "reference": "LM358 datasheet Figure 31 integrator circuit, integration capacitor",
+    "margin": "C0G/NP0 for linearity"
+  },
+  "R_SUM_ISENSE": {
+    "value": "10k",
+    "provenance": "research",
+    "derivation": "Summing resistor for current sense signal, equal values give 1:1 weighting",
+    "inputs": {},
+    "margin": "Balanced summing network"
+  },
+  "R_SUM_RAMP": {
+    "value": "10k",
+    "provenance": "research",
+    "derivation": "Summing resistor for slope compensation ramp, matched to R_SUM_ISENSE for equal weighting",
+    "inputs": {},
+    "margin": "Slope compensation amplitude = 50% of current sense for stability"
+  },
+  "R_COMP_PULLUP": {
+    "value": "10k",
+    "provenance": "datasheet",
+    "reference": "LM393 datasheet, open-collector output pull-up resistor",
+    "margin": "Standard value for logic-level output"
+  },
+  "R_COMP_IN_POS": {
+    "value": "1k",
+    "provenance": "research",
+    "derivation": "Input protection resistor for comparator positive input",
+    "inputs": {},
+    "margin": "Limits current in case of overvoltage"
+  },
+  "R_COMP_IN_NEG": {
+    "value": "1k",
+    "provenance": "research",
+    "derivation": "Input protection resistor for comparator negative input",
+    "inputs": {},
+    "margin": "Limits current in case of overvoltage"
+  },
+  "C_COMP_BYPASS": {
+    "value": "100nF",
+    "provenance": "datasheet",
+    "reference": "LM393 datasheet, standard supply bypass",
+    "margin": "Low-ESR ceramic"
+  },
+  "R_LATCH_PULLUP": {
+    "value": "10k",
+    "provenance": "datasheet",
+    "reference": "74HC74 datasheet, CLR input pull-up (active low, default high)",
+    "margin": "Weak pull-up, easily overridden by comparator"
+  },
+  "C_LATCH_BYPASS": {
+    "value": "100nF",
+    "provenance": "datasheet",
+    "reference": "74HC74 datasheet, standard supply bypass",
+    "margin": "Low-ESR ceramic"
+  },
+  "R_DEAD_HI": {
+    "value": "470",
+    "provenance": "first_principles",
+    "derivation": "Dead-time delay: t = R × C × 0.7 = 470Ω × 100pF × 0.7 = 33ns (minimum for GaN FETs)",
+    "inputs": {"C": "100pF", "t_dead_min": "33ns"},
+    "margin": "GaN FETs typically require 20-50ns dead-time"
+  },
+  "C_DEAD_HI": {
+    "value": "100pF",
+    "provenance": "first_principles",
+    "derivation": "Dead-time delay capacitor (see R_DEAD_HI)",
+    "inputs": {"R": "470", "t_dead": "33ns"},
+    "margin": "C0G/NP0 for timing accuracy"
+  },
+  "R_DEAD_LO": {
+    "value": "470",
+    "provenance": "first_principles",
+    "derivation": "Dead-time delay, matched to R_DEAD_HI for symmetric delays",
+    "inputs": {"C": "100pF", "t_dead_min": "33ns"},
+    "margin": "Symmetric dead-time prevents shoot-through"
+  },
+  "C_DEAD_LO": {
+    "value": "100pF",
+    "provenance": "first_principles",
+    "derivation": "Dead-time delay capacitor, matched to C_DEAD_HI",
+    "inputs": {"R": "470", "t_dead": "33ns"},
+    "margin": "C0G/NP0 for timing accuracy"
+  },
+  "C_DEADTIME_BYPASS": {
+    "value": "100nF",
+    "provenance": "datasheet",
+    "reference": "74HC00 datasheet, standard supply bypass",
+    "margin": "Low-ESR ceramic"
+  },
+  "C_BOOT": {
+    "value": "100nF",
+    "provenance": "datasheet",
+    "reference": "IR2110 datasheet PD60147-O Figure 1, bootstrap capacitor C_BOOT ≥ Qg(total) / ΔV_allowed = 10nC / 1V = 10nF, use 100nF for 10× margin",
+    "inputs": {"Qg_GaN": "10nC (typical)", "Vdroop_allowed": "1V"},
+    "margin": "10× margin for reliable bootstrap refresh"
+  },
+  "C_VCC_BULK": {
+    "value": "10uF",
+    "provenance": "datasheet",
+    "reference": "IR2110 datasheet PD60147-O, bulk capacitor for inrush current during high-side turn-on",
+    "margin": "Low-ESR electrolytic or ceramic"
+  },
+  "C_VCC_BYPASS": {
+    "value": "100nF",
+    "provenance": "datasheet",
+    "reference": "IR2110 datasheet PD60147-O, ceramic bypass close to VCC pin",
+    "margin": "Low-ESR ceramic"
+  },
+  "C_VDD_BYPASS": {
+    "value": "100nF",
+    "provenance": "datasheet",
+    "reference": "IR2110 datasheet PD60147-O, VDD bypass capacitor close to pin",
+    "margin": "Low-ESR ceramic"
+  },
+  "C_COM_BYPASS": {
+    "value": "100nF",
+    "provenance": "datasheet",
+    "reference": "IR2110 datasheet PD60147-O, COM bypass capacitor",
+    "margin": "Low-ESR ceramic"
+  },
+  "R_GATE_HI": {
+    "value": "10",
+    "provenance": "unsourced",
+    "derivation": "Placeholder - gate series resistor to control dI/dt and reduce ringing, depends on GaN FET Qg and desired rise time",
+    "inputs": {},
+    "margin": "TBD by simulator based on FET characteristics"
+  },
+  "R_GATE_LO": {
+    "value": "10",
+    "provenance": "unsourced",
+    "derivation": "Placeholder - gate series resistor for low-side FET, matched to R_GATE_HI",
+    "inputs": {},
+    "margin": "TBD by simulator"
+  },
+  "R_PD_HIN": {
+    "value": "100k",
+    "provenance": "research",
+    "derivation": "Pull-down on HIN for noise immunity during startup (not in minimal datasheet schematic but good practice)",
+    "inputs": {},
+    "margin": "Weak pull-down, easily overridden by logic output"
+  },
+  "R_PD_LIN": {
+    "value": "100k",
+    "provenance": "research",
+    "derivation": "Pull-down on LIN for noise immunity, matched to R_PD_HIN",
+    "inputs": {},
+    "margin": "Prevents spurious turn-on"
+  },
+  "R_SD_PULLUP": {
+    "value": "10k",
+    "provenance": "datasheet",
+    "reference": "IR2110 datasheet PD60147-O, SD input pull-up (active low shutdown, pulled high for normal operation)",
+    "margin": "Can be overridden by ENABLE signal"
+  },
+  "D_BOOT": {
+    "value": "UF4007",
+    "provenance": "datasheet",
+    "reference": "IR2110 datasheet PD60147-O Figure 1, fast recovery diode (trr < 50ns) for bootstrap charging",
+    "inputs": {"trr": "50ns max"},
+    "margin": "UF4007 trr = 75ns (acceptable), consider UF4004 (trr = 35ns) for improvement"
+  },
+  "D_RAMP_CLAMP": {
+    "value": "1N4148",
+    "provenance": "research",
+    "derivation": "Fast switching diode to clamp ramp output at +5V, prevents saturation of integrator",
+    "inputs": {},
+    "margin": "Small signal diode adequate for low-current clamp"
+  },
+  "Q_RAMP_RESET": {
+    "value": "2N7002",
+    "provenance": "research",
+    "derivation": "Small-signal N-channel MOSFET for ramp reset switch, driven by 74HC14 output (0-15V)",
+    "inputs": {"Vgs": "15V", "Id": "<1mA"},
+    "margin": "Low Qg for fast switching, discharges 10nF integration cap in <10ns"
+  }
+}

@@ -1,0 +1,60 @@
+{
+  "Cr": {
+    "value": "100nF",
+    "provenance": "unsourced",
+    "derivation": "Initial estimate for fr ~ 250kHz with Lr ~ 25µH. Exact value to be determined by simulation.",
+    "inputs": {
+      "target_fr": "250kHz",
+      "estimated_Lr": "25µH"
+    },
+    "margin": "To be determined by simulation",
+    "notes": "Placeholder value. Simulation will optimize for resonant frequency and regulation range."
+  },
+  "Lr": {
+    "value": "25µH",
+    "provenance": "unsourced",
+    "derivation": "Initial estimate for fr ~ 250kHz with Cr ~ 100nF. Typically integrated as transformer leakage inductance.",
+    "inputs": {
+      "target_fr": "250kHz",
+      "estimated_Cr": "100nF",
+      "integration": "transformer leakage inductance (no discrete component)"
+    },
+    "margin": "To be determined by simulation",
+    "notes": "Placeholder value. This inductance is designed into the transformer, not a discrete component. Simulation will determine exact requirement."
+  },
+  "Rsense": {
+    "value": "10mΩ",
+    "provenance": "first_principles",
+    "derivation": "Signal level vs. power loss trade-off. At 8A RMS: V = I×R = 8A × 10mΩ = 80mV (adequate for differential amplifier). P = I²R = 64 × 0.01 = 0.64W (acceptable loss).",
+    "inputs": {
+      "I_rms_max": "8A",
+      "min_signal": "50mV",
+      "max_power_loss": "1W"
+    },
+    "margin": "80mV signal provides good SNR. 0.64W < 1W power budget. Can increase to 20mΩ if more signal needed.",
+    "notes": "Conservative starting point. Simulation may adjust based on actual current waveform and amplifier requirements."
+  },
+  "fr_resonant": {
+    "value": "250kHz",
+    "provenance": "first_principles",
+    "derivation": "fr = 1 / (2π√(Lr×Cr)) = 1 / (2π√(25e-6 × 100e-9)) = 318kHz. Target 250kHz requires adjustment.",
+    "inputs": {
+      "Lr_initial": "25µH",
+      "Cr_initial": "100nF"
+    },
+    "margin": "Frequency will be adjusted via component values to achieve target. Operating range typically 100-500kHz for regulation.",
+    "notes": "Initial calculation shows ~318kHz. Simulation will optimize Lr and Cr for target fr = 250kHz."
+  },
+  "Q_quality_factor": {
+    "value": "0.4",
+    "provenance": "research",
+    "derivation": "Target Q = 0.3-0.5 for good regulation range (per TI SLUP263). Q = √(Lr/Cr) / Rac",
+    "inputs": {
+      "Lr": "25µH",
+      "Cr": "100nF",
+      "Rac_estimated": "40Ω reflected to primary"
+    },
+    "margin": "Q in range 0.3-0.5 provides good regulation without excessive frequency variation",
+    "notes": "Rac depends on load and transformer ratio. Simulation will calculate actual Q at operating point."
+  }
+}

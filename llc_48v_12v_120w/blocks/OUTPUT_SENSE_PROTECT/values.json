@@ -1,0 +1,129 @@
+{
+  "RSHUNT": {
+    "value": "10mΩ",
+    "provenance": "datasheet",
+    "reference": "INA180 datasheet SBOS518, typical application with high-side sensing",
+    "derivation": "Vsense = I_max × Rs = 10A × 0.01Ω = 100mV. Within INA180 common-mode range, provides good SNR.",
+    "inputs": {
+      "I_max": "10A",
+      "Vsense_target": "100mV",
+      "power_rating": "2W"
+    },
+    "margin": "2× power rating (1W dissipated at 10A, 2W rated)"
+  },
+  "INA180_gain": {
+    "value": "A1 variant (G=25 V/V)",
+    "provenance": "first_principles",
+    "derivation": "Vout = Vsense × G. Need Vout < 3.3V at I_max=10A. With Rs=10mΩ: Vout = 10A × 0.01Ω × 25 = 2.5V < 3.3V ✓",
+    "inputs": {
+      "I_max": "10A",
+      "Rs": "10mΩ",
+      "ADC_Vmax": "3.3V"
+    },
+    "margin": "24% margin below ADC limit (2.5V / 3.3V = 0.76)"
+  },
+  "R_VSENSE_H": {
+    "value": "27kΩ",
+    "provenance": "first_principles",
+    "derivation": "Voltage divider ratio = R_L / (R_H + R_L) = 0.270 for 12V → 3.24V. Standard E12 values 27k and 10k give ratio 10/(27+10) = 0.270.",
+    "inputs": {
+      "Vin": "12V",
+      "Vout_target": "3.24V (within 3.3V ADC range)"
+    },
+    "margin": "2% margin below ADC limit"
+  },
+  "R_VSENSE_L": {
+    "value": "10kΩ",
+    "provenance": "first_principles",
+    "derivation": "See R_VSENSE_H. Forms 0.270 divider ratio with 27kΩ upper resistor.",
+    "inputs": {
+      "Vin": "12V",
+      "Vout": "3.24V"
+    },
+    "margin": "Quiescent current 324µA is negligible"
+  },
+  "C_ISENSE_BYPASS": {
+    "value": "100nF",
+    "provenance": "datasheet",
+    "reference": "INA180 datasheet SBOS518 § 8.2.1, power supply bypass capacitor",
+    "inputs": {},
+    "margin": "Standard bypass value for op-amp ICs"
+  },
+  "C_ISENSE_FILT": {
+    "value": "100nF",
+    "provenance": "datasheet",
+    "reference": "INA180 datasheet SBOS518 § 8.2.1, optional output filter",
+    "derivation": "Reduces ADC input noise. Cutoff frequency with RP2040 ADC input impedance (~10kΩ) is fc = 1/(2π×10k×100nF) ≈ 160Hz, adequate for DC measurements.",
+    "inputs": {
+      "R_adc": "10kΩ (RP2040 internal)"
+    },
+    "margin": "Filters switching noise while preserving DC accuracy"
+  },
+  "C_VSENSE_FILT": {
+    "value": "100nF",
+    "provenance": "first_principles",
+    "derivation": "Low-pass filter with divider resistance: fc = 1/(2π×37kΩ×100nF) ≈ 43Hz. Removes switching noise.",
+    "inputs": {
+      "R_total": "37kΩ (27k + 10k)"
+    },
+    "margin": "Slow enough to filter noise, fast enough for monitoring (23ms time constant)"
+  },
+  "R_OVP_PU": {
+    "value": "10kΩ",
+    "provenance": "datasheet",
+    "reference": "LM393 datasheet SLCS161, typical pull-up for open-collector output",
+    "inputs": {},
+    "margin": "Standard value"
+  },
+  "R_OVP_HYST": {
+    "value": "100kΩ",
+    "provenance": "research",
+    "reference": "TI app note SLVA863, comparator hysteresis design",
+    "derivation": "Hysteresis = Vref × (R_pullup / R_hyst) ≈ 3.3V × (10k/100k) = 330mV ≈ 10% hysteresis prevents oscillation.",
+    "inputs": {
+      "Vref": "3.3V",
+      "R_pullup": "10kΩ"
+    },
+    "margin": "PLACEHOLDER - needs sourcing, may use series 10kΩ resistors"
+  },
+  "OVP_threshold": {
+    "value": "13.2V (110% of 12V nominal)",
+    "provenance": "first_principles",
+    "derivation": "At 13.2V: VSENSE_DIV = 13.2V × 0.270 = 3.56V > Vref (3.3V), comparator trips.",
+    "inputs": {
+      "Vnom": "12V",
+      "tolerance": "10%"
+    },
+    "margin": "Trips at 10% overvoltage"
+  },
+  "R_LED": {
+    "value": "10kΩ",
+    "provenance": "first_principles",
+    "derivation": "I_LED = (V_FB - V_LED) / R = (12V - 1.2V) / 10kΩ = 1.08mA. Lower than typical 5mA but adequate for PC817 CTR at 50-200%.",
+    "inputs": {
+      "V_FB": "12V",
+      "V_LED": "1.2V",
+      "I_LED_target": "1-5mA"
+    },
+    "margin": "DEVIATION: 1mA instead of 5mA saves power, CTR still adequate"
+  },
+  "R_TEMP_TOP": {
+    "value": "10kΩ",
+    "provenance": "first_principles",
+    "derivation": "Forms voltage divider with 10kΩ NTC thermistor. At 25°C (R_NTC=10k): V_mid = 1.65V. At 80°C (R_NTC≈1.5k): V_mid ≈ 2.87V.",
+    "inputs": {
+      "R_NTC_25C": "10kΩ",
+      "Vcc": "3.3V"
+    },
+    "margin": "Provides good voltage swing over operating temperature range"
+  },
+  "C_TEMP_FILT": {
+    "value": "10nF",
+    "provenance": "first_principles",
+    "derivation": "Tau = R × C = 10kΩ × 10nF = 100µs. Fast enough for temperature (slow thermal constant), slow enough to filter electrical noise.",
+    "inputs": {
+      "R_divider": "10kΩ (parallel combination)"
+    },
+    "margin": "PLACEHOLDER - needs sourcing"
+  }
+}

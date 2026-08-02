@@ -1,0 +1,127 @@
+{
+  "block_name": "RP2040_TELEMETRY",
+  "description": "RP2040 microcontroller for LLC converter telemetry monitoring (NOT control loop). 8-channel ADC monitoring + USB interface.",
+  "ports": {
+    "power": {
+      "IOVDD_3V3": {
+        "type": "input",
+        "electrical": "power",
+        "voltage": "3.3V",
+        "current_max": "200mA",
+        "description": "3.3V I/O supply from AUX_SUPPLY_5V_3V3 block"
+      }
+    },
+    "usb": {
+      "USB_DP": {
+        "type": "bidirectional",
+        "electrical": "differential_signal",
+        "description": "USB D+ data line (to USB_INTERFACE block)"
+      },
+      "USB_DM": {
+        "type": "bidirectional",
+        "electrical": "differential_signal",
+        "description": "USB D- data line (to USB_INTERFACE block)"
+      }
+    },
+    "adc_inputs": {
+      "ADC_VIN_SENSE": {
+        "type": "input",
+        "electrical": "analog",
+        "voltage_range": "0-3.3V",
+        "description": "Input voltage sensing (48V divided down)"
+      },
+      "ADC_VOUT_SENSE": {
+        "type": "input",
+        "electrical": "analog",
+        "voltage_range": "0-3.3V",
+        "description": "Output voltage sensing (12V divided down)"
+      },
+      "ADC_IOUT_SENSE": {
+        "type": "input",
+        "electrical": "analog",
+        "voltage_range": "0-3.3V",
+        "description": "Output current sensing (0-10A from shunt amplifier)"
+      },
+      "ADC_TEMP_PRIMARY": {
+        "type": "input",
+        "electrical": "analog",
+        "voltage_range": "0-3.3V",
+        "description": "Primary FET temperature sensor input"
+      },
+      "ADC_TEMP_SECONDARY": {
+        "type": "input",
+        "electrical": "analog",
+        "voltage_range": "0-3.3V",
+        "description": "Secondary FET temperature sensor input"
+      },
+      "ADC_TEMP_XFMR": {
+        "type": "input",
+        "electrical": "analog",
+        "voltage_range": "0-3.3V",
+        "description": "Transformer temperature sensor input"
+      },
+      "ADC_EFFICIENCY": {
+        "type": "input",
+        "electrical": "analog",
+        "voltage_range": "0-3.3V",
+        "description": "Efficiency measurement input (Pin vs Pout calculation)"
+      },
+      "ADC_SPARE": {
+        "type": "input",
+        "electrical": "analog",
+        "voltage_range": "0-3.3V",
+        "description": "Spare ADC input for future expansion"
+      }
+    },
+    "debug": {
+      "SWCLK": {
+        "type": "input",
+        "electrical": "digital",
+        "description": "SWD clock input from debug probe"
+      },
+      "SWDIO": {
+        "type": "bidirectional",
+        "electrical": "digital",
+        "description": "SWD data I/O from debug probe"
+      },
+      "RUN_RESET": {
+        "type": "output",
+        "electrical": "digital",
+        "description": "RUN/RESET signal to debug header (allows external reset)"
+      }
+    }
+  },
+  "internal_components": {
+    "U1": "RP2040 microcontroller (QFN-56)",
+    "U2": "W25Q16JV 2MB QSPI flash",
+    "Y1": "12MHz crystal for USB",
+    "SW1": "BOOTSEL button",
+    "SW2": "RESET button",
+    "J1": "2×3 SWD debug header"
+  },
+  "power_consumption": {
+    "typical": {
+      "iovdd_3v3": "50-100mA",
+      "core_1v1": "30-50mA (internal from VREG)",
+      "notes": "Varies with CPU activity. USB active adds ~10mA. ADC sampling adds ~5mA."
+    },
+    "maximum": {
+      "iovdd_3v3": "200mA",
+      "core_1v1": "100mA (internal from VREG)",
+      "notes": "Both cores at 133MHz, USB active, ADC continuous sampling"
+    }
+  },
+  "notes": [
+    "RP2040 is for MONITORING ONLY - does NOT close LLC control loop",
+    "Control loop is handled by discrete analog circuitry (DISCRETE_LLC_CONTROLLER)",
+    "All 8 ADC channels monitor converter telemetry for logging and display",
+    "USB interface provides real-time data streaming to host PC",
+    "Firmware can calculate efficiency, log waveforms, detect faults",
+    "SWD debug interface allows firmware programming and debugging"
+  ],
+  "reference_documents": [
+    "RP2040 Datasheet RP-008371-DS-1",
+    "Hardware Design with RP2040 Guide",
+    "W25Q16JV Flash Datasheet"
+  ]
+}
