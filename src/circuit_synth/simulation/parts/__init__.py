@@ -25,10 +25,10 @@ starting point, not a citation.
 import logging
 from dataclasses import dataclass, field
 from types import ModuleType
-from typing import Callable, Dict, List, Optional
+from typing import Callable, Dict, List, Optional, Tuple
 
 from ..validation import ValidationReport
-from . import tl072, tps7a49, tps62130
+from . import irf3205, tl072, tps7a49, tps62130
 
 logger = logging.getLogger(__name__)
 
@@ -61,6 +61,12 @@ class PartModel:
         fitted: True when any coefficient was fitted rather than published.
             Worth surfacing: a fitted model is only as good as the condition it
             was validated at.
+        exact_prefixes: Order-code prefixes that are the validated device
+            despite not starting with ``validated_part``. Needed where a single
+            letter changes the package rather than the reel: IRF3205S is the
+            IRF3205 die in a D2PAK, so it shares every electrical number and
+            not the thermal ones - which for that model is the whole subject.
+            Empty means ``validated_part`` is the only exact match.
     """
 
     prefix: str
@@ -71,6 +77,7 @@ class PartModel:
     check: Callable[[], ValidationReport]
     gaps: Callable[[], List[str]]
     fitted: bool = False
+    exact_prefixes: Tuple[str, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -138,6 +145,21 @@ REGISTRY: Dict[str, PartModel] = {
         check=tl072.check,
         gaps=tl072.gaps,
     ),
+    "IRF3205": PartModel(
+        prefix="IRF3205",
+        validated_part="IRF3205",
+        document="PD-94791B",
+        summary="55V power MOSFET: on-resistance against junction "
+        "temperature, and the junction temperature a current settles at",
+        module=irf3205,
+        check=irf3205.check,
+        gaps=irf3205.gaps,
+        # IRF3205PbF is the same TO-220 part, lead-free. IRF3205S and IRF3205L
+        # are the same die in D2PAK and TO-262, and are deliberately left out:
+        # this model's subject is the thermal path, and that is precisely what
+        # the package changes.
+        exact_prefixes=("IRF3205P",),
+    ),
     # The family prefix is deliberately one digit short of the validated part:
     # TPS62130/1/2/3 are the same silicon with different feedback arrangements,
     # so the mechanisms carry across and the numbers have to be re-read. A
@@ -182,7 +204,15 @@ def find(part_number: str) -> Optional[Match]:
         return None
 
     model = max(candidates, key=lambda item: len(_normalise(item.prefix)))
-    exact = wanted.startswith(_normalise(model.validated_part))
+    if model.exact_prefixes:
+        # Prefix matching cannot say "this code and these suffixes but not that
+        # one", so where a letter changes the package the bare part number has
+        # to match outright and every acceptable suffix be named.
+        exact = wanted == _normalise(model.validated_part) or any(
+            wanted.startswith(_normalise(item)) for item in model.exact_prefixes
+        )
+    else:
+        exact = wanted.startswith(_normalise(model.validated_part))
     if not exact:
         logger.info(
             "%s matched the %s model by family, not exactly",

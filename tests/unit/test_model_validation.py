@@ -237,6 +237,115 @@ def test_the_unsourceable_parameter_is_declared():
     assert any("not published" in gap for gap in tps62130.gaps())
 
 
+def test_the_mosfet_matches_the_ratings_on_its_own_front_page():
+    """Four ratings, none of which the model was built from.
+
+    The model is built from the normalised resistance curve, the 25C
+    on-resistance and the thermal resistances. The dissipation limit, the
+    derating factor and the two continuous current ratings are all
+    consequences of the temperature loop rather than inputs to it.
+    """
+    from circuit_synth.simulation.parts import irf3205
+
+    report = irf3205.check()
+
+    assert report.passed, report.summary()
+    assert len(report.out_of_sample) == 4
+
+
+def test_on_resistance_more_than_doubles_over_the_rated_range():
+    """The mechanism every earlier model here declared it did not have.
+
+    A part sized on its 25C resistance is undersized by this factor, which is
+    what makes the loop worth solving rather than approximating.
+    """
+    from circuit_synth.simulation.parts import irf3205
+
+    cold = irf3205.on_resistance(25.0)
+    hot = irf3205.on_resistance(175.0)
+
+    assert hot / cold == pytest.approx(2.2, abs=0.05)
+
+
+def test_the_junction_temperature_is_solved_not_calculated():
+    """Dissipation depends on the temperature it produces.
+
+    Using the 25C resistance would understate the temperature rise, and the
+    gap grows with current - which is the whole point of solving for a fixed
+    point instead of evaluating a formula once.
+    """
+    from circuit_synth.simulation.parts import irf3205
+
+    solved = irf3205.junction_temperature(80.0, 25.0, irf3205.RTH_JC)
+    naive_rise = 80.0**2 * irf3205.RDS_ON_25 * irf3205.RTH_JC
+
+    assert solved.converged
+    assert solved.junction_temperature > 25.0 + naive_rise
+    # And the temperature it settled at is the one that reproduces itself.
+    implied = 25.0 + solved.dissipation * irf3205.RTH_JC
+    assert implied == pytest.approx(solved.junction_temperature, abs=0.5)
+
+
+def test_thermal_runaway_is_a_result_and_not_an_error():
+    """Above some current no temperature reproduces itself.
+
+    The device heats faster than the path carries heat away at every
+    temperature the datasheet describes. Returning a number anyway - or
+    raising - would both be wrong; the finding is that there is no operating
+    point.
+    """
+    from circuit_synth.simulation.parts import irf3205
+
+    survives = irf3205.junction_temperature(10.0, 25.0, irf3205.RTH_JA)
+    runs_away = irf3205.junction_temperature(15.0, 25.0, irf3205.RTH_JA)
+
+    assert survives.converged and survives.within_rating
+    assert not runs_away.converged
+    assert "no stable junction temperature" in runs_away.note
+
+
+def test_the_headline_current_needs_a_case_held_at_25c():
+    """110A is at TC = 25C, which is an infinite heatsink.
+
+    The same part in free air carries about a tenth of that. This is the
+    number a design actually needs and the one the front page does not give.
+    """
+    from circuit_synth.simulation.parts import irf3205
+
+    on_a_cold_case = irf3205.max_continuous_current(25.0, irf3205.RTH_JC)
+    in_free_air = irf3205.max_continuous_current(25.0, irf3205.RTH_JA)
+
+    assert on_a_cold_case > 100.0
+    assert in_free_air < 13.0
+
+
+def test_the_model_refuses_to_extrapolate_past_its_curve():
+    """The curve is the only source for the coefficient.
+
+    Past its ends there is nothing in the document to extrapolate from, and a
+    silently extrapolated number would look exactly like a measured one.
+    """
+    from circuit_synth.simulation.parts import irf3205
+
+    with pytest.raises(ValueError, match="outside Figure 4"):
+        irf3205.on_resistance(200.0)
+
+
+def test_the_published_current_ratings_contradict_each_other():
+    """Their ratio is fixed by thermal headroom alone and has no freedom.
+
+    sqrt((175-25)/(175-100)) is sqrt(2); the published 110/80 is 1.375. No
+    single on-resistance reproduces both, so the model is fitted to neither.
+    """
+    from circuit_synth.simulation.parts import irf3205
+
+    published_ratio = irf3205.ID_AT_25C / irf3205.ID_AT_100C
+    required_ratio = 2.0**0.5
+
+    assert abs(published_ratio - required_ratio) / required_ratio > 0.02
+    assert "sqrt(2)" in irf3205.rating_inconsistency()
+
+
 def test_an_order_code_finds_the_model_for_its_part():
     """A block holds an order code, not the family name the model is filed under.
 
@@ -269,6 +378,20 @@ def test_a_family_member_matches_but_says_it_is_not_the_same_part():
     assert not match.exact
     assert "is not TPS62130" in match.caveat()
     assert "SLVSAG7F" in match.caveat()
+
+
+def test_a_package_variant_is_not_the_validated_device():
+    """A letter that changes the package is not a reel suffix.
+
+    IRF3205S is the same die in a D2PAK. Every electrical number carries over
+    and the thermal ones do not - which for a model whose subject is the
+    thermal path is the entire question, so it must not come back exact.
+    """
+    from circuit_synth.simulation.parts import find
+
+    assert find("IRF3205PBF").exact  # lead-free, same TO-220
+    assert not find("IRF3205SPBF").exact  # D2PAK
+    assert not find("IRF3205LPBF").exact  # TO-262
 
 
 def test_a_part_nobody_has_modelled_returns_nothing():

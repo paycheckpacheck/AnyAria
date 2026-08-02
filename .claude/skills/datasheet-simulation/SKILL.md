@@ -117,9 +117,15 @@ The full procedure, with a worked example that gets within 2% of published
 values on four out-of-sample points, is in
 [MODEL_FROM_DATASHEET.md](MODEL_FROM_DATASHEET.md). The short version:
 
+0. **Ask whether the model already exists.** `simulation.parts.find(mpn)` takes
+   an order code and returns a checked model, or nothing. Building a second one
+   by hand is how two answers for one part get into a design.
 1. Take the specification table first - it is text, so it can be read exactly.
-2. Render the typical-characteristic figures and *look* at them; record the
-   reading accuracy along with the points.
+2. Get the figures. **Try `page.get_drawings()` before rendering**: most
+   datasheet plots are vector art, so the curve is in the file as coordinates
+   and can be read exactly rather than by eye. Reading one off a 300 dpi render
+   was 8% out where the vectors were right. Where there are no vectors, render,
+   *look*, and record the reading accuracy with each point.
 3. **Split the data before fitting.** Build from the curve, judge with the
    table, or the other way round - never both. Mark each `ReferencePoint`
    `in_sample` or not.
@@ -127,7 +133,11 @@ values on four out-of-sample points, is in
    mechanism rather than adding parameters.
 5. Ask the model for something it was not told. If it can only reproduce its
    own inputs it is a lookup table.
-6. Give it a `check()` that runs in a test, so it says when it has drifted.
+6. Where the answer depends on itself - dissipation setting a temperature that
+   sets the dissipation - solve for the fixed point rather than evaluating once
+   at 25C, and treat "no fixed point" as the result it is.
+7. Give it a `check()` that runs in a test, so it says when it has drifted, and
+   add it to `REGISTRY` so the next agent finds it instead of rebuilding it.
 
 
 One class per part, from the datasheet's own table. `input_threshold` is the

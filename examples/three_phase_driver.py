@@ -442,6 +442,24 @@ def half_bridge(
     MCU's ADC. The back-EMF sensing for this phase is a nested BackEmf block,
     so instantiating this block three times gives three of everything a phase
     needs and nothing has to be written out per phase anywhere else.
+
+    **The sense range promises more current than the power stage can carry.**
+    A 5 mohm shunt into a gain of 20 is 0.1 V/A, so the 3.3V ADC reads to 33A
+    full scale - and that is the number firmware would take as its limit. The
+    thermal model of the IRF3205 (``simulation.parts.irf3205``) says otherwise.
+    At 50% duty on a board offering 40 C/W from junction to ambient, 20A
+    already settles at 149C, and above roughly 21A there is no stable junction
+    temperature at all: on-resistance rises with temperature, which raises the
+    dissipation, which raises the temperature again. Even a good pour at
+    20 C/W only reaches 29A.
+
+    So either the shunt should be sized to the stage rather than to the ADC, or
+    firmware has to enforce a limit the hardware does not, or the thermal path
+    has to be part of the specification instead of an outcome. Recorded rather
+    than silently changed: which of the three is right is the board owner's
+    call. Note also that the IRF3205 is the TO-220 part and this footprint is
+    D2PAK - the IRF3205S - so the junction-to-ambient figure has to come from
+    the board, never from the datasheet.
     """
     driver = Component(
         symbol="Driver_FET:IR2101",

@@ -34,14 +34,51 @@ Record the conditions with the value. A dropout voltage without its load
 current is not a number, and a PSRR without its frequency and its capacitors is
 not either.
 
-## 3. Then read the curves
+## 3. Then read the curves - and try the vectors before your eyes
 
-Curves carry the shape the table cannot. Find them, render them, and **look at
-them** - this is one of the places where reading an image is the tool for the
-job.
+Curves carry the shape the table cannot. Before rendering anything, check
+whether the figure is vector art, because most datasheet plots are, and then
+the curve is *in the file* as coordinates rather than as an image of
+coordinates.
 
 ```python
 import fitz
+page = fitz.open('part.pdf')[2]
+for i, d in enumerate(page.get_drawings()):
+    print(i, d['rect'], len(d['items']), d.get('width'))
+```
+
+The plot is a cluster of drawings sharing one rectangle: a frame, some
+gridlines, and one path with far more segments than the rest. That path is the
+data. Map it through the axes and you have the curve to the precision it was
+plotted at:
+
+```python
+X0, X1, Y0, Y1 = 351.1, 520.6, 423.8, 593.3      # the frame, from its rect
+T = lambda x: -60 + (x - X0) / (X1 - X0) * 240   # axis min .. max
+R = lambda y: 2.5 * (Y1 - y) / (Y1 - Y0)
+```
+
+**Check the calibration against the gridlines**, which are drawings too. If
+they come back at -40.0, -20.0, 0.0, 20.0 and not at -39.6, -19.1, 1.2, the
+mapping is right and every point you extract is right with it.
+
+This is worth the extra step. The IRF3205's normalised resistance curve read
+off a 300 dpi render put the 100C point at 1.38; the vector path says 1.505.
+An 8% error, invisible, and it would have gone into every prediction built on
+it. Log axes are worse, because a small pixel error near a decade boundary is
+a large error in the value.
+
+Two things the vectors will not give you. Markers are separate glyphs, so the
+curve's own endpoints can sit a few tenths off the round number they were drawn
+for - the IRF3205's 175C point maps to 174.85C, and the one at 25C, where
+normalisation makes the value exactly 1, maps to 25.02C. That slop is the
+plotting software, not the data, and it is fair to snap to the intended value
+and say you did. And a figure that is a scanned bitmap has no vectors at all.
+
+For those, render and read:
+
+```python
 fitz.open('part.pdf')[8].get_pixmap(dpi=200).save('fig.png')
 ```
 
@@ -196,6 +233,54 @@ If there is no such condition available, say the coefficient is unvalidated.
 One fitted parameter with an out-of-sample check is a model; one fitted
 parameter without one is a curve fit, and the difference matters when somebody
 uses it at a condition you never tried.
+
+## 6c. When the answer depends on itself, solve for it
+
+Some parts have no operating point you can evaluate. A power MOSFET's
+on-resistance rises with junction temperature, the dissipation is I²R, and the
+junction temperature is set by that dissipation - so the answer is an input to
+its own calculation.
+
+Do not break the loop by evaluating it once at 25C. That is not a small error
+and it is not conservative in a knowable direction: the IRF3205 at 175C has
+2.2 times its 25C resistance, so a part sized on the specification table is
+undersized by that factor exactly when it matters.
+
+Find the value that reproduces itself:
+
+```python
+def settles_at(temperature):
+    return reference + duty * current**2 * on_resistance(temperature) * rth
+
+# f(T) = settles_at(T) - T starts positive. A root is an operating point.
+```
+
+Bisection is enough, and it is better than iterating the loop directly,
+because a diverging iteration and a slowly converging one look the same for the
+first several passes.
+
+**The interesting case is when there is no root.** Above some current the
+device heats faster than the path carries heat away, at every temperature the
+datasheet describes. That is thermal runaway. It is a result:
+
+```python
+if settles_at(curve_max) - curve_max > 0:
+    return ThermalSolution(converged=False, note="no stable junction temperature ...")
+```
+
+Neither raising nor returning a number is right. Raising says the model failed;
+it did not, it answered. Returning the last iterate says the part runs at that
+temperature; it does not. Return the finding.
+
+Say what you cannot distinguish, too. Once the curve runs out you cannot tell
+runaway from a stable point above the rated maximum - and you do not need to,
+because both mean the design is wrong. Write that down rather than picking one.
+
+The same shape turns up wherever a loss depends on the state it produces:
+regulator efficiency against die temperature, a battery's internal resistance
+against its own heating, an LED's forward voltage against junction temperature
+on a fixed-current driver. Once one part in a design has it, everything sharing
+its heatsink has it too.
 
 ## 7. Write down what it does not represent
 
