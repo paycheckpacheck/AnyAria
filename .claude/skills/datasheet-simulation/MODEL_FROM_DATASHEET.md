@@ -229,6 +229,42 @@ TPS7A49 against its datasheet:
   -> matches; 4 of 6 point(s) were out of sample
 ```
 
+## 9. Register it, or nobody will find it
+
+A model that lives in a file nobody looks up gets rebuilt by the next agent to
+meet the part, by hand, without the checking. Two models of one part give two
+answers for one design, and nothing in the flow compares them.
+
+Add an entry to `REGISTRY` in `circuit_synth/simulation/parts/__init__.py`:
+
+```python
+"TPS7A49": PartModel(
+    prefix="TPS7A49",              # what an order code is matched against
+    validated_part="TPS7A4901",    # the exact device check() was run on
+    document="SBVS121E",
+    summary="low-noise LDO: rejection against frequency, dropout against load",
+    module=tps7a49,
+    check=tps7a49.check,
+    gaps=tps7a49.gaps,
+    fitted=False,                  # true if any coefficient was fitted
+),
+```
+
+Two things to get right, and they pull against each other:
+
+- **The prefix decides who finds it.** Order codes carry package and reel
+  suffixes the model knows nothing about, so match on the family. Set it one
+  digit short of the validated part when the neighbouring devices are the same
+  silicon - a TPS62133 should find the TPS62130 model rather than nothing.
+- **`validated_part` decides who is warned.** Anything matching the prefix but
+  not this string comes back with `exact=False` and a caveat naming the
+  document to go and read. That is what keeps a family match from quietly
+  becoming a citation.
+
+`check_all()` then runs every registered model in the test suite, so a model
+that stops matching its datasheet fails a test rather than going on being
+believed.
+
 ## Choosing tolerances
 
 A tolerance is a claim too, so pick it from what the number is:

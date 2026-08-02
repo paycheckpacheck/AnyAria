@@ -132,6 +132,23 @@ def model(name: str = "U_LDO", input_net: str = "VIN", output_net: str = "VOUT")
     )
 
 
+def gaps() -> List[str]:
+    """What this model does not represent, and why.
+
+    Returns:
+        One line per gap.
+    """
+    return [
+        "load-step response: the datasheet gives a transient figure but not "
+        "the loop bandwidth needed to reproduce its shape",
+        "the reference noise density comes from SBVA033, a companion "
+        "application note, not from the datasheet itself",
+        "temperature: every value here is at TJ = 25C, and the dropout fit "
+        "in particular moves with junction temperature",
+        "start-up and NR/SS ramp timing are not modelled",
+    ]
+
+
 def predict_dropout(current: float) -> float:
     """Predict dropout voltage at a load.
 

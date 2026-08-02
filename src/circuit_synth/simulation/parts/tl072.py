@@ -105,6 +105,25 @@ def inconsistency() -> str:
     )
 
 
+def gaps() -> List[str]:
+    """What this model does not represent, and why.
+
+    Returns:
+        One line per gap.
+    """
+    return [
+        "input offset and bias current: modelled as ideal, so the model says "
+        "nothing about DC accuracy in a high-impedance divider",
+        "noise: the datasheet gives a voltage noise density but the model "
+        "does not carry it, so this is not a noise model",
+        "output loading: every published figure is at RL = 10k and CL = 20pF, "
+        "and a heavier load changes both the phase margin and the slew limit",
+        "the published 2V settling times contradict each other; see "
+        "inconsistency()",
+        "temperature: every value here is at TA = 25C",
+    ]
+
+
 def reference_points() -> List[ReferencePoint]:
     """The published values this model has to reproduce.
 

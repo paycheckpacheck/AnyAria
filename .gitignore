@@ -61,7 +61,11 @@ debug_*/
 test_hierarchical.py
 test_hierarchical/
 power_supply_module/
-agents/
+# Runtime logs only - this is ./agents/{hook_logs,security_logs}. It must stay
+# anchored: as a bare pattern it also swallowed .claude/agents/, so every agent
+# definition design-board dispatches was invisible to git and a fresh clone got
+# a skill that spawns agents which are not there.
+/agents/
 release.log
 tests/unit/test_hierarchical_decorator.py
 tests/unit/test_issue_538_regression.py

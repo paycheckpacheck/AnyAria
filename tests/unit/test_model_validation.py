@@ -235,3 +235,81 @@ def test_the_unsourceable_parameter_is_declared():
 
     assert any("fitted" in gap for gap in tps62130.gaps())
     assert any("not published" in gap for gap in tps62130.gaps())
+
+
+def test_an_order_code_finds_the_model_for_its_part():
+    """A block holds an order code, not the family name the model is filed under.
+
+    Nothing else in the flow would notice a simulator rebuilding a model that
+    already exists, and two hand-built models of the same part give two
+    different answers for one design.
+    """
+    from circuit_synth.simulation.parts import find
+
+    match = find("TPS7A4901DGNR")
+
+    assert match is not None
+    assert match.model.validated_part == "TPS7A4901"
+    assert match.exact
+    assert match.caveat() is None
+
+
+def test_a_family_member_matches_but_says_it_is_not_the_same_part():
+    """Prefix matching is what makes this useful and how it gets a wrong answer.
+
+    A TPS62133 is the TPS62130's silicon with a different feedback arrangement,
+    so the mechanisms carry across and the numbers must be re-read. Returning
+    it silently as a match would put an unchecked number in a report.
+    """
+    from circuit_synth.simulation.parts import find
+
+    match = find("TPS62133RGTR")
+
+    assert match is not None
+    assert not match.exact
+    assert "is not TPS62130" in match.caveat()
+    assert "SLVSAG7F" in match.caveat()
+
+
+def test_a_part_nobody_has_modelled_returns_nothing():
+    """Better an honest gap than the nearest model in the catalogue."""
+    from circuit_synth.simulation.parts import find
+
+    assert find("LM317T") is None
+    assert find("") is None
+
+
+def test_every_registered_model_still_matches_its_datasheet():
+    """The check that stops a model rotting quietly.
+
+    Each model passed when it was written. This is what notices when one stops
+    passing - a refactor, a constant edited to make some other number work, or
+    a datasheet revision nobody read.
+    """
+    from circuit_synth.simulation.parts import check_all
+
+    reports = check_all()
+
+    assert reports
+    for prefix, report in reports.items():
+        assert report.passed, f"{prefix}: {report.summary()}"
+
+
+def test_every_registered_model_says_what_it_does_not_cover():
+    """A model with no stated gaps is claiming to be the part."""
+    from circuit_synth.simulation.parts import REGISTRY
+
+    for prefix, model in REGISTRY.items():
+        assert model.gaps(), f"{prefix} declares no gaps"
+        assert model.document, f"{prefix} cites no document"
+
+
+def test_the_catalogue_flags_a_fitted_model_as_fitted():
+    """An agent choosing whether to trust a model needs that on the same page."""
+    from circuit_synth.simulation.parts import catalogue
+
+    text = catalogue()
+
+    assert "TPS62130" in text
+    assert "one coefficient was fitted" in text
+    assert "out of sample" in text
