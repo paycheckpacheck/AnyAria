@@ -271,12 +271,17 @@ def _check_spice(root_schematic: Path) -> CheckResult:
     Returns:
         The result.
     """
-    from .kicad.spice_hygiene import deck_is_simulatable, deck_loads
+    from .kicad.spice_hygiene import check_deck, deck_is_simulatable
 
     name = "SPICE deck loads"
-    loaded, detail = deck_loads(root_schematic)
-    if not loaded:
-        return CheckResult(name, False, detail)
+    outcome = check_deck(root_schematic)
+    if not outcome.loaded:
+        return CheckResult(name, False, outcome.detail)
+    # "Nothing ran the deck" is not "the deck is fine", and reporting it as a
+    # pass is how this check came to be believed on a machine where no
+    # simulator had ever loaded anything.
+    if not outcome.checked:
+        return CheckResult(name, True, outcome.reason, skipped=True)
 
     # Loading and being worth running are different things, and reporting only
     # the first is how somebody ends up opening an empty simulator.

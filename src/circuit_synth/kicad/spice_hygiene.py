@@ -362,7 +362,30 @@ def _is_spice_number(token: str) -> bool:
     return bool(re.match(r"^[+-]?(\d+\.?\d*|\.\d+)([A-Za-z]*)$", token))
 
 
-def deck_loads(root_schematic: Path, work_dir: Optional[Path] = None) -> Tuple[bool, str]:
+@dataclass(frozen=True)
+class DeckCheck:
+    """What happened when the deck was checked, including "nothing".
+
+    The three-way distinction is the point. "The deck loads" and "nothing
+    tried to load the deck" are different facts, and collapsing them into one
+    boolean is how a report comes to say a project's SPICE deck is fine on a
+    machine where no simulator ever ran - which is exactly what this one said
+    for as long as ngspice looked unavailable here.
+
+    Attributes:
+        loaded: Whether the deck loaded. Meaningless when ``checked`` is False.
+        detail: The first complaint when it did not load, otherwise empty.
+        checked: Whether anything actually ran the deck.
+        reason: Why it was not checked, when it was not.
+    """
+
+    loaded: bool
+    detail: str = ""
+    checked: bool = True
+    reason: str = ""
+
+
+def check_deck(root_schematic: Path, work_dir: Optional[Path] = None) -> DeckCheck:
     """Export the project's SPICE deck and check ngspice will load it.
 
     Args:
@@ -370,10 +393,41 @@ def deck_loads(root_schematic: Path, work_dir: Optional[Path] = None) -> Tuple[b
         work_dir: Where to write the deck. Defaults to the project directory.
 
     Returns:
-        A ``(loaded, detail)`` pair. ``detail`` carries the first error when it
-        did not load, and is empty when it did. Returns ``(True, "")`` when
-        neither tool is installed, since an absent tool is not a defect in the
-        schematic.
+        The outcome, which says whether anything ran as well as what it found.
+    """
+    result = _check_deck(root_schematic, work_dir)
+    if not result.checked:
+        logger.info("SPICE deck not checked: %s", result.reason)
+    return result
+
+
+def deck_loads(root_schematic: Path, work_dir: Optional[Path] = None) -> Tuple[bool, str]:
+    """Whether the project's SPICE deck loads, as a pair.
+
+    Prefer :func:`check_deck`, which says whether anything ran. This is kept
+    for callers that only want the two-way answer, and it treats "could not
+    check" as "no defect found", which is true and is not the same as "fine".
+
+    Args:
+        root_schematic: The project's root ``.kicad_sch``.
+        work_dir: Where to write the deck. Defaults to the project directory.
+
+    Returns:
+        A ``(loaded, detail)`` pair.
+    """
+    result = check_deck(root_schematic, work_dir)
+    return result.loaded, result.detail
+
+
+def _check_deck(root_schematic: Path, work_dir: Optional[Path] = None) -> DeckCheck:
+    """Do the work for :func:`check_deck`.
+
+    Args:
+        root_schematic: The project's root ``.kicad_sch``.
+        work_dir: Where to write the deck.
+
+    Returns:
+        The outcome.
     """
     import shutil
     import subprocess
@@ -382,7 +436,11 @@ def deck_loads(root_schematic: Path, work_dir: Optional[Path] = None) -> Tuple[b
 
     cli = find_kicad_cli()
     if cli is None:
-        return True, ""
+        return DeckCheck(
+            loaded=True,
+            checked=False,
+            reason="kicad-cli is not installed, so no deck was exported",
+        )
 
     deck = (work_dir or root_schematic.parent) / "spice_check.cir"
     export = subprocess.run(
@@ -391,13 +449,16 @@ def deck_loads(root_schematic: Path, work_dir: Optional[Path] = None) -> Tuple[b
         capture_output=True, text=True, timeout=900, check=False,
     )
     if not deck.exists():
-        return False, f"the deck would not export: {export.stderr[-300:]}"
+        return DeckCheck(
+            loaded=False,
+            detail=f"the deck would not export: {export.stderr[-300:]}",
+        )
 
     # Read the deck before running anything: this catches the failures we know
     # about even where ngspice is only present as a library.
     static = deck_problems(deck.read_text(encoding="utf-8"))
     if static:
-        return False, static[0]
+        return DeckCheck(loaded=False, detail=static[0])
 
     ngspice = shutil.which("ngspice")
     if ngspice is not None:
@@ -411,8 +472,8 @@ def deck_loads(root_schematic: Path, work_dir: Optional[Path] = None) -> Tuple[b
                 line = next(
                     (item for item in output.splitlines() if marker in item), marker
                 )
-                return False, line.strip()
-        return True, ""
+                return DeckCheck(loaded=False, detail=line.strip())
+        return DeckCheck(loaded=True)
 
     # No ngspice program. That is the normal case on a KiCad install, which
     # ships the simulator as a library only - and taking it as "nothing to
@@ -423,7 +484,9 @@ def deck_loads(root_schematic: Path, work_dir: Optional[Path] = None) -> Tuple[b
 
     result = run_deck(deck.read_text(encoding="utf-8"), commands=(), vectors=())
     if result.error and "no ngspice this process can load" in result.error:
-        return True, ""
+        return DeckCheck(loaded=True, checked=False, reason=result.error)
     if not result.ok:
-        return False, result.error or "the deck would not load"
-    return True, ""
+        return DeckCheck(
+            loaded=False, detail=result.error or "the deck would not load"
+        )
+    return DeckCheck(loaded=True)
