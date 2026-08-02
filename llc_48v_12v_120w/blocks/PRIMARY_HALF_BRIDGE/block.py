@@ -48,6 +48,10 @@ def primary_half_bridge(HI_IN, LO_IN, SW_OUT, VCC_12V, VDD_5V):
     # =========================================================================
     # Note: Using generic symbol - actual part from JLCPCB catalog TBD
 
+    # Power nets (global)
+    gnd = Net("GND")    # Ground reference
+    v_bus_48v = Net("V_BUS_48V")  # 48V bus
+
     # Internal nets for gate driver
     net_vs = Net("VS")  # Floating supply return (connects to switching node)
     net_vb = Net("VB")  # Bootstrap supply voltage
@@ -68,7 +72,7 @@ def primary_half_bridge(HI_IN, LO_IN, SW_OUT, VCC_12V, VDD_5V):
 
     # Pin connections per IR2110 datasheet
     u_driver[1] += net_lo           # LO: Low-side driver output
-    u_driver[2] += "GND"            # COM: Power ground
+    u_driver[2] += gnd              # COM: Power ground
     u_driver[3] += VCC_12V          # VCC: +12V supply
     u_driver[5] += net_vs           # VS: Floating supply return
     u_driver[6] += net_vb           # VB: Bootstrap supply
@@ -76,7 +80,7 @@ def primary_half_bridge(HI_IN, LO_IN, SW_OUT, VCC_12V, VDD_5V):
     u_driver[9] += VDD_5V           # VDD: +5V logic supply
     u_driver[10] += HI_IN           # HIN: High-side input
     u_driver[12] += LO_IN           # LIN: Low-side input
-    u_driver[13] += "GND"           # VSS: Logic ground
+    u_driver[13] += gnd             # VSS: Logic ground
     # Pins 4, 8, 11, 14: NC (no connect) or specific functions per datasheet
 
     # =========================================================================
@@ -110,8 +114,8 @@ def primary_half_bridge(HI_IN, LO_IN, SW_OUT, VCC_12V, VDD_5V):
         LCSC="C_TBD",
         MPN="TBD",
     )
-    d_boot.pin["K"] += net_vb      # Cathode to VB
-    d_boot.pin["A"] += VCC_12V     # Anode to VCC (charges Cboot when VS low)
+    d_boot["K"] += net_vb      # Cathode to VB
+    d_boot["A"] += VCC_12V     # Anode to VCC (charges Cboot when VS low)
 
     # VCC bypass capacitors (close to IC pins)
     c_vcc_ceramic = Component(
@@ -123,7 +127,7 @@ def primary_half_bridge(HI_IN, LO_IN, SW_OUT, VCC_12V, VDD_5V):
         dielectric="X7R",
     )
     c_vcc_ceramic[1] += VCC_12V
-    c_vcc_ceramic[2] += "GND"
+    c_vcc_ceramic[2] += gnd
 
     c_vcc_bulk = Component(
         symbol="Device:C",
@@ -134,7 +138,7 @@ def primary_half_bridge(HI_IN, LO_IN, SW_OUT, VCC_12V, VDD_5V):
         dielectric="X5R",
     )
     c_vcc_bulk[1] += VCC_12V
-    c_vcc_bulk[2] += "GND"
+    c_vcc_bulk[2] += gnd
 
     # VDD bypass capacitor
     c_vdd = Component(
@@ -146,7 +150,7 @@ def primary_half_bridge(HI_IN, LO_IN, SW_OUT, VCC_12V, VDD_5V):
         dielectric="X7R",
     )
     c_vdd[1] += VDD_5V
-    c_vdd[2] += "GND"
+    c_vdd[2] += gnd
 
     # =========================================================================
     # Power MOSFETs: Q1 (high-side), Q2 (low-side)
@@ -169,9 +173,9 @@ def primary_half_bridge(HI_IN, LO_IN, SW_OUT, VCC_12V, VDD_5V):
         Id="80A",
         Rds_on="5.3mΩ",
     )
-    q1.pin["G"] += net_q1_gate      # Gate (after Rgate)
-    q1.pin["D"] += "V_BUS_48V"      # Drain to high voltage bus
-    q1.pin["S"] += net_vs           # Source to switching node (also VS for bootstrap)
+    q1["G"] += net_q1_gate      # Gate (after Rgate)
+    q1["D"] += v_bus_48v        # Drain to high voltage bus
+    q1["S"] += net_vs           # Source to switching node (also VS for bootstrap)
 
     # Q2: Low-side MOSFET
     q2 = Component(
@@ -186,9 +190,9 @@ def primary_half_bridge(HI_IN, LO_IN, SW_OUT, VCC_12V, VDD_5V):
         Id="80A",
         Rds_on="5.3mΩ",
     )
-    q2.pin["G"] += net_q2_gate      # Gate (after Rgate)
-    q2.pin["D"] += net_vs           # Drain to switching node
-    q2.pin["S"] += "GND"            # Source to ground
+    q2["G"] += net_q2_gate      # Gate (after Rgate)
+    q2["D"] += net_vs           # Drain to switching node
+    q2["S"] += gnd              # Source to ground
 
     # Connect switching node to output port
     net_vs += SW_OUT
@@ -259,7 +263,7 @@ def primary_half_bridge(HI_IN, LO_IN, SW_OUT, VCC_12V, VDD_5V):
         power="0.1W",
     )
     r_sg_low[1] += net_q2_gate
-    r_sg_low[2] += "GND"        # Q2 source (ground)
+    r_sg_low[2] += gnd          # Q2 source (ground)
 
     # =========================================================================
     # Optional: Snubber Networks (evaluate during testing)
@@ -297,7 +301,7 @@ def primary_half_bridge(HI_IN, LO_IN, SW_OUT, VCC_12V, VDD_5V):
 
     # Snubber network in series: R then C
     net_snub_q1 = Net("SNUB_Q1")
-    r_snub_q1[1] += "V_BUS_48V"     # From Q1 drain
+    r_snub_q1[1] += v_bus_48v       # From Q1 drain
     r_snub_q1[2] += net_snub_q1
     c_snub_q1[1] += net_snub_q1
     c_snub_q1[2] += net_vs          # To Q1 source (switching node)
@@ -333,7 +337,7 @@ def primary_half_bridge(HI_IN, LO_IN, SW_OUT, VCC_12V, VDD_5V):
     r_snub_q2[1] += net_vs          # From Q2 drain (switching node)
     r_snub_q2[2] += net_snub_q2
     c_snub_q2[1] += net_snub_q2
-    c_snub_q2[2] += "GND"           # To Q2 source (ground)
+    c_snub_q2[2] += gnd             # To Q2 source (ground)
 
 
 # ============================================================================

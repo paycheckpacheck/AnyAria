@@ -66,8 +66,8 @@ def input_filter(VIN_FILT, VSENSE):
         MPN="CS1J101M-CRG10",
         instances=2  # C1, C2
     )
-    C_BULK["+"] += vin_raw
-    C_BULK["-"] += gnd
+    C_BULK["1"] += vin_raw  # Pin 1 is positive
+    C_BULK["2"] += gnd      # Pin 2 is negative
 
     # High-frequency ceramic bypass (10µF, 1206)
     C_HF_10U = Component(

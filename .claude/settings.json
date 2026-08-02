@@ -25,7 +25,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/dangerous_command_blocker.py",
+            "command": "uv run --no-project python \"$CLAUDE_PROJECT_DIR/.claude/hooks/dangerous_command_blocker.py\"",
             "timeout": 5
           }
         ]
@@ -35,7 +35,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/universal_hook_logger.py"
+            "command": "uv run --no-project python \"$CLAUDE_PROJECT_DIR/.claude/hooks/universal_hook_logger.py\""
           }
         ]
       }
@@ -46,7 +46,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/require_schematic_layout.py",
+            "command": "uv run --no-project python \"$CLAUDE_PROJECT_DIR/.claude/hooks/require_schematic_layout.py\"",
             "timeout": 5
           }
         ]
@@ -56,7 +56,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/universal_hook_logger.py"
+            "command": "uv run --no-project python \"$CLAUDE_PROJECT_DIR/.claude/hooks/universal_hook_logger.py\""
           }
         ]
       }
